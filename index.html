@@ -157,6 +157,7 @@
 
   <!-- ============ MENU ============ -->
   <div class="menu" id="menuScreen">
+    <button id="menuMuteBtn" onclick="toggleMute()" style="position:absolute; top:16px; right:16px; font-family:'VT323',monospace; font-size:15px; color:var(--parchment-line); background:rgba(10,11,26,0.6); border:1px solid var(--parchment-line); border-radius:5px; padding:4px 10px; cursor:pointer; z-index:5;">🔊</button>
     <div class="menu-head">
       <h1>STORY MODE</h1>
       <p>Watch it happen instead of reading it. Pick a scene.</p>
@@ -209,7 +210,10 @@
 
     <div class="topbar">
       <button onclick="backToMenu()">☰ Menu</button>
-      <button id="skipBtn" onclick="skipToEnd()">Skip ▸</button>
+      <div style="display:flex; gap:6px; pointer-events:auto;">
+        <button id="muteBtn" onclick="toggleMute()">🔊</button>
+        <button id="skipBtn" onclick="skipToEnd()">Skip ▸</button>
+      </div>
     </div>
 
     <div class="dialogue" id="dialogue" onclick="advance()">
@@ -707,6 +711,274 @@ const STORIES = [
     }},
   ]},
 
+{ id:'fourforms', title:'THE FOUR<br>REBUILDING PROMISES', hook:'HO-2 vs. HO-3 vs. HO-5 vs. HO-8, side by side.', icon:'🏘️', mood:'mood-warmnight', tag:'HO-2 / HO-3 / HO-5 / HO-8',
+  endRule:"HO-2 (Broad) is named-peril on both dwelling and contents. HO-3 (Special) is open-peril on the dwelling but named-peril / ACV on contents. HO-5 (Comprehensive) is open-peril on <b>both</b>. HO-8 (Modified) settles everything at <b>Actual Cash Value</b>, never replacement cost.",
+  beats:[
+    { speaker:'NARRATOR', text:"Four identical houses. Four different Homeowners forms. The same fire hits all of them tonight.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🏠',{label:'Four Houses, Four Forms'}); S.shake();
+    }},
+    { speaker:'NARRATOR', text:"House #1 carries an HO-2 — the Broad form.", enter(S){
+        S.icon('secondary','🏚️',{label:'HO-2 (Broad)'});
+    }},
+    { speaker:'NARRATOR', text:"Broad form means named-peril coverage on BOTH the dwelling and the contents — nothing open-ended here.", enter(S){
+        S.stamp('secondary','check','NAMED PERIL — BOTH');
+    }},
+    { speaker:'NARRATOR', text:"House #2 carries an HO-3 — the Special form. The most common policy out there.", enter(S){
+        S.icon('secondary','🏡',{label:'HO-3 (Special)'});
+    }},
+    { speaker:'NARRATOR', text:"Special form flips the structure: open-peril on the dwelling, but only named-peril coverage — at ACV — on the contents.", enter(S){
+        S.stamp('secondary','check','OPEN PERIL DWELLING / NAMED CONTENTS');
+    }},
+    { speaker:'NARRATOR', text:"House #3 carries an HO-5 — the Comprehensive form.", enter(S){
+        S.icon('secondary','🏠',{label:'HO-5 (Comprehensive)', anim:'glowgreen'});
+    }},
+    { speaker:'NARRATOR', text:"HO-5 is the only form that goes open-peril on EVERYTHING — dwelling and contents both.", enter(S){
+        S.stamp('secondary','check','OPEN PERIL — BOTH');
+    }},
+    { speaker:'NARRATOR', text:"House #4 carries an HO-8 — the Modified form, often used on older homes.", enter(S){
+        S.icon('secondary','🏚️',{label:'HO-8 (Modified)'});
+    }},
+    { speaker:'NARRATOR', text:"HO-8 settles every claim at Actual Cash Value — never replacement cost, no matter what's damaged.", enter(S){
+        S.stamp('secondary','x','ACV ONLY');
+        S.flash('FOUR FORMS, FOUR OUTCOMES','var(--gold)');
+    }},
+  ]},
+
+{ id:'personalinjury', title:'THE UNINVITED GUEST', hook:'The personal injury endorsement\u2014and its intent problem.', icon:'🧍', mood:'mood-stormred', tag:'Personal Injury Endorsement',
+  endRule:"The personal injury endorsement covers wrongful entry, libel, slander, invasion of privacy, and malicious prosecution — but never anything intentional. False arrest only counts if it happens by accident, not on purpose.",
+  beats:[
+    { speaker:'NARRATOR', text:"A homeowner adds a personal injury endorsement to her policy.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🧍',{label:'Personal Injury Endorsement'});
+    }},
+    { speaker:'NARRATOR', text:"A contractor barges into her yard without permission — wrongful entry.", enter(S){
+        S.icon('secondary','🚪',{label:'Wrongful Entry'}); S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"She's overheard saying something untrue and damaging about a neighbor — libel and slander.", enter(S){
+        S.icon('secondary','🗣️',{label:'Libel / Slander'}); S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"She has someone detained — but not by accident. She meant to do it.", enter(S){
+        S.icon('secondary','🚔',{label:'Intentional False Arrest', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"That one's different.", enter(S){
+        S.banner('⚠️ INTENT CHANGES EVERYTHING','');
+    }},
+    { speaker:'NARRATOR', text:"Personal injury coverage disappears the moment the act is intentional. An accidental false arrest could be covered — a deliberate one never is.", enter(S){
+        S.stamp('secondary','x','NOT COVERED');
+        S.flash('INTENTIONAL = EXCLUDED','var(--danger)');
+    }},
+  ]},
+
+{ id:'multiline', title:'WHAT THE PACKAGE<br>ACTUALLY PACKAGES', hook:'Homeowners bundling\u2014and the snowmobile exception.', icon:'📦', mood:'mood-warning', tag:'Multi-Line Package — Snowmobile',
+  endRule:"A Homeowners policy bundles property and liability together — but recreational vehicles like snowmobiles owned by the insured are excluded from the property side entirely, even though a dog bite or an abrupt roof collapse is covered.",
+  beats:[
+    { speaker:'NARRATOR', text:"A Homeowners policy is a package — property and liability, bundled into one.", enter(S){
+        S.mood('mood-warning'); S.icon('main','📦',{label:'Package Policy'});
+    }},
+    { speaker:'NARRATOR', text:"The roof suddenly caves in — covered.", enter(S){
+        S.icon('secondary','🏚️',{label:'Roof Collapse'}); S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"The dog bites a visitor — covered under liability.", enter(S){
+        S.icon('secondary','🐕',{label:'Dog Bite Liability'}); S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"Business equipment stored off-site gets damaged — covered, up to a limit.", enter(S){
+        S.icon('secondary','💼',{label:'Business Property Off-Site'}); S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"Then the insured's own snowmobile gets wrecked in the garage.", enter(S){
+        S.icon('secondary','🛷',{label:'Owned Snowmobile', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Recreational vehicles the insured owns aren't covered on the property side at all — only liability applies, and only when it's being used on an insured location.", enter(S){
+        S.stamp('secondary','x','NOT COVERED');
+        S.flash('RECREATIONAL VEHICLES EXCLUDED','var(--danger)');
+    }},
+  ]},
+
+{ id:'filingcabinet', title:'THE FILING CABINET', hook:'Section I vs. Section II\u2014what lives where.', icon:'🗄️', mood:'mood-bureau', tag:'Section I vs. Section II',
+  endRule:"Appraisal lives only in Section I (property) — liability disagreements go to arbitration instead. And personal injury, while real Section II coverage, isn't filed under \"additional coverages\" — that list is first aid, damage to property of others, and claims expenses.",
+  beats:[
+    { speaker:'NARRATOR', text:"Every Homeowners policy splits cleanly into two filing cabinets: Section I for property, Section II for liability.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','🗄️',{label:'Section I / Section II'});
+    }},
+    { speaker:'NARRATOR', text:"A property claim goes sideways — insurer and insured can't agree on the value of the loss.", enter(S){
+        S.icon('secondary','🏠',{label:'Property Disagreement'});
+    }},
+    { speaker:'NARRATOR', text:"They reach for Appraisal to settle it.", enter(S){
+        S.stamp('secondary','check','SECTION I ONLY');
+    }},
+    { speaker:'NARRATOR', text:"Try that same move on a liability disagreement, and it doesn't exist there — Section II uses Arbitration instead.", enter(S){
+        S.icon('secondary','⚖️',{label:'Liability Disagreement'});
+        S.stamp('secondary','x','NO APPRAISAL HERE');
+    }},
+    { speaker:'NARRATOR', text:"Meanwhile, over in Section II's \"additional coverages\" folder: first aid expenses, damage to property of others, claims expenses.", enter(S){
+        S.icon('secondary','📁',{label:'Additional Coverages'});
+        S.stamp('secondary','check','LISTED');
+    }},
+    { speaker:'NARRATOR', text:"Personal injury coverage is real, and it's really in Section II — it just isn't filed in that particular folder.", enter(S){
+        S.icon('secondary','🧍',{label:'Personal Injury', anim:'punch'});
+        S.stamp('secondary','x','DIFFERENT FOLDER');
+        S.flash('REAL COVERAGE, WRONG LIST','var(--danger)');
+    }},
+  ]},
+
+{ id:'worldwide', title:'THE WORLDWIDE<br>HANDSHAKE', hook:'Why Section II liability never stays home.', icon:'🌍', mood:'mood-stormred', tag:'Section II — Worldwide Reach',
+  endRule:"Section II liability is identical across every HO form — including HO-8. Personal (non-business) activities are covered worldwide, not just on the insured's premises.",
+  beats:[
+    { speaker:'NARRATOR', text:"A family with an HO-8 policy — an older, more basic form — heads out on vacation.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🧳',{label:'HO-8 Policy, On Vacation'});
+    }},
+    { speaker:'NARRATOR', text:"Two states away, the insured accidentally injures someone while golfing.", enter(S){
+        S.icon('secondary','⛳',{label:'Accident — Out of State', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Does an HO-8's liability coverage even reach that far?", enter(S){
+        S.banner('❓ WORLDWIDE OR PREMISES ONLY?','');
+    }},
+    { speaker:'NARRATOR', text:"Section II liability is identical across every single HO form — HO-8 included. None of them limit it to the property line.", enter(S){
+        S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"Personal, non-business activities are covered worldwide, full stop. What actually differs between HO forms is Section I — the property side, not liability.", enter(S){
+        S.flash('WORLDWIDE COVERAGE','var(--safe)');
+    }},
+  ]},
+
+{ id:'coveredproperty', title:'WHAT COUNTS AS<br>COVERED PROPERTY', hook:'Assistive vehicles, boarders, and property held for rent.', icon:'🦽', mood:'mood-medical', tag:'Section I \u2014 Covered vs. Excluded Property',
+  endRule:"Motorized vehicles are excluded from Section I — except ones designed to assist a handicapped person or ones that service the residence itself. Property held for rental elsewhere and a boarder's belongings are excluded outright; theirs is a job for a separate HO-4 policy.",
+  beats:[
+    { speaker:'NARRATOR', text:"Section I covers personal property — but a few categories get carved out entirely.", enter(S){
+        S.mood('mood-medical'); S.icon('main','📋',{label:'Section I — Personal Property'});
+    }},
+    { speaker:'NARRATOR', text:"A sofa the insured owns, sitting in a rental unit down the street.", enter(S){
+        S.icon('secondary','🛋️',{label:'Sofa at Rental Property', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Property held for rental elsewhere isn't covered under this policy.", enter(S){
+        S.stamp('secondary','x','EXCLUDED');
+    }},
+    { speaker:'NARRATOR', text:"A boarder living in the insured's home has his own belongings in his room.", enter(S){
+        S.icon('secondary','🎒',{label:'Boarder\u2019s Property'});
+    }},
+    { speaker:'NARRATOR', text:"Not covered either — a boarder needs his own HO-4 renter's policy for that.", enter(S){
+        S.stamp('secondary','x','EXCLUDED');
+    }},
+    { speaker:'NARRATOR', text:"But Grandma's motorized scooter, the one that helps her get around the house?", enter(S){
+        S.icon('secondary','🦽',{label:'Motorized Scooter (Assistive)', anim:'glowgreen'});
+    }},
+    { speaker:'NARRATOR', text:"That one's the exception. Vehicles designed to assist a handicapped person are covered — motorized doesn't automatically mean excluded.", enter(S){
+        S.stamp('secondary','check','COVERED');
+        S.flash('THE ASSISTIVE EXCEPTION','var(--safe)');
+    }},
+  ]},
+
+{ id:'termite', title:'THE SLOW-MOTION<br>TERMITE', hook:'Even open-peril coverage has a limit.', icon:'🐛', mood:'mood-warmnight', tag:'HO-5 — Known Deterioration',
+  endRule:"HO-5 is open-peril, but open-peril coverage is defined by what it excludes — and known, gradual deterioration like termite damage isn't covered once the insured had reason to know about it.",
+  beats:[
+    { speaker:'NARRATOR', text:"An HO-5 policy is about as broad as Homeowners coverage gets — open peril, on everything.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🏠',{label:'HO-5 — Comprehensive'});
+    }},
+    { speaker:'NARRATOR', text:"So when strange things happen — a fume explosion, even an alien spaceship landing on the roof — the open-peril structure covers it.", enter(S){
+        S.icon('secondary','🛸',{label:'The Unexpected'});
+        S.stamp('secondary','check','COVERED (OPEN PERIL)');
+    }},
+    { speaker:'NARRATOR', text:"But then: the insured notices wood shavings in the basement. For years. And does nothing about it.", enter(S){
+        S.icon('secondary','🪵',{label:'Wood Shavings — Ignored'});
+    }},
+    { speaker:'NARRATOR', text:"Eventually part of the structure collapses. Termite damage, the whole way through.", enter(S){
+        S.icon('secondary','🐛',{label:'Termite Collapse', anim:'shatter'});
+    }},
+    { speaker:'NARRATOR', text:"Open peril doesn't mean unlimited. Known, gradual deterioration the insured had reason to be aware of isn't a covered peril — no matter how open the form is.", enter(S){
+        S.stamp('secondary','x','NOT COVERED');
+        S.flash('KNOWN DAMAGE, NO COVERAGE','var(--danger)');
+    }},
+  ]},
+
+{ id:'daycare', title:'SOMEONE ELSE\'S KID', hook:'Where the Home Day Care endorsement actually reaches.', icon:'🛝', mood:'mood-medical', tag:'Home Day Care Endorsement',
+  endRule:"The Home Day Care endorsement extends Section II liability to day care activities on the insured's premises — but never off premises, never in a vehicle, and never for corporal punishment or other physical abuse.",
+  beats:[
+    { speaker:'NARRATOR', text:"A homeowner runs a small day care out of her house and adds the Home Day Care endorsement.", enter(S){
+        S.mood('mood-medical'); S.icon('main','🏠',{label:'Home Day Care Endorsement'});
+    }},
+    { speaker:'NARRATOR', text:"A child in her care falls off the swing set — right there on the premises.", enter(S){
+        S.icon('secondary','🛝',{label:'Swing Set — On Premises'});
+    }},
+    { speaker:'NARRATOR', text:"That's exactly the kind of everyday accident this endorsement exists for.", enter(S){
+        S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"Now picture a different case: she loses track of a child at a fast food play area, off premises entirely.", enter(S){
+        S.icon('secondary','🍔',{label:'Off Premises'});
+        S.stamp('secondary','x','NOT COVERED');
+    }},
+    { speaker:'NARRATOR', text:"Or an accident happens while she's driving a sick child to the doctor.", enter(S){
+        S.icon('secondary','🚗',{label:'In a Vehicle'});
+        S.stamp('secondary','x','NOT COVERED');
+    }},
+    { speaker:'NARRATOR', text:"Or worst of all — a child is hurt through corporal punishment while in her care.", enter(S){
+        S.icon('secondary','✋',{label:'Corporal Punishment', anim:'punch'});
+        S.stamp('secondary','x','NEVER COVERED');
+        S.flash('PREMISES ONLY, NEVER ABUSE','var(--danger)');
+    }},
+  ]},
+
+{ id:'medpay', title:'THE MEDICAL PAYMENTS<br>FINE PRINT', hook:'What Coverage F actually pays for.', icon:'🏥', mood:'mood-medical', tag:'Coverage F — Medical Payments',
+  endRule:"Coverage F (Medical Payments) pays up to $1,000 per person for injury to others, covering reasonable medical, surgical, ambulance, X-ray, and prosthetic device expenses — claims must be submitted within three years of the accident.",
+  beats:[
+    { speaker:'NARRATOR', text:"A visitor gets hurt on the insured's property. Coverage F — medical payments — kicks in.", enter(S){
+        S.mood('mood-medical'); S.icon('main','🏥',{label:'Coverage F — Medical Payments'});
+    }},
+    { speaker:'NARRATOR', text:"Ambulance ride to the hospital.", enter(S){
+        S.icon('secondary','🚑',{label:'Ambulance'}); S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"X-rays to check for a fracture.", enter(S){
+        S.icon('secondary','🩻',{label:'X-Ray'}); S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"Turns out the injury needs a prosthetic device to fully recover.", enter(S){
+        S.icon('secondary','🦿',{label:'Prosthetic Device', anim:'glowgreen'});
+    }},
+    { speaker:'NARRATOR', text:"That's covered too — reasonable medical, surgical, ambulance, X-ray, and prosthetic expenses are all part of this coverage part.", enter(S){
+        S.stamp('secondary','check','COVERED');
+        S.flash('$1,000 PER PERSON','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"One more detail worth knowing: the claim has to be submitted within three years of the accident, or the window closes.", enter(S){} },
+  ]},
+
+{ id:'watercraft', title:'WHOSE BOAT IS<br>IT ANYWAY', hook:'The size and horsepower limits on automatic watercraft liability.', icon:'⛵', mood:'mood-stormred', tag:'Automatic Watercraft Liability',
+  endRule:"Automatic watercraft liability on a Homeowners policy stops at outboard motors over 25 HP, any inboard the insured owns, and sailboats 26 feet or longer — a small rowboat sails right through, but a 30-foot sailboat doesn't.",
+  beats:[
+    { speaker:'NARRATOR', text:"A Homeowners policy quietly includes some automatic watercraft liability — but only within limits.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','⛵',{label:'Automatic Watercraft Liability'});
+    }},
+    { speaker:'NARRATOR', text:"A twelve-foot rowboat, out on the lake.", enter(S){
+        S.icon('secondary','🚣',{label:'Twelve-Foot Rowboat', anim:'glowgreen'});
+    }},
+    { speaker:'NARRATOR', text:"Small, simple, well within the limits.", enter(S){
+        S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"A thirty-foot sailboat, on the other hand.", enter(S){
+        S.icon('secondary','⛵',{label:'Thirty-Foot Sailboat', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Any sailboat 26 feet or longer falls outside automatic coverage — along with any inboard the insured owns, or an outboard over 25 horsepower.", enter(S){
+        S.stamp('secondary','x','TOO BIG');
+        S.flash('26 FEET IS THE LINE','var(--danger)');
+    }},
+  ]},
+
+{ id:'heatingsystem', title:'THE PERIL BOTH<br>FORMS SHARE', hook:'A named peril HO-2 and HO-3 have in common.', icon:'🏘️', mood:'mood-industrial', tag:'HO-2 & HO-3 — Shared Named Peril',
+  endRule:"Sudden and accidental rupture of a heating system is a named peril covered by both HO-2 and HO-3 — meanwhile, war is excluded from every property policy that exists, no exceptions.",
+  beats:[
+    { speaker:'NARRATOR', text:"Two neighbors, two different forms — one HO-2, one HO-3. Same freezing night.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🏘️',{label:'HO-2 & HO-3, Same Night'});
+    }},
+    { speaker:'NARRATOR', text:"Both furnaces suddenly rupture, spraying water through the basement.", enter(S){
+        S.icon('secondary','🔥',{label:'Heating System Rupture', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Sudden and accidental rupture of a heating system is a named peril on both forms — covered for both neighbors.", enter(S){
+        S.stamp('secondary','check','COVERED — BOTH FORMS');
+    }},
+    { speaker:'NARRATOR', text:"Now compare that to something far rarer on a real claim: a declared act of war damaging the property.", enter(S){
+        S.icon('secondary','💣',{label:'War', anim:'shatter'});
+    }},
+    { speaker:'NARRATOR', text:"War is excluded from literally every property policy, no matter the form, no matter the carrier.", enter(S){
+        S.stamp('secondary','x','ALWAYS EXCLUDED');
+        S.flash('NO POLICY COVERS WAR','var(--danger)');
+    }},
+  ]},
+
 ];
 
 /* ============================================================
@@ -752,9 +1024,71 @@ window.addEventListener('orientationchange', sizeGameScreen);
 sizeGameScreen();
 setTimeout(sizeGameScreen, 200); // catches late font/layout shifts
 
+/* ============================================================
+   AUDIO — a small Web Audio synth engine, no external files.
+   Every sound is generated on the fly so this stays self-contained.
+   ============================================================ */
+let audioCtx=null, sfxMuted=false;
+try{ sfxMuted = localStorage.getItem('storyModeMuted_v1')==='1'; }catch(e){}
+function ensureAudioCtx(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; }
+  }
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+function playTone(freq, startOffset, duration, type, gainVal){
+  if(sfxMuted) return;
+  const ctx=ensureAudioCtx();
+  if(!ctx) return;
+  try{
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type=type||'sine';
+    osc.frequency.value=freq;
+    const t0=ctx.currentTime+Math.max(0,startOffset);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(gainVal||0.08, t0+0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0+duration);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(t0); osc.stop(t0+duration+0.03);
+  }catch(e){}
+}
+function updateMuteButtons(){
+  const icon=sfxMuted?'🔇':'🔊';
+  const a=document.getElementById('muteBtn'); if(a) a.textContent=icon;
+  const b=document.getElementById('menuMuteBtn'); if(b) b.textContent=icon;
+}
+function toggleMute(){
+  sfxMuted=!sfxMuted;
+  try{ localStorage.setItem('storyModeMuted_v1', sfxMuted?'1':'0'); }catch(e){}
+  updateMuteButtons();
+  if(!sfxMuted) ensureAudioCtx();
+}
+updateMuteButtons();
+
+// ---- named sound effects, built from playTone ----
+function sfxCardSelect(){ playTone(392,0,0.05,'triangle',0.06); playTone(587,0.05,0.09,'triangle',0.07); }
+function sfxBack(){ playTone(330,0,0.06,'triangle',0.05); playTone(220,0.05,0.08,'triangle',0.05); }
+function sfxTypeBlip(){ playTone(320+Math.random()*90,0,0.035,'square',0.028); }
+function sfxBannerGood(){ playTone(523.25,0,0.08,'triangle',0.09); playTone(659.25,0.07,0.08,'triangle',0.09); playTone(783.99,0.14,0.16,'triangle',0.1); }
+function sfxBannerBad(){ playTone(220,0,0.09,'sawtooth',0.08); playTone(164.81,0.08,0.16,'sawtooth',0.07); }
+function sfxStampCheck(){ playTone(880,0,0.05,'square',0.08); playTone(1174.66,0.04,0.1,'square',0.08); }
+function sfxStampX(){ playTone(180,0,0.05,'sawtooth',0.08); playTone(120,0.04,0.12,'sawtooth',0.07); }
+function sfxFlashGood(){ playTone(1046.5,0,0.06,'triangle',0.08); playTone(1568,0.05,0.14,'triangle',0.08); }
+function sfxFlashBad(){ playTone(200,0,0.05,'sawtooth',0.07); playTone(140,0.04,0.14,'sawtooth',0.07); }
+function sfxShake(){ playTone(70,0,0.28,'sawtooth',0.06); playTone(48,0.03,0.32,'triangle',0.05); }
+function sfxComplete(){
+  playTone(523.25,0,0.1,'triangle',0.09); playTone(659.25,0.1,0.1,'triangle',0.09);
+  playTone(783.99,0.2,0.1,'triangle',0.09); playTone(1046.5,0.3,0.3,'triangle',0.11);
+}
+function sfxMeter(){ playTone(440,0,0.05,'square',0.05); }
+
 function loadStory(id){
+  ensureAudioCtx();
   currentStory = STORIES.find(s=>s.id===id);
   if(!currentStory) return;
+  sfxCardSelect();
   document.getElementById('menuScreen').style.display='none';
   document.getElementById('stageScreen').classList.add('active');
   document.getElementById('skipBtn').style.display='inline-block';
@@ -763,6 +1097,7 @@ function loadStory(id){
   playBeat(0);
 }
 function backToMenu(){
+  sfxBack();
   document.getElementById('stageScreen').classList.remove('active');
   document.getElementById('menuScreen').style.display='block';
   renderMenu();
@@ -771,7 +1106,12 @@ function backToMenu(){
 /* ---- typewriter ---- */
 function typeText(el, text, cb){
   typing=true; el.textContent=''; let i=0; clearInterval(typeTimer);
-  typeTimer=setInterval(()=>{ el.textContent+=text[i]; i++; if(i>=text.length){ clearInterval(typeTimer); typing=false; if(cb)cb(); } },18);
+  typeTimer=setInterval(()=>{
+    el.textContent+=text[i];
+    if(text[i] && text[i].trim() && i%2===0) sfxTypeBlip();
+    i++;
+    if(i>=text.length){ clearInterval(typeTimer); typing=false; if(cb)cb(); }
+  },18);
 }
 function finishTypeNow(el,text){ clearInterval(typeTimer); el.textContent=text; typing=false; }
 
@@ -787,10 +1127,12 @@ const S={
     em.textContent=emoji;
     wrap.className='icon-slot show'+(opts.anim?' '+opts.anim:'');
     if(opts.label){ lab.textContent=opts.label; lab.style.display='inline-block'; } else { lab.style.display='none'; }
+    if(opts.anim==='punch' || opts.anim==='shatter'){ playTone(300,0,0.06,'square',0.05); }
   },
   stamp(slot,type,text){
     const el=document.getElementById(slot==='main'?'stampMain':'stampSecondary');
     el.textContent=text; el.className='stamp '+type; void el.offsetWidth; el.classList.add('show');
+    if(type==='check') sfxStampCheck(); else sfxStampX();
   },
   meter(cfg){
     const box=document.getElementById('metersBox');
@@ -802,6 +1144,7 @@ const S={
       document.getElementById('meterTag2').textContent=cfg.tag2;
       document.getElementById('meterVal2').textContent=cfg.val2||'';
     }
+    sfxMeter();
     setTimeout(()=>{
       document.getElementById('meterFill1').style.width=(cfg.pct1||0)+'%';
       if(cfg.tag2) document.getElementById('meterFill2').style.width=(cfg.pct2||0)+'%';
@@ -815,6 +1158,7 @@ const S={
     document.getElementById('bannerMain').style.color='var(--danger)';
     document.getElementById('bannerSub').textContent=sub||'';
     b.classList.add('show');
+    sfxBannerBad();
     setTimeout(()=>b.classList.remove('show'),1500);
   },
   formula(title,lines){
@@ -824,20 +1168,22 @@ const S={
     const wrap=document.getElementById('formulaLines');
     wrap.innerHTML='';
     card.classList.add('show');
+    playTone(660,0,0.06,'triangle',0.06);
     lines.forEach((ln,i)=>{
       const d=document.createElement('div');
       d.className='formula-line'+(ln.cls?' '+ln.cls:'');
       d.innerHTML=ln.text;
       wrap.appendChild(d);
-      setTimeout(()=>d.classList.add('show'), 250+i*350);
+      setTimeout(()=>{ d.classList.add('show'); playTone(500+i*160,0,0.07,'triangle',0.06); }, 250+i*350);
     });
   },
   flash(text,color){
     const el=document.getElementById('flashTxt');
     el.textContent=text; el.style.color=color||'var(--gold)';
     el.classList.remove('fly'); void el.offsetWidth; el.classList.add('fly');
+    if(color==='var(--danger)') sfxFlashBad(); else sfxFlashGood();
   },
-  shake(){ shakeScreen(); }
+  shake(){ shakeScreen(); sfxShake(); }
 };
 function buildParticles(){
   const p=document.getElementById('particles');
@@ -887,10 +1233,12 @@ function showEnd(){
   markWatched(currentStory.id);
   document.getElementById('endTitle').textContent='✓ SCENE COMPLETE';
   document.getElementById('endRule').innerHTML=currentStory.endRule;
+  sfxComplete();
   setTimeout(()=>document.getElementById('endCard').classList.add('show'),300);
 }
 function skipToEnd(){ clearInterval(typeTimer); showEnd(); }
 function restartStory(){
+  sfxCardSelect();
   resetStage();
   document.getElementById('skipBtn').style.display='inline-block';
   beatIdx=0; playBeat(0);
