@@ -17,7 +17,7 @@
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--night-deep);overflow:hidden;height:100%;}
   body{font-family:'Nunito',sans-serif; color:var(--parchment); display:flex; align-items:center; justify-content:center; min-height:100vh; min-height:100dvh;}
-  .screen{position:relative; width:100%; max-width:780px; aspect-ratio:16/10; overflow:hidden; border-radius:6px;
+  .screen{position:relative; width:100%; max-width:780px; aspect-ratio:16/10; min-height:420px; overflow:hidden; border-radius:6px;
     box-shadow:0 0 0 3px var(--night-deep), 0 0 0 6px #4a4670, 0 20px 60px rgba(0,0,0,0.6);
     background:var(--night-deep);}
   @media (max-height:560px){ .screen{max-height:94vh; max-height:94dvh; width:auto;} }
@@ -431,6 +431,282 @@ const STORIES = [
     }},
   ]},
 
+{ id:'propremoved', title:'THE FIVE-DAY RESCUE', hook:'Property removed coverage and its 5-day window.', icon:'📦', mood:'mood-warmnight', tag:'DP-1 \u00b7 Property Removed',
+  endRule:"Property removed to protect it from a covered peril is insured against <b>any cause of loss</b>, at <b>any location</b>, for up to <b>5 days</b> — a short, easy-to-miss window baked into every dwelling policy.",
+  beats:[
+    { speaker:'NARRATOR', text:"A fire breaks out. Before it spreads, the homeowner starts carrying valuables out the front door.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🏠',{label:'Fire Spreading'}); S.shake();
+    }},
+    { speaker:'NARRATOR', text:"Grandma's china, the family photos, a box of paperwork — all hauled out onto the front lawn.", enter(S){
+        S.icon('secondary','📦',{label:'Property Removed'});
+    }},
+    { speaker:'NARRATOR', text:"Once it's off the property and sitting on the lawn, is it still covered?", enter(S){}},
+    { speaker:'DWELLING POLICY', text:"\"Yes — property removed to protect it is insured against ANY cause of loss, at ANY location.\"", enter(S){
+        S.formula('PROPERTY REMOVED COVERAGE',[
+          {text:'Covered at <span class="op">ANY</span> location',cls:''},
+          {text:'Against <span class="op">ANY</span> cause of loss',cls:''},
+        ]);
+    }},
+    { speaker:'NARRATOR', text:"But that protection doesn't last forever.", enter(S){
+        S.banner('⏳ 5-DAY WINDOW','THEN COVERAGE ENDS');
+    }},
+    { speaker:'NARRATOR', text:"Exactly 5 days — not 20, not 30, not 90. After that, it's back to the policy's normal terms.", enter(S){
+        S.flash('5 DAYS','var(--gold)');
+    }},
+  ]},
+
+{ id:'twoyear', title:'THE TWO-YEAR<br>DEADLINE', hook:'How long an insured has to sue over a bad settlement.', icon:'⚖️', mood:'mood-bureau', tag:'Legal Action Clause',
+  endRule:"If an insured wants to sue over an unfair claim settlement, the clock gives them <b>two years from the date of loss</b> — true on both dwelling and homeowners policies.",
+  beats:[
+    { speaker:'NARRATOR', text:"A claim gets settled. The insured isn't happy with how it was handled.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','🧾',{label:'Claim Settled'});
+    }},
+    { speaker:'NARRATOR', text:"She's considering taking it to court.", enter(S){
+        S.icon('secondary','⚖️',{label:'Lawsuit?'});
+    }},
+    { speaker:'NARRATOR', text:"How long does she actually have to file?", enter(S){
+        S.banner('⏰ THE CLOCK STARTS','AT THE DATE OF LOSS');
+    }},
+    { speaker:'LEGAL ACTION CLAUSE', text:"\"Two years. That's the window, and it starts on the date of loss — not the date of the settlement.\"", enter(S){
+        S.formula('LEGAL ACTION CLAUSE',[
+          {text:'Date of Loss <span class="op">+</span> 2 Years',cls:''},
+          {text:'= Deadline to File',cls:'result'},
+        ]);
+    }},
+    { speaker:'NARRATOR', text:"Not one year, not three. Two years, on both dwelling and homeowners forms alike.", enter(S){
+        S.flash('2 YEARS','var(--safe)');
+    }},
+  ]},
+
+{ id:'appraiser', title:'THE APPRAISER\'S<br>BLIND SPOT', hook:'What actually sets replacement cost \u2014 and what doesn\'t.', icon:'🧱', mood:'mood-warmnight', tag:'Replacement Value Factors',
+  endRule:"Replacement cost is built from <b>construction type, square footage, and location</b> — never market value. What a house would sell for has nothing to do with what it costs to rebuild.",
+  beats:[
+    { speaker:'NARRATOR', text:"An insurer needs to figure out what this house is actually worth to rebuild.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🏠',{label:'Valuation Needed'});
+    }},
+    { speaker:'NARRATOR', text:"They check the type of construction — frame or masonry.", enter(S){
+        S.icon('secondary','🧱',{label:'Construction Type'}); S.stamp('secondary','check','USED');
+    }},
+    { speaker:'NARRATOR', text:"They check the square footage of living space.", enter(S){
+        S.icon('secondary','📐',{label:'Square Footage'}); S.stamp('secondary','check','USED');
+    }},
+    { speaker:'NARRATOR', text:"They check the location — zip code drives labor and material costs.", enter(S){
+        S.icon('secondary','📍',{label:'Location'}); S.stamp('secondary','check','USED');
+    }},
+    { speaker:'NARRATOR', text:"Then someone suggests checking what the house would actually sell for on the open market.", enter(S){
+        S.icon('secondary','💰',{label:'Market Value'}); S.stamp('secondary','x','NOT USED');
+    }},
+    { speaker:'NARRATOR', text:"Market value has zero influence on replacement cost. What a buyer would pay and what it costs to rebuild are two completely different numbers.", enter(S){
+        S.flash('IRRELEVANT','var(--danger)');
+    }},
+  ]},
+
+{ id:'liabilityfollow', title:'THE LIABILITY THAT<br>FOLLOWED HER HOME', hook:'Personal liability supplement: on premises AND off.', icon:'🧍', mood:'mood-stormred', tag:'Personal Liability Supplement',
+  endRule:"A personal liability supplement on a dwelling policy follows the <b>person</b>, not the property — it covers bodily injury or property damage from personal activities, <b>both on and off the premises</b>.",
+  beats:[
+    { speaker:'NARRATOR', text:"She adds a personal liability supplement to her dwelling policy — just in case.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🧍',{label:'Liability Supplement Added'});
+    }},
+    { speaker:'NARRATOR', text:"A guest slips on her icy front steps. Covered — that one's the easy case.", enter(S){
+        S.icon('secondary','🏠',{label:'On Premises'}); S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"But then, at a friend's barbecue three towns over, she knocks over a hot grill and someone gets burned.", enter(S){
+        S.icon('secondary','🔥',{label:'Off Premises', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Is that one covered too?", enter(S){
+        S.banner('❓ ON… OR OFF?','');
+    }},
+    { speaker:'NARRATOR', text:"Yes. The supplement isn't tied to her address — it follows HER, wherever her personal activities take her.", enter(S){
+        S.stamp('secondary','check','COVERED');
+        S.flash('BOTH COUNT','var(--safe)');
+    }},
+  ]},
+
+{ id:'breakin', title:'THE BREAK-IN NO ONE<br>CALLED IN', hook:'Broad theft coverage\u2019s hidden condition.', icon:'🚔', mood:'mood-stormred', tag:'Broad Theft Coverage',
+  endRule:"Broad theft coverage on a dwelling policy comes with a condition attached: the insured has to <b>notify the police</b> if a theft occurs — skip that step, and the claim can be denied.",
+  beats:[
+    { speaker:'NARRATOR', text:"Someone breaks in overnight. A few things go missing.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🏠',{label:'Break-In'}); S.shake();
+    }},
+    { speaker:'NARRATOR', text:"The homeowner is furious — but decides filing a police report isn't worth the hassle.", enter(S){
+        S.icon('secondary','🚔',{label:'Police Report?'}); S.stamp('secondary','x','SKIPPED');
+    }},
+    { speaker:'NARRATOR', text:"She files the insurance claim anyway.", enter(S){
+        S.icon('secondary','📋',{label:'Claim Filed'});
+    }},
+    { speaker:'INSURER', text:"\"Theft coverage requires a police report — without one, we can't verify or process this.\"", enter(S){
+        S.banner('🚨 CLAIM AT RISK','NO POLICE REPORT');
+    }},
+    { speaker:'NARRATOR', text:"It's not optional. Reporting the theft to police is a real condition of broad theft coverage — skip it, and the claim can be denied outright.", enter(S){
+        S.flash('REPORT REQUIRED','var(--danger)');
+    }},
+  ]},
+
+{ id:'earthquake', title:'AFTERSHOCKS &<br>PERCENTAGES', hook:'Earthquake deductibles and the 72-hour occurrence rule.', icon:'🌎', mood:'mood-industrial', tag:'Earthquake Coverage',
+  endRule:"Earthquake deductibles run as a <b>percentage of the coverage limit</b>, not a flat dollar figure — and any aftershock within <b>72 hours</b> of the initial quake counts as the same occurrence, not a new one.",
+  beats:[
+    { speaker:'NARRATOR', text:"The ground shakes. A homeowner's earthquake policy is about to be tested.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🏚️',{label:'Earthquake!'}); S.shake();
+    }},
+    { speaker:'NARRATOR', text:"First question: what's the deductible here?", enter(S){
+        S.icon('secondary','💰',{label:'Deductible = ?'});
+    }},
+    { speaker:'NARRATOR', text:"It's not a flat $250, $500, or $1,000 like most policies default to.", enter(S){
+        S.stamp('secondary','x','NOT FLAT $');
+    }},
+    { speaker:'EARTHQUAKE CLAUSE', text:"\"My deductible is a percentage of the coverage limit — and it may carry a stated minimum on top of that.\"", enter(S){
+        S.formula('EARTHQUAKE DEDUCTIBLE',[
+          {text:'<span class="op">%</span> of the Coverage Limit',cls:'result'},
+          {text:'(may carry a stated minimum)',cls:'rule'},
+        ]);
+    }},
+    { speaker:'NARRATOR', text:"Four hours later, a strong aftershock hits. Is that a brand new claim?", enter(S){
+        S.icon('secondary','🌎',{label:'Aftershock', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Not if it's within 72 hours of the original quake — it still counts as the same single occurrence.", enter(S){
+        S.flash('SAME OCCURRENCE','var(--safe)');
+    }},
+  ]},
+
+{ id:'whichform', title:'WHICH FORM<br>ACTUALLY PAYS', hook:'DP-1\u2019s ACV-only rule vs. DP-2/DP-3 replacement cost.', icon:'🏡', mood:'mood-warmnight', tag:'DP-1 vs DP-2/DP-3 Settlement',
+  endRule:"DP-1 (Basic) settles losses on <b>Actual Cash Value only — always</b>. DP-2 and DP-3 (Broad and Special) are the only forms offering <b>replacement cost</b>, and only when insured to at least 80%.",
+  beats:[
+    { speaker:'NARRATOR', text:"Two identical houses, two different dwelling forms. Both are destroyed by fire.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🏠',{label:'Total Loss ×2'}); S.shake();
+    }},
+    { speaker:'NARRATOR', text:"House #1 is insured on a DP-1 — the Basic form.", enter(S){
+        S.icon('secondary','🏚️',{label:'DP-1 (Basic)'});
+    }},
+    { speaker:'NARRATOR', text:"No matter what, DP-1 only ever settles on Actual Cash Value — depreciation included, every single time.", enter(S){
+        S.stamp('secondary','x','ACV ONLY');
+    }},
+    { speaker:'NARRATOR', text:"House #2 is insured on a DP-3 — the Special form.", enter(S){
+        S.icon('secondary','🏡',{label:'DP-3 (Special)', anim:'glowgreen'});
+    }},
+    { speaker:'NARRATOR', text:"DP-2 and DP-3 are the only forms that pay full replacement cost — as long as the home is insured to at least 80% of that cost.", enter(S){
+        S.stamp('secondary','check','REPLACEMENT COST');
+    }},
+    { speaker:'NARRATOR', text:"Same fire, same total loss — two completely different checks, decided entirely by which form was on the policy.", enter(S){
+        S.flash('ONLY DP-2 & DP-3','var(--safe)');
+    }},
+  ]},
+
+{ id:'construction', title:'BUILDING AT ZERO,<br>INSURED AT 100%', hook:'Under-construction coverage and DP-1\u2019s $0 minimum.', icon:'🏗️', mood:'mood-industrial', tag:'Under Construction + $0 Minimum',
+  endRule:"A dwelling under construction is covered for its <b>actual value on the date of completion</b> — and separately, a DP-1 Basic form has <b>no minimum dollar coverage requirement</b> at all: $0 is technically allowed.",
+  beats:[
+    { speaker:'NARRATOR', text:"A house is still half-built — framing up, no roof yet.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🏗️',{label:'Under Construction'});
+    }},
+    { speaker:'NARRATOR', text:"How much coverage does the policy need to carry while it's being built?", enter(S){
+        S.icon('secondary','❓',{label:'Coverage Limit = ?'});
+    }},
+    { speaker:'NARRATOR', text:"Not the projected replacement cost once it's finished. Not an average value across the build.", enter(S){
+        S.stamp('secondary','x','NOT PROJECTED');
+    }},
+    { speaker:'UNDER-CONSTRUCTION RULE', text:"\"I'm insured for actual value on the date of completion — 100% of the completed value, no more, no less.\"", enter(S){
+        S.formula('UNDER-CONSTRUCTION RULE',[
+          {text:'Insured for <span class="op">Actual Value</span>',cls:''},
+          {text:'on the Date of Completion',cls:'result'},
+        ]);
+    }},
+    { speaker:'NARRATOR', text:"Meanwhile, over on a finished DP-1 Basic form, there's a separate surprise: the minimum dollar coverage requirement is...", enter(S){
+        S.icon('secondary','📉',{label:'Minimum Required?'});
+    }},
+    { speaker:'NARRATOR', text:"Zero. There is no minimum dollar amount required on a Basic form policy at all.", enter(S){
+        S.flash('$0 MINIMUM','var(--gold)');
+    }},
+  ]},
+
+{ id:'vandalism', title:'VANDALS DON\'T GET<br>THE EXTENSION', hook:'Extended coverage\u2014everything except vandalism.', icon:'🎨', mood:'mood-warning', tag:'Extended Coverage — Except Vandalism',
+  endRule:"Extended coverage adds windstorm, explosion, and riot damage onto a Basic dwelling form — but <b>vandalism</b> is the one peril left out of that list.",
+  beats:[
+    { speaker:'NARRATOR', text:"A homeowner pays extra to add extended coverage onto her Basic dwelling form.", enter(S){
+        S.mood('mood-warning'); S.icon('main','🏠',{label:'Extended Coverage Added'});
+    }},
+    { speaker:'NARRATOR', text:"Windstorm tears a few shingles off the roof.", enter(S){
+        S.icon('secondary','🌪️',{label:'Windstorm'}); S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"A gas leak causes a small explosion in the garage.", enter(S){
+        S.icon('secondary','💥',{label:'Explosion'}); S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"A riot downtown breaks a few windows nearby.", enter(S){
+        S.icon('secondary','🔥',{label:'Riot Damage'}); S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"Then someone spray-paints the garage door out of spite.", enter(S){
+        S.icon('secondary','🎨',{label:'Vandalism', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"That one's not on the list. Vandalism is the single peril extended coverage leaves out.", enter(S){
+        S.stamp('secondary','x','NOT COVERED');
+        S.flash('EXCLUDED','var(--danger)');
+    }},
+  ]},
+
+{ id:'othercoverage', title:'THE COVERAGE THAT<br>WASN\'T AUTOMATIC', hook:'"Other coverage" vs. additional living expenses.', icon:'🏨', mood:'mood-medical', tag:'"Other Coverage" — Except ALE',
+  endRule:"Collapse, debris removal, and fire department service charges are all <b>automatically included</b> as \"other coverage\" on a dwelling policy. Additional living expenses is different — it's a coverage <b>part</b> that has to be added on.",
+  beats:[
+    { speaker:'NARRATOR', text:"A dwelling policy comes with a handful of coverages baked in automatically — no extra premium needed.", enter(S){
+        S.mood('mood-medical'); S.icon('main','📜',{label:'Dwelling Policy'});
+    }},
+    { speaker:'NARRATOR', text:"Collapse coverage — included.", enter(S){
+        S.icon('secondary','🏚️',{label:'Collapse'}); S.stamp('secondary','check','AUTOMATIC');
+    }},
+    { speaker:'NARRATOR', text:"Debris removal — included.", enter(S){
+        S.icon('secondary','🧹',{label:'Debris Removal'}); S.stamp('secondary','check','AUTOMATIC');
+    }},
+    { speaker:'NARRATOR', text:"Fire department service charges — included.", enter(S){
+        S.icon('secondary','🚒',{label:'FD Service Charges'}); S.stamp('secondary','check','AUTOMATIC');
+    }},
+    { speaker:'NARRATOR', text:"Additional living expenses — covering a hotel stay while the house gets rebuilt?", enter(S){
+        S.icon('secondary','🏨',{label:'Additional Living Expenses', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"That one's different. It's a coverage part that has to be added onto a Broad or Special form — not something baked in automatically.", enter(S){
+        S.stamp('secondary','x','ADD-ON ONLY');
+        S.flash('NOT AUTOMATIC','var(--danger)');
+    }},
+  ]},
+
+{ id:'explosion', title:'INTERNAL VS.<br>EXTERNAL', hook:'Why "explosion" and "internal explosion" aren\u2019t the same peril.', icon:'💥', mood:'mood-warmnight', tag:'DP-1 and the Explosion Peril',
+  endRule:"DP-1 Basic covers <b>internal explosion</b> as a named peril — but general \"explosion\" (like an external blast) only comes in with extended coverage. The word \"internal\" is doing a lot of work in that sentence.",
+  beats:[
+    { speaker:'NARRATOR', text:"A furnace malfunctions and blows apart inside the basement.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🏠',{label:'Internal Explosion'}); S.shake();
+    }},
+    { speaker:'NARRATOR', text:"Covered under the Basic form? Fire, lightning, and internal explosion are all named perils on DP-1 — yes.", enter(S){
+        S.stamp('main','check','COVERED (DP-1)');
+    }},
+    { speaker:'NARRATOR', text:"Now picture a different scene: a gas main explodes out on the street, and the shockwave damages the house.", enter(S){
+        S.icon('secondary','💥',{label:'External Explosion', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Same word — \"explosion\" — but this one didn't happen inside the structure.", enter(S){}},
+    { speaker:'NARRATOR', text:"General explosion coverage isn't part of the Basic form's named perils. That one only shows up once extended coverage gets added.", enter(S){
+        S.stamp('secondary','x','NOT ON DP-1');
+        S.flash('EXTENDED COVERAGE ONLY','var(--danger)');
+    }},
+  ]},
+
+{ id:'autoincrease', title:'THE ENDORSEMENT<br>THAT GROWS WITH YOU', hook:'Automatic Increase in Insurance vs. the "Replacement Cost" trap.', icon:'📈', mood:'mood-warning', tag:'Automatic Increase in Insurance',
+  endRule:"The endorsement that keeps a Dwelling Property policy's limit rising with inflation is called <b>Automatic Increase in Insurance</b> — on a Homeowners policy, the same idea is branded \"Inflation Guard\" instead.",
+  beats:[
+    { speaker:'NARRATOR', text:"A homeowner buys a dwelling policy this year, insured to full value.", enter(S){
+        S.mood('mood-warning'); S.icon('main','🏠',{label:'Insured to Value: 2026'});
+    }},
+    { speaker:'NARRATOR', text:"Three years pass. Construction costs keep climbing.", enter(S){
+        S.icon('secondary','📈',{label:'Costs Rising'});
+    }},
+    { speaker:'NARRATOR', text:"Her coverage limit, meanwhile, hasn't moved an inch — unless she added a specific endorsement.", enter(S){}},
+    { speaker:'NARRATOR', text:"Is it called \"Replacement Cost\"?", enter(S){
+        S.icon('secondary','❓',{label:'Replacement Cost?'});
+        S.stamp('secondary','x','WRONG ENDORSEMENT');
+    }},
+    { speaker:'NARRATOR', text:"No — that's a different feature entirely. This one is called Automatic Increase in Insurance.", enter(S){
+        S.icon('secondary','📈',{label:'Automatic Increase in Insurance', anim:'glowgold'});
+        S.stamp('secondary','check','CORRECT');
+    }},
+    { speaker:'NARRATOR', text:"It bumps the coverage limit up by a set percentage every year, automatically. On a homeowners policy, the same idea just goes by \"Inflation Guard\" instead.", enter(S){
+        S.flash('LIMIT KEEPS PACE','var(--safe)');
+    }},
+  ]},
+
 ];
 
 /* ============================================================
@@ -459,6 +735,22 @@ function renderMenu(){
   });
 }
 renderMenu();
+
+/* ---------- Guaranteed sizing fallback — works even where aspect-ratio isn't supported ---------- */
+function sizeGameScreen(){
+  const el=document.querySelector('.screen');
+  if(!el) return;
+  const w=el.getBoundingClientRect().width || el.offsetWidth;
+  if(!w) return;
+  let h=w*(10/16);
+  const maxH=window.innerHeight*0.94;
+  if(h>maxH) h=maxH;
+  el.style.height=h+'px';
+}
+window.addEventListener('resize', sizeGameScreen);
+window.addEventListener('orientationchange', sizeGameScreen);
+sizeGameScreen();
+setTimeout(sizeGameScreen, 200); // catches late font/layout shifts
 
 function loadStory(id){
   currentStory = STORIES.find(s=>s.id===id);
