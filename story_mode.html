@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Story Mode — Weak Spot Theater</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#161832; --night-deep:#0a0b1a;
+    --gold:#e8b94a; --gold-deep:#a9791f;
+    --danger:#d6453f; --safe:#5fae6f;
+    --parchment:#f4ecd8; --parchment-line:#c9b481;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--night-deep);overflow:hidden;height:100%;}
+  body{font-family:'Nunito',sans-serif; color:var(--parchment); display:flex; align-items:center; justify-content:center; min-height:100vh; min-height:100dvh;}
+  .screen{position:relative; width:100%; max-width:780px; aspect-ratio:16/10; overflow:hidden; border-radius:6px;
+    box-shadow:0 0 0 3px var(--night-deep), 0 0 0 6px #4a4670, 0 20px 60px rgba(0,0,0,0.6);
+    background:var(--night-deep);}
+  @media (max-height:560px){ .screen{max-height:94vh; max-height:94dvh; width:auto;} }
+
+  /* ============ MENU ============ */
+  .menu{position:absolute; inset:0; overflow-y:auto; padding:22px 18px 26px;
+    background:linear-gradient(160deg,#161832 0%, #201c3d 45%, #26301f 100%);}
+  .menu-head{text-align:center; margin-bottom:16px;}
+  .menu-head h1{font-family:'Press Start 2P',monospace; font-size:15px; color:var(--gold); text-shadow:2px 2px 0 #000; margin:0 0 8px; line-height:1.7;}
+  .menu-head p{font-family:'VT323',monospace; font-size:17px; color:var(--parchment-line); margin:0;}
+  .story-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; max-width:700px; margin:0 auto;}
+  .story-card{background:rgba(10,11,26,0.75); border:2px solid var(--parchment-line); border-radius:8px; padding:13px;
+    cursor:pointer; transition:border-color 0.15s ease, transform 0.1s ease; position:relative;}
+  .story-card:hover{border-color:var(--gold); transform:translateY(-2px);}
+  .story-card:active{transform:translateY(0);}
+  .story-card .sc-icon{font-size:28px; margin-bottom:6px;}
+  .story-card .sc-title{font-family:'Press Start 2P',monospace; font-size:9.5px; color:var(--gold); line-height:1.5; margin-bottom:6px;}
+  .story-card .sc-hook{font-size:13px; color:var(--parchment-line); line-height:1.4;}
+  .story-card .sc-done{position:absolute; top:8px; right:10px; font-size:14px; color:var(--safe);}
+  .story-card .sc-tag{font-family:'VT323',monospace; font-size:12px; color:#8b9bd8; margin-top:6px;}
+
+  /* ============ STAGE (shared engine) ============ */
+  .stage{position:absolute; inset:0; display:none;}
+  .stage.active{display:block;}
+  .stage-bg{position:absolute; inset:0; transition:background 1.4s ease;}
+  .stage-bg.mood-warmnight{background:linear-gradient(180deg,#1a1830 0%, #2e2a4a 45%, #26301f 100%);}
+  .stage-bg.mood-stormred{background:linear-gradient(180deg,#1a1020 0%, #2e1424 45%, #150c14 100%);}
+  .stage-bg.mood-industrial{background:linear-gradient(180deg,#1c1d24 0%, #34363f 45%, #202226 100%);}
+  .stage-bg.mood-medical{background:linear-gradient(180deg,#0e1f2e 0%, #17384a 45%, #0c1a22 100%);}
+  .stage-bg.mood-warning{background:linear-gradient(180deg,#241a0c 0%, #3d2c10 45%, #1c1608 100%);}
+  .stage-bg.mood-bureau{background:linear-gradient(180deg,#10131f 0%, #1c2338 45%, #0d0f18 100%);}
+
+  .particles{position:absolute; inset:0; pointer-events:none; z-index:1; opacity:0.5;}
+  .particles span{position:absolute; width:3px; height:3px; border-radius:50%; background:var(--gold); opacity:0;
+    animation:pfloat linear infinite;}
+  @keyframes pfloat{0%{opacity:0; transform:translateY(0);}15%{opacity:0.6;}85%{opacity:0.4;}100%{opacity:0; transform:translateY(-90px);}}
+
+  .icon-slot{position:absolute; z-index:5; text-align:center; opacity:0; transform:scale(0.8) translateY(6px);
+    transition:opacity 0.5s ease, transform 0.5s cubic-bezier(.2,.8,.3,1);}
+  .icon-slot.show{opacity:1; transform:scale(1) translateY(0);}
+  #iconMain{top:16%; left:28%;}
+  #iconSecondary{top:16%; left:64%;}
+  .icon-emoji{font-size:56px; display:block; filter:drop-shadow(0 6px 8px rgba(0,0,0,0.4)); transition:transform 0.35s ease, filter 0.35s ease;}
+  .icon-slot.punch .icon-emoji{animation:punch 0.5s ease;}
+  @keyframes punch{0%{transform:scale(1);}30%{transform:scale(1.25) rotate(-4deg);}60%{transform:scale(0.92) rotate(3deg);}100%{transform:scale(1);}}
+  .icon-slot.shatter .icon-emoji{animation:shatter 0.6s ease forwards;}
+  @keyframes shatter{0%{transform:scale(1);filter:drop-shadow(0 6px 8px rgba(0,0,0,0.4));}40%{transform:scale(1.3);filter:drop-shadow(0 0 14px rgba(214,69,63,0.9));}100%{transform:scale(0.85);filter:drop-shadow(0 0 10px rgba(214,69,63,0.6)) grayscale(0.4);}}
+  .icon-slot.glowgreen .icon-emoji{filter:drop-shadow(0 0 16px rgba(95,174,111,0.9));}
+  .icon-slot.glowgold .icon-emoji{filter:drop-shadow(0 0 16px rgba(232,185,74,0.9));}
+  .icon-slot.spin .icon-emoji{animation:spinSlow 2.4s linear infinite;}
+  @keyframes spinSlow{100%{transform:rotate(360deg);}}
+  .icon-label{margin-top:6px; display:inline-block; font-family:'VT323',monospace; font-size:14px; color:var(--gold);
+    background:rgba(10,11,26,0.82); border:1.5px solid var(--gold); border-radius:5px; padding:3px 9px; white-space:nowrap;}
+
+  .stamp{position:absolute; top:4%; z-index:8; font-family:'Press Start 2P',monospace; font-size:15px;
+    padding:6px 12px; border-radius:6px; opacity:0; transform:scale(2.2) rotate(-14deg); pointer-events:none;
+    transition:opacity 0.15s ease;}
+  .stamp.show{opacity:1; animation:stampSlam 0.35s cubic-bezier(.2,1.6,.4,1) forwards;}
+  @keyframes stampSlam{0%{transform:scale(2.4) rotate(-14deg);opacity:0;}55%{transform:scale(0.88) rotate(-14deg);opacity:1;}100%{transform:scale(1) rotate(-14deg);opacity:1;}}
+  .stamp.x{color:var(--danger); border:3px solid var(--danger); background:rgba(10,11,26,0.85);}
+  .stamp.check{color:var(--safe); border:3px solid var(--safe); background:rgba(10,11,26,0.85);}
+  #stampMain{left:16%;} #stampSecondary{left:56%;}
+
+  .meters{position:absolute; top:6%; left:5%; z-index:6; width:44%; opacity:0; transition:opacity 0.7s ease;}
+  .meters.show{opacity:1;}
+  .meter-row{margin-bottom:9px;}
+  .meter-tag{font-family:'Press Start 2P',monospace; font-size:8px; color:var(--parchment); margin-bottom:3px; letter-spacing:0.5px;}
+  .meter-track{position:relative; height:14px; background:rgba(10,11,26,0.7); border:1.5px solid var(--parchment-line); border-radius:3px;}
+  .meter-fill{position:absolute; top:0; left:0; bottom:0; width:0%; border-radius:2px; transition:width 1.3s cubic-bezier(.2,.8,.3,1);}
+  .meter-fill.c1{background:linear-gradient(90deg,#b23e3e,var(--danger));}
+  .meter-fill.c2{background:linear-gradient(90deg,#3d8c53,var(--safe));}
+  .meter-mark{position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--gold);}
+  .meter-val{font-family:'VT323',monospace; font-size:13px; color:var(--parchment); margin-top:2px;}
+
+  .banner{position:absolute; top:36%; left:50%; transform:translate(-50%,-50%) scale(0.6); z-index:9;
+    font-family:'Press Start 2P',monospace; text-align:center; opacity:0; pointer-events:none;
+    transition:opacity 0.25s ease, transform 0.25s cubic-bezier(.2,1.4,.4,1);}
+  .banner.show{opacity:1; transform:translate(-50%,-50%) scale(1);}
+  .banner .b-main{font-size:20px; text-shadow:2px 2px 0 #000, 0 0 18px rgba(0,0,0,0.6); letter-spacing:1px;}
+  .banner .b-sub{font-size:9px; color:var(--gold); margin-top:8px; text-shadow:1px 1px 0 #000;}
+  @media (max-width:480px){ .banner .b-main{font-size:15px;} }
+
+  .formula-card{position:absolute; top:6%; left:50%; transform:translateX(-50%) translateY(-8px); z-index:8; width:88%;
+    max-width:440px; background:rgba(10,11,26,0.93); border:2px solid var(--gold); border-radius:8px;
+    padding:11px 14px; opacity:0; transition:opacity 0.6s ease, transform 0.6s ease;
+    box-shadow:0 8px 24px rgba(0,0,0,0.5); max-height:36%; overflow-y:auto;}
+  .formula-card.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .formula-title{font-family:'Press Start 2P',monospace; font-size:9px; text-align:center; margin-bottom:9px; letter-spacing:0.5px;}
+  .formula-line{font-family:'VT323',monospace; font-size:18px; text-align:center; color:var(--parchment); line-height:1.45;
+    opacity:0; transform:translateY(4px); transition:opacity 0.5s ease, transform 0.5s ease;}
+  .formula-line.show{opacity:1; transform:translateY(0);}
+  .formula-line .op{color:var(--gold);}
+  .formula-line.result{font-size:21px; color:var(--safe); font-weight:700;}
+  .formula-line.rule{font-size:15px; text-align:left; color:var(--parchment-line);}
+
+  .flash-txt{position:absolute; z-index:10; font-family:'VT323',monospace; font-size:24px; text-shadow:2px 2px 0 #000;
+    opacity:0; pointer-events:none; left:50%; top:60%; transform:translateX(-50%);}
+  .flash-txt.fly{animation:flyUp 1.7s ease-out forwards;}
+  @keyframes flyUp{0%{opacity:0; transform:translateX(-50%) translateY(0) scale(0.7);}15%{opacity:1; transform:translateX(-50%) translateY(-6px) scale(1.15);}80%{opacity:1;}100%{opacity:0; transform:translateX(-50%) translateY(-64px) scale(1);}}
+
+  body.shake .screen-shake-target{animation:shakeIt 0.5s ease;}
+  @keyframes shakeIt{0%,100%{transform:translate(0,0);}20%{transform:translate(-4px,2px);}40%{transform:translate(4px,-2px);}60%{transform:translate(-3px,1px);}80%{transform:translate(3px,-1px);}}
+
+  .dialogue{position:absolute; left:4%; right:4%; bottom:4%; z-index:20;
+    background:var(--night-deep); border:3px solid var(--gold); border-radius:8px;
+    box-shadow:inset 0 0 0 2px #4a4670, 0 6px 18px rgba(0,0,0,0.5);
+    padding:12px 16px 14px; min-height:78px; cursor:pointer;
+    opacity:0; transform:translateY(10px); transition:opacity 0.5s ease, transform 0.5s ease;}
+  .dialogue.show{opacity:1; transform:translateY(0);}
+  .speaker{display:inline-block; font-family:'Press Start 2P',monospace; font-size:9px; color:var(--night-deep);
+    background:var(--gold); padding:3px 9px; border-radius:4px; margin-bottom:7px; letter-spacing:0.5px;}
+  .dtext{font-size:15.5px; line-height:1.5; color:var(--parchment); min-height:44px;}
+  .advance-hint{position:absolute; bottom:8px; right:14px; font-size:12px; color:var(--gold); animation:bob 1s ease-in-out infinite; opacity:0.85;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+
+  .topbar{position:absolute; top:10px; left:12px; right:12px; z-index:25; display:flex; justify-content:space-between; pointer-events:none;}
+  .topbar button{pointer-events:auto; font-family:'VT323',monospace; font-size:13px; color:var(--parchment-line);
+    background:rgba(10,11,26,0.6); border:1px solid var(--parchment-line); border-radius:5px; padding:3px 9px; cursor:pointer;}
+
+  .end-card{position:absolute; inset:0; z-index:30; background:rgba(10,11,26,0.97);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0 8%;
+    opacity:0; pointer-events:none; transition:opacity 0.8s ease;}
+  .end-card.show{opacity:1; pointer-events:auto;}
+  .end-card h2{font-family:'Press Start 2P',monospace; font-size:13px; color:var(--safe); margin:0 0 14px; line-height:1.7;}
+  .end-card .rule{font-family:'VT323',monospace; font-size:19px; color:var(--parchment); max-width:460px; margin:0 0 20px; line-height:1.5;}
+  .end-card .rule b{color:var(--gold);}
+  .end-actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:center;}
+  .end-actions button{font-family:'Press Start 2P',monospace; font-size:9px; background:var(--gold); color:var(--night-deep);
+    border:none; border-radius:6px; padding:10px 16px; cursor:pointer; box-shadow:0 4px 0 var(--gold-deep);}
+  .end-actions button:active{transform:translateY(3px); box-shadow:0 1px 0 var(--gold-deep);}
+  .end-actions button.ghost{background:transparent; color:var(--parchment); border:2px solid var(--parchment-line); box-shadow:none;}
+</style>
+</head>
+<body>
+
+<div class="screen">
+
+  <!-- ============ MENU ============ -->
+  <div class="menu" id="menuScreen">
+    <div class="menu-head">
+      <h1>STORY MODE</h1>
+      <p>Watch it happen instead of reading it. Pick a scene.</p>
+    </div>
+    <div class="story-grid" id="storyGrid"></div>
+  </div>
+
+  <!-- ============ STAGE ============ -->
+  <div class="stage" id="stageScreen">
+    <div class="screen-shake-target" style="position:absolute;inset:0;">
+      <div class="stage-bg" id="stageBg"></div>
+      <div class="particles" id="particles"></div>
+
+      <div class="icon-slot" id="iconMain">
+        <span class="icon-emoji" id="iconMainEmoji">❔</span>
+        <div class="icon-label" id="iconMainLabel" style="display:none;"></div>
+        <div class="stamp" id="stampMain"></div>
+      </div>
+      <div class="icon-slot" id="iconSecondary">
+        <span class="icon-emoji" id="iconSecondaryEmoji">❔</span>
+        <div class="icon-label" id="iconSecondaryLabel" style="display:none;"></div>
+        <div class="stamp" id="stampSecondary"></div>
+      </div>
+
+      <div class="meters" id="metersBox">
+        <div class="meter-row">
+          <div class="meter-tag" id="meterTag1"></div>
+          <div class="meter-track"><div class="meter-fill c1" id="meterFill1"></div><div class="meter-mark" id="meterMark1" style="display:none;"></div></div>
+          <div class="meter-val" id="meterVal1"></div>
+        </div>
+        <div class="meter-row" id="meterRow2">
+          <div class="meter-tag" id="meterTag2"></div>
+          <div class="meter-track"><div class="meter-fill c2" id="meterFill2"></div></div>
+          <div class="meter-val" id="meterVal2"></div>
+        </div>
+      </div>
+
+      <div class="banner" id="banner">
+        <div class="b-main" id="bannerMain"></div>
+        <div class="b-sub" id="bannerSub"></div>
+      </div>
+
+      <div class="formula-card" id="formulaCard">
+        <div class="formula-title" id="formulaTitle"></div>
+        <div id="formulaLines"></div>
+      </div>
+
+      <div class="flash-txt" id="flashTxt"></div>
+    </div>
+
+    <div class="topbar">
+      <button onclick="backToMenu()">☰ Menu</button>
+      <button id="skipBtn" onclick="skipToEnd()">Skip ▸</button>
+    </div>
+
+    <div class="dialogue" id="dialogue" onclick="advance()">
+      <div class="speaker" id="speaker">NARRATOR</div>
+      <div class="dtext" id="dtext"></div>
+      <div class="advance-hint">▶ tap to continue</div>
+    </div>
+
+    <div class="end-card" id="endCard">
+      <h2 id="endTitle">✓ SCENE COMPLETE</h2>
+      <div class="rule" id="endRule"></div>
+      <div class="end-actions">
+        <button onclick="restartStory()">↺ Watch again</button>
+        <button class="ghost" onclick="backToMenu()">☰ Back to menu</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   STORY DATA
+   Each beat's enter(S) can call: S.mood, S.icon, S.label, S.stamp,
+   S.meter, S.banner, S.formula, S.flash, S.shake
+   ============================================================ */
+const STORIES = [
+
+{ id:'garage', title:'THE GARAGE THAT<br>ALMOST PAID FOR ITSELF', hook:'Coverage B, other structures, and the 10% rule.', icon:'🏚️', mood:'mood-warmnight', tag:'ws20 · Coverage B',
+  endRule:"Coverage B (other structures) pays at <b>10% of Coverage A</b> automatically on an HO-3 — no extra purchase needed. But that percentage is a hard cap, not a promise to cover the full repair cost.",
+  beats:[
+    { speaker:'NARRATOR', text:"This home carries a Coverage A – Dwelling limit of $150,000.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🏠',{label:'Coverage A: $150,000'});
+    }},
+    { speaker:'NARRATOR', text:"Out back sits a detached garage. It's covered too — automatically, at no extra cost.", enter(S){
+        S.icon('secondary','🏚️',{label:'Coverage B (auto-included)'});
+    }},
+    { speaker:'NARRATOR', text:"Coverage B always runs at 10% of Coverage A on an HO-3, unless a higher limit was purchased.", enter(S){
+        S.meter({tag1:'COVERAGE B LIMIT', pct1:10, val1:'$15,000 (10% of A)'});
+    }},
+    { speaker:'NARRATOR', text:"Then a storm drops a tree straight through the garage roof. It'll cost $17,000 to rebuild.", enter(S){
+        S.shake(); S.icon('secondary','🏚️',{label:'Damage: $17,000', anim:'shatter'});
+        S.banner('🌪️ GARAGE DESTROYED!','$17,000 IN DAMAGE');
+    }},
+    { speaker:'COVERAGE B CLAUSE', text:"\"I only pay up to 10% of Coverage A — no matter what the repair actually costs.\"", enter(S){
+        S.formula('THE 10% RULE',[
+          {text:'10% <span class="op">×</span> $150,000 Coverage A',cls:''},
+          {text:'= $15,000 maximum',cls:'result'},
+        ]);
+    }},
+    { speaker:'NARRATOR', text:"$15,000 paid. The other $2,000 comes out of the homeowner's pocket — the 10% cap doesn't flex for the actual damage.", enter(S){
+        S.flash('$15,000 PAID','var(--safe)');
+    }},
+  ]},
+
+{ id:'umbrella', title:'THE SHIELD THAT<br>WASN\'T BIG ENOUGH', hook:'Personal umbrella vs. commercial general liability.', icon:'☂️', mood:'mood-stormred', tag:'ws21 · Umbrella vs CGL',
+  endRule:"An <b>umbrella liability policy</b> sits excess over a personal liability limit once it's exhausted. A CGL is a commercial product — it has nothing to do with personal exposures, no matter how large the judgment.",
+  beats:[
+    { speaker:'NARRATOR', text:"Meet our insured. She carries a solid personal liability policy — $300,000 in coverage.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🧍',{label:'Personal Liability: $300,000'});
+    }},
+    { speaker:'NARRATOR', text:"One afternoon, a guest is badly hurt on her property. The jury comes back with an award of $500,000.", enter(S){
+        S.shake(); S.icon('secondary','⚖️',{label:'Judgment: $500,000', anim:'punch'});
+        S.banner('⚖️ LAWSUIT!','$500,000 AWARDED');
+    }},
+    { speaker:'NARRATOR', text:"Her $300,000 limit pays out in full — and then it's gone. $200,000 of the judgment is still sitting there.", enter(S){
+        S.icon('main','🧍',{label:'Limit Exhausted', anim:'shatter'});
+        S.flash('$200,000 EXPOSED','var(--danger)');
+    }},
+    { speaker:'NARRATOR', text:"She reaches for a Commercial General Liability policy to plug the gap...", enter(S){
+        S.icon('secondary','🏢',{label:'CGL Policy'});
+        S.stamp('secondary','x','REJECTED');
+    }},
+    { speaker:'NARRATOR', text:"...but a CGL only protects business exposures. It has nothing to say about a personal lawsuit, no matter how large.", enter(S){
+    }},
+    { speaker:'NARRATOR', text:"What she actually needed was an umbrella — built specifically to sit excess over a personal liability limit.", enter(S){
+        S.icon('secondary','☂️',{label:'Umbrella Policy', anim:'glowgold'});
+        S.stamp('secondary','check','COVERED');
+        S.flash('GAP CLOSED','var(--safe)');
+    }},
+  ]},
+
+{ id:'workcomp', title:'THE FACTORY FLOOR', hook:"No-fault coverage and what actually counts as \u201cin the course of employment.\u201d", icon:'👷', mood:'mood-industrial', tag:'ws39 + ws40 · Workers\u2019 Comp',
+  endRule:"Workers' Comp is <b>no-fault</b> — blame never enters into it. But it only reaches injuries that <b>arise out of and in the course of employment</b>, meaning the job itself has to be a factor, not just the clock or the building.",
+  beats:[
+    { speaker:'NARRATOR', text:"Two injuries. Same week. Only one of them is compensable under Workers' Comp — let's see why.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🏭',{label:'Case Files'});
+    }},
+    { speaker:'CASE A', text:"A secretary is hurt in a car accident on her way to work — before she's even clocked in.", enter(S){
+        S.icon('secondary','🚗',{label:'Commuting Accident', anim:'punch'});
+    }},
+    { speaker:'CASE A — RULING', text:"NOT compensable. The commute isn't 'in the course of employment' — the job hadn't started yet.", enter(S){
+        S.stamp('secondary','x','DENIED');
+    }},
+    { speaker:'CASE B', text:"A factory worker fractures her arm on the assembly line, working overtime to finish a shift.", enter(S){
+        S.icon('secondary','👷',{label:'Assembly Line Injury', anim:'punch'});
+    }},
+    { speaker:'CASE B — RULING', text:"COMPENSABLE. The injury happened while she was actually performing her job duties — that's the whole test.", enter(S){
+        S.stamp('secondary','check','APPROVED');
+        S.flash('CLAIM APPROVED','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"Here's the part people forget: it doesn't matter whose fault it was. Workers' Comp pays regardless.", enter(S){
+        S.banner('⚖️ NO-FAULT SYSTEM','FAULT NEVER MATTERS');
+    }},
+    { speaker:'NARRATOR', text:"The employee gives up the right to sue the employer, in exchange for prompt, guaranteed payment — no negligence has to be proven, ever.", enter(S){}},
+  ]},
+
+{ id:'claimsmade', title:'THE CLAIM THAT<br>CAME FIVE YEARS LATE', hook:'Claims-made vs. occurrence forms.', icon:'⏳', mood:'mood-medical', tag:'ws37 · Claims-Made Forms',
+  endRule:"Professional liability — malpractice, E&amp;O — is almost always written on a <b>claims-made</b> form: coverage responds based on <b>when the claim is filed</b>, not when the incident happened, because that lag can run for years.",
+  beats:[
+    { speaker:'NARRATOR', text:"A doctor treats a patient in 2020. The visit goes fine. Nobody thinks about it again.", enter(S){
+        S.mood('mood-medical'); S.icon('main','🩺',{label:'Treatment: 2020'});
+    }},
+    { speaker:'NARRATOR', text:"Five years pass.", enter(S){
+        S.icon('secondary','⏳',{label:'', anim:'spin'});
+        S.shake();
+    }},
+    { speaker:'NARRATOR', text:"In 2025, the patient finally files a malpractice claim over that same visit.", enter(S){
+        S.banner('📋 CLAIM FILED','YEAR: 2025');
+    }},
+    { speaker:'NARRATOR', text:"An occurrence-based property policy from 2020 wouldn't reach this far forward — it's long since expired.", enter(S){
+        S.icon('main','🏠',{label:'Occurrence Form (2020)'});
+        S.stamp('main','x','EXPIRED');
+    }},
+    { speaker:'NARRATOR', text:"But the doctor's professional liability was written on a claims-made form — it responds based on when the claim shows up, not when the visit happened.", enter(S){
+        S.icon('secondary','🩺',{label:'Claims-Made Form', anim:'glowgreen'});
+        S.stamp('secondary','check','ACTIVE');
+        S.flash('CLAIM COVERED','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"That's exactly why claims-made forms exist for professional liability — the risk of a delayed lawsuit is simply too high to write it any other way.", enter(S){}},
+  ]},
+
+{ id:'rebate', title:'THE "THANK YOU"<br>THAT WASN\'T ALLOWED', hook:'What actually counts as an illegal rebate.', icon:'🎁', mood:'mood-warning', tag:'ws08 · Rebates',
+  endRule:"Any inducement beyond what's written in the policy — cash, gifts, anything of value — is a <b>rebate</b>. It's illegal for the agent to offer one and illegal for the customer to accept one, even willingly.",
+  beats:[
+    { speaker:'NARRATOR', text:"An agent really wants to close this sale.", enter(S){
+        S.mood('mood-warning'); S.icon('main','🧍',{label:'Agent'});
+    }},
+    { speaker:'AGENT', text:"\"Sign today, and I'll throw in a little something extra — call it a loyalty bonus.\"", enter(S){
+        S.icon('secondary','🎁',{label:'$1,000 "Bonus"', anim:'glowgold'});
+    }},
+    { speaker:'NARRATOR', text:"The customer takes it — happily, willingly, no pressure involved.", enter(S){
+        S.flash('DEAL ACCEPTED','var(--gold)');
+    }},
+    { speaker:'NARRATOR', text:"Doesn't matter. The moment cash or anything of value changes hands beyond what's in the actual policy...", enter(S){
+        S.shake();
+        S.banner('🚫 REBATE','ILLEGAL — BOTH SIDES');
+    }},
+    { speaker:'NARRATOR', text:"...it's a rebate. Illegal for the agent to offer, and illegal for the customer to accept, even if nobody twisted anyone's arm.", enter(S){
+        S.stamp('secondary','x','ILLEGAL');
+    }},
+  ]},
+
+{ id:'ceasedesist', title:'THE ORDER THAT<br>SKIPPED THE COURTROOM', hook:'Why a Cease and Desist Order needs no judge.', icon:'📜', mood:'mood-bureau', tag:'ws04 · Cease and Desist',
+  endRule:"A Cease and Desist Order is purely <b>administrative</b> — the Commissioner issues it directly once an investigation finds sufficient cause. No judge required. (A hearing to contest it still has to happen, though — no less than 10 days after notice.)",
+  beats:[
+    { speaker:'NARRATOR', text:"An investigation turns up enough evidence: a producer is violating the Insurance Act.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','🔍',{label:'Investigation Complete'});
+    }},
+    { speaker:'NARRATOR', text:"Does the Commissioner need a judge to sign off before acting?", enter(S){
+        S.icon('secondary','⚖️',{label:'Judge?'});
+    }},
+    { speaker:'COMMISSIONER', text:"\"No. This is administrative authority — I don't need a courtroom for this.\"", enter(S){
+        S.stamp('secondary','x','NOT REQUIRED');
+        S.banner('NO COURT','REQUIRED');
+    }},
+    { speaker:'NARRATOR', text:"The Commissioner issues the order directly — sealed, official, and immediate.", enter(S){
+        S.icon('secondary','📜',{label:'Cease & Desist Order', anim:'glowgold'});
+        S.stamp('secondary','check','ISSUED');
+        S.flash('ORDER ISSUED','var(--gold)');
+    }},
+    { speaker:'NARRATOR', text:"The producer still gets a chance to contest it — a hearing held no less than 10 days after notice. But the order itself needed no court to exist.", enter(S){}},
+  ]},
+
+{ id:'gafine', title:'THE FINE THAT<br>KEPT COUNTING', hook:'Unlicensed manager/GA activity and the per-day penalty.', icon:'📅', mood:'mood-stormred', tag:'ws01 · Licensing Fine',
+  endRule:"Acting as a manager or exclusive general agent without the right license is a <b>third-degree misdemeanor</b> — and the fine scales <b>up to $1,000 per day</b> the unauthorized activity continues.",
+  beats:[
+    { speaker:'NARRATOR', text:"A producer starts acting as a manager and exclusive general agent — without ever getting licensed for it.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🧑‍💼',{label:'Unlicensed Activity'});
+    }},
+    { speaker:'NARRATOR', text:"Day one passes. Nothing happens. He keeps going.", enter(S){
+        S.icon('secondary','📅',{label:'Day 1'});
+    }},
+    { speaker:'NARRATOR', text:"Day two. Day three. Day four. Day five. Every single day, the clock keeps running.", enter(S){
+        S.icon('secondary','📅',{label:'Day 5', anim:'punch'});
+        S.meter({tag1:'FINE ACCUMULATING', pct1:100, val1:'$1,000 × 5 days'});
+    }},
+    { speaker:'NARRATOR', text:"This isn't a warning. It's a third-degree misdemeanor, and it's compounding by the day.", enter(S){
+        S.shake();
+        S.banner('⚠️ MISDEMEANOR','FINE: UP TO $1,000/DAY');
+    }},
+    { speaker:'NARRATOR', text:"There's no flat one-time penalty here — it's per day, for every day the unauthorized activity continues.", enter(S){
+        S.flash('$5,000+','var(--danger)');
+    }},
+  ]},
+
+{ id:'paip', title:'THE HANDSHAKE<br>THAT DIDN\'T COUNT', hook:'PAIP\u2019s one specific way to bind coverage.', icon:'📧', mood:'mood-bureau', tag:'ws15 · PAIP Binding',
+  endRule:"PAIP agents can't bind coverage the way they would in the standard market. Binding only happens through PAIP's specific <b>electronic mail binding procedure</b> — nothing else counts, no matter how routine it feels.",
+  beats:[
+    { speaker:'NARRATOR', text:"This driver can't get coverage anywhere in the standard market — too many red flags for any carrier to touch.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','🚗',{label:'Standard Market'});
+        S.stamp('main','x','DECLINED EVERYWHERE');
+    }},
+    { speaker:'NARRATOR', text:"That's exactly what PAIP exists for — Pennsylvania's assigned-risk plan of last resort.", enter(S){
+        S.icon('secondary','🏛️',{label:'PAIP'});
+    }},
+    { speaker:'AGENT', text:"\"Alright, let's just shake on it like I would for any other policy.\"", enter(S){
+        S.icon('secondary','🤝',{label:'Handshake Bind'});
+    }},
+    { speaker:'NARRATOR', text:"That doesn't work here. PAIP isn't the standard market, and it doesn't play by the standard market's rules.", enter(S){
+        S.shake();
+        S.stamp('secondary','x','REJECTED');
+        S.banner('❌ INVALID BIND','WRONG METHOD');
+    }},
+    { speaker:'NARRATOR', text:"PAIP only allows binding through its own electronic mail binding procedure — the specific system it was built around.", enter(S){
+        S.icon('secondary','📧',{label:'E-Mail Binding', anim:'glowgreen'});
+        S.stamp('secondary','check','VALID');
+        S.flash('COVERAGE BOUND','var(--safe)');
+    }},
+  ]},
+
+];
+
+/* ============================================================
+   ENGINE
+   ============================================================ */
+let currentStory=null, beatIdx=-1, typing=false, typeTimer=null;
+const WATCHED_KEY='storyModeWatched_v1';
+function getWatched(){ try{ return JSON.parse(localStorage.getItem(WATCHED_KEY)||'{}'); }catch(e){ return {}; } }
+function markWatched(id){ const w=getWatched(); w[id]=true; try{ localStorage.setItem(WATCHED_KEY, JSON.stringify(w)); }catch(e){} }
+
+function renderMenu(){
+  const watched=getWatched();
+  const grid=document.getElementById('storyGrid');
+  grid.innerHTML='';
+  STORIES.forEach(story=>{
+    const card=document.createElement('div');
+    card.className='story-card';
+    card.onclick=()=>loadStory(story.id);
+    card.innerHTML=
+      (watched[story.id] ? '<div class="sc-done">✓</div>' : '')+
+      '<div class="sc-icon">'+story.icon+'</div>'+
+      '<div class="sc-title">'+story.title+'</div>'+
+      '<div class="sc-hook">'+story.hook+'</div>'+
+      '<div class="sc-tag">'+story.tag+'</div>';
+    grid.appendChild(card);
+  });
+}
+renderMenu();
+
+function loadStory(id){
+  currentStory = STORIES.find(s=>s.id===id);
+  if(!currentStory) return;
+  document.getElementById('menuScreen').style.display='none';
+  document.getElementById('stageScreen').classList.add('active');
+  document.getElementById('skipBtn').style.display='inline-block';
+  resetStage();
+  beatIdx=0;
+  playBeat(0);
+}
+function backToMenu(){
+  document.getElementById('stageScreen').classList.remove('active');
+  document.getElementById('menuScreen').style.display='block';
+  renderMenu();
+}
+
+/* ---- typewriter ---- */
+function typeText(el, text, cb){
+  typing=true; el.textContent=''; let i=0; clearInterval(typeTimer);
+  typeTimer=setInterval(()=>{ el.textContent+=text[i]; i++; if(i>=text.length){ clearInterval(typeTimer); typing=false; if(cb)cb(); } },18);
+}
+function finishTypeNow(el,text){ clearInterval(typeTimer); el.textContent=text; typing=false; }
+
+/* ---- stage helper API passed into each beat's enter() ---- */
+function shakeScreen(){ document.body.classList.add('shake'); setTimeout(()=>document.body.classList.remove('shake'),500); }
+const S={
+  mood(cls){ const bg=document.getElementById('stageBg'); bg.className='stage-bg '+cls; buildParticles(); },
+  icon(slot,emoji,opts){
+    opts=opts||{};
+    const wrap=document.getElementById(slot==='main'?'iconMain':'iconSecondary');
+    const em=document.getElementById(slot==='main'?'iconMainEmoji':'iconSecondaryEmoji');
+    const lab=document.getElementById(slot==='main'?'iconMainLabel':'iconSecondaryLabel');
+    em.textContent=emoji;
+    wrap.className='icon-slot show'+(opts.anim?' '+opts.anim:'');
+    if(opts.label){ lab.textContent=opts.label; lab.style.display='inline-block'; } else { lab.style.display='none'; }
+  },
+  stamp(slot,type,text){
+    const el=document.getElementById(slot==='main'?'stampMain':'stampSecondary');
+    el.textContent=text; el.className='stamp '+type; void el.offsetWidth; el.classList.add('show');
+  },
+  meter(cfg){
+    const box=document.getElementById('metersBox');
+    box.classList.add('show');
+    document.getElementById('meterTag1').textContent=cfg.tag1||'';
+    document.getElementById('meterVal1').textContent=cfg.val1||'';
+    document.getElementById('meterRow2').style.display=cfg.tag2?'block':'none';
+    if(cfg.tag2){
+      document.getElementById('meterTag2').textContent=cfg.tag2;
+      document.getElementById('meterVal2').textContent=cfg.val2||'';
+    }
+    setTimeout(()=>{
+      document.getElementById('meterFill1').style.width=(cfg.pct1||0)+'%';
+      if(cfg.tag2) document.getElementById('meterFill2').style.width=(cfg.pct2||0)+'%';
+      const mark=document.getElementById('meterMark1');
+      if(cfg.markPct!==undefined){ mark.style.display='block'; mark.style.left=cfg.markPct+'%'; } else { mark.style.display='none'; }
+    },120);
+  },
+  banner(main,sub){
+    const b=document.getElementById('banner');
+    document.getElementById('bannerMain').textContent=main;
+    document.getElementById('bannerMain').style.color='var(--danger)';
+    document.getElementById('bannerSub').textContent=sub||'';
+    b.classList.add('show');
+    setTimeout(()=>b.classList.remove('show'),1500);
+  },
+  formula(title,lines){
+    const card=document.getElementById('formulaCard');
+    document.getElementById('formulaTitle').textContent=title;
+    document.getElementById('formulaTitle').style.color='var(--gold)';
+    const wrap=document.getElementById('formulaLines');
+    wrap.innerHTML='';
+    card.classList.add('show');
+    lines.forEach((ln,i)=>{
+      const d=document.createElement('div');
+      d.className='formula-line'+(ln.cls?' '+ln.cls:'');
+      d.innerHTML=ln.text;
+      wrap.appendChild(d);
+      setTimeout(()=>d.classList.add('show'), 250+i*350);
+    });
+  },
+  flash(text,color){
+    const el=document.getElementById('flashTxt');
+    el.textContent=text; el.style.color=color||'var(--gold)';
+    el.classList.remove('fly'); void el.offsetWidth; el.classList.add('fly');
+  },
+  shake(){ shakeScreen(); }
+};
+function buildParticles(){
+  const p=document.getElementById('particles');
+  p.innerHTML='';
+  for(let i=0;i<14;i++){
+    const s=document.createElement('span');
+    s.style.left=(Math.random()*100)+'%';
+    s.style.bottom='0';
+    s.style.animationDuration=(3+Math.random()*3)+'s';
+    s.style.animationDelay=(Math.random()*3)+'s';
+    p.appendChild(s);
+  }
+}
+
+function resetStage(){
+  ['iconMain','iconSecondary'].forEach(id=>{ document.getElementById(id).className='icon-slot'; });
+  ['stampMain','stampSecondary'].forEach(id=>{ const el=document.getElementById(id); el.className='stamp'; el.textContent=''; });
+  document.getElementById('metersBox').classList.remove('show');
+  document.getElementById('meterFill1').style.width='0%';
+  document.getElementById('meterFill2').style.width='0%';
+  document.getElementById('meterMark1').style.display='none';
+  document.getElementById('formulaCard').classList.remove('show');
+  document.getElementById('formulaLines').innerHTML='';
+  document.getElementById('banner').classList.remove('show');
+  document.getElementById('flashTxt').classList.remove('fly');
+  document.getElementById('endCard').classList.remove('show');
+  document.getElementById('dialogue').classList.remove('show');
+}
+
+function playBeat(i){
+  if(!currentStory) return;
+  if(i<0 || i>=currentStory.beats.length){ showEnd(); return; }
+  const b=currentStory.beats[i];
+  document.getElementById('dialogue').classList.add('show');
+  document.getElementById('speaker').textContent=b.speaker;
+  if(b.enter) b.enter(S);
+  typeText(document.getElementById('dtext'), b.text);
+}
+function advance(){
+  if(!currentStory) return;
+  if(typing){ finishTypeNow(document.getElementById('dtext'), currentStory.beats[beatIdx].text); return; }
+  beatIdx++; playBeat(beatIdx);
+}
+function showEnd(){
+  document.getElementById('dialogue').classList.remove('show');
+  document.getElementById('skipBtn').style.display='none';
+  markWatched(currentStory.id);
+  document.getElementById('endTitle').textContent='✓ SCENE COMPLETE';
+  document.getElementById('endRule').innerHTML=currentStory.endRule;
+  setTimeout(()=>document.getElementById('endCard').classList.add('show'),300);
+}
+function skipToEnd(){ clearInterval(typeTimer); showEnd(); }
+function restartStory(){
+  resetStage();
+  document.getElementById('skipBtn').style.display='inline-block';
+  beatIdx=0; playBeat(0);
+}
+
+document.addEventListener('keydown',(e)=>{
+  if((e.code==='Space'||e.code==='Enter') && document.getElementById('stageScreen').classList.contains('active')){
+    if(!document.getElementById('endCard').classList.contains('show')){ e.preventDefault(); advance(); }
+  }
+});
+</script>
+</body>
+</html>
