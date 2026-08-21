@@ -979,6 +979,394 @@ const STORIES = [
     }},
   ]},
 
+{ id:'wallcollapse', title:'THE WALL THAT<br>CAME BACK', hook:'The completed operations hazard, years later.', icon:'🧱', mood:'mood-stormred', tag:'ws41 · Completed Operations',
+  endRule:"The completed operations hazard means a contractor's finished work can still trigger a claim years later — and the CGL insurer must defend the suit no matter the outcome. It's not product liability, and there's no statute-of-limitations shortcut.",
+  beats:[
+    { speaker:'NARRATOR', text:"Years ago, a contractor built a retaining wall. The job was signed off, paid, and forgotten.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','👷',{label:'Wall Built — Years Ago'});
+    }},
+    { speaker:'NARRATOR', text:"Today, that wall collapses. A child playing nearby is hurt. A lawsuit lands on the contractor's desk.", enter(S){
+        S.shake(); S.icon('secondary','🧱',{label:'Wall Collapses', anim:'shatter'});
+        S.banner('⚖️ LAWSUIT FILED!','OLD WORK, NEW CLAIM');
+    }},
+    { speaker:'CONTRACTOR', text:"\"It's been years — surely the statute of limitations covers me?\"", enter(S){
+        S.stamp('main','x','NO SHORTCUT');
+    }},
+    { speaker:'NARRATOR', text:"It doesn't work that way. This is the completed operations hazard — finished work can still trigger a claim long after the job's done.", enter(S){
+        S.icon('secondary','📜',{label:'Completed Operations Hazard'});
+    }},
+    { speaker:'CGL INSURER', text:"\"I have to defend this suit — no matter how it turns out.\"", enter(S){
+        S.stamp('secondary','check','DEFENSE OBLIGATED');
+        S.flash('INSURER MUST DEFEND','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"Not product liability — that's for manufactured goods. Not personal injury coverage — that's for things like libel. This is completed operations, plain and simple.", enter(S){}},
+  ]},
+
+{ id:'blackoutmeat', title:'THE BLACKOUT<br>SIX BLOCKS AWAY', hook:'Off-premises power failure and the Time Element gap.', icon:'🔌', mood:'mood-industrial', tag:'ws42 · Utility Services Time Element',
+  endRule:"Off-premises power interruption is excluded under the standard BOP — the Utility Services Time Element endorsement (BP 04 57) is the specific fix. Without it, an off-site outage leaves income loss uncovered.",
+  beats:[
+    { speaker:'NARRATOR', text:"Strasburg Meats runs on a standard BOP. Six blocks away, a car crashes into a substation.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🏪',{label:'Strasburg Meats — BOP'});
+    }},
+    { speaker:'NARRATOR', text:"Power's out at the store for 3 days. The freezers climb in temperature. The health department orders everything discarded.", enter(S){
+        S.shake(); S.icon('secondary','🔌',{label:'Power Out — 3 Days', anim:'shatter'});
+        S.banner('⚡ OUTAGE!','ALL PRODUCT DISCARDED');
+    }},
+    { speaker:'NARRATOR', text:"It takes 3 more days to restock. Six days of lost income, all told.", enter(S){
+        S.meter({tag1:'LOST INCOME WINDOW', pct1:100, val1:'6 Days'});
+    }},
+    { speaker:'OWNER', text:"\"My Business Interruption coverage handles this, right?\"", enter(S){
+        S.icon('secondary','📄',{label:'Business Interruption'});
+        S.stamp('secondary','x','EXCLUDED');
+    }},
+    { speaker:'NARRATOR', text:"Wrong — the failure happened off-premises, at the substation. Off-premises power interruption is excluded under the base BOP.", enter(S){}},
+    { speaker:'NARRATOR', text:"The fix is a specific add-on: the Utility Services — Time Element endorsement. Without it purchased, this loss goes uncovered.", enter(S){
+        S.icon('secondary','🔧',{label:'Utility Services — Time Element', anim:'glowgold'});
+        S.flash('THE MISSING ENDORSEMENT','var(--danger)');
+    }},
+  ]},
+
+{ id:'underground', title:'WHAT\'S BURIED<br>STAYS EXCLUDED', hook:'The BOP\'s land and underground exclusion.', icon:'🕳️', mood:'mood-warmnight', tag:'ws43 · BOP Property Exclusions',
+  endRule:"Land and anything buried in it — underground pipes, flues, and drains — sit outside every standard BOP, no matter what's connected to them above ground.",
+  beats:[
+    { speaker:'NARRATOR', text:"A business owner walks the property, checking what's actually covered on the BOP.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🏢',{label:'Businessowners Policy'});
+    }},
+    { speaker:'NARRATOR', text:"Service appliances — covered. Foundations above the basement floor — covered. Outdoor furniture and fixtures — covered.", enter(S){
+        S.icon('secondary','✅',{label:'Above-Ground Property'});
+        S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'NARRATOR', text:"Then he points at the ground. \"What about the pipes running under the parking lot?\"", enter(S){
+        S.icon('secondary','🕳️',{label:'Underground Pipes & Drains', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Land — and anything buried in it — is excluded. Underground pipes, flues, and drains fall outside the BOP entirely.", enter(S){
+        S.stamp('secondary','x','EXCLUDED — UNDERGROUND');
+        S.flash('BELOW GRADE = EXCLUDED','var(--danger)');
+    }},
+  ]},
+
+{ id:'poormanscomp', title:'THE POOR MAN\'S<br>COMPREHENSIVE', hook:'Specified Cause of Loss as the BAP alternative.', icon:'🚚', mood:'mood-warning', tag:'ws44 · BAP Physical Damage',
+  endRule:"Specified Cause of Loss coverage is the named-perils, budget alternative to Comprehensive on a Business Auto Policy — cheaper because it only pays for a limited, listed set of perils, not everything.",
+  beats:[
+    { speaker:'NARRATOR', text:"A fleet manager is pricing physical damage coverage on the company's Business Auto Policy.", enter(S){
+        S.mood('mood-warning'); S.icon('main','🚚',{label:'Business Auto Policy'});
+    }},
+    { speaker:'FLEET MANAGER', text:"\"Full Comprehensive coverage is expensive. Isn't there something cheaper that still covers the basics?\"", enter(S){
+        S.icon('secondary','💰',{label:'Comprehensive — Full Price', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"There is — Specified Cause of Loss coverage. It swaps in for Comprehensive, but only pays for a named, limited list of perils.", enter(S){
+        S.icon('secondary','📋',{label:'Specified Cause of Loss', anim:'glowgold'});
+        S.stamp('secondary','check','THE ALTERNATIVE');
+    }},
+    { speaker:'NARRATOR', text:"It used to go by an old nickname on the street: the \"Poor Man's Comp.\"", enter(S){
+        S.flash('AKA: POOR MAN\'S COMP','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"Collision isn't the answer here — it's a separate coverage that stacks alongside Comprehensive, not a substitute for it.", enter(S){}},
+  ]},
+
+{ id:'burglardp', title:'THE BURGLAR AND<br>THE BUILDING', hook:'DP-2 Broad form: theft of stuff vs. damage from a break-in.', icon:'🚪', mood:'mood-stormred', tag:'ws45 · DP Broad Cause of Loss',
+  endRule:"The DP-2 Broad form excludes theft of personal property, but still covers damage to the building itself caused by a burglar breaking in — two very different things.",
+  beats:[
+    { speaker:'NARRATOR', text:"A rental home is insured on a DP-2, the Broad Cause of Loss form.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🏠',{label:'DP-2 Broad Form'});
+    }},
+    { speaker:'NARRATOR', text:"One night, a burglar kicks in the back door and steals the tenant's TV and jewelry.", enter(S){
+        S.shake(); S.icon('secondary','🚪',{label:'Door Kicked In', anim:'shatter'});
+        S.banner('🚨 BREAK-IN!','TENANT PROPERTY STOLEN');
+    }},
+    { speaker:'NARRATOR', text:"The stolen TV and jewelry? Not covered — DP-2 excludes theft of personal property entirely.", enter(S){
+        S.icon('secondary','📺',{label:'Stolen Contents'});
+        S.stamp('secondary','x','NOT COVERED');
+    }},
+    { speaker:'NARRATOR', text:"But that splintered door frame — the actual damage the burglar caused breaking in? That's a different story.", enter(S){
+        S.icon('secondary','🧱',{label:'Damaged Door Frame', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Damage to the building caused by burglars is covered under the DP-2. Theft of stuff and damage from the break-in are two separate questions.", enter(S){
+        S.stamp('secondary','check','DAMAGE COVERED');
+        S.flash('BUILDING DAMAGE = COVERED','var(--safe)');
+    }},
+  ]},
+
+{ id:'nolimitmed', title:'THE BILL WITH<br>NO CEILING', hook:'Workers\' Comp medical benefits carry no dollar cap.', icon:'🏥', mood:'mood-medical', tag:'ws46 · Workers\' Comp Benefits',
+  endRule:"Workers' Comp medical benefits have no dollar limit — every job-related medical bill gets paid for as long as treatment is needed. Disability, survivor, and vocational rehab benefits all carry their own separate rules.",
+  beats:[
+    { speaker:'NARRATOR', text:"A warehouse worker is hurt on the job. The medical bills start rolling in — and they don't stop.", enter(S){
+        S.mood('mood-medical'); S.icon('main','🏥',{label:'Job-Related Injury'});
+    }},
+    { speaker:'WORKER', text:"\"At some point my Workers' Comp medical coverage has to run out, right?\"", enter(S){
+        S.icon('secondary','💵',{label:'Medical Bills', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"It doesn't. Workers' Comp medical benefits carry no dollar cap — every job-related bill gets paid, for as long as treatment is needed.", enter(S){
+        S.stamp('secondary','check','NO DOLLAR LIMIT');
+        S.flash('UNLIMITED MEDICAL','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"Compare that to the other benefits: disability income runs for the actual disability (not a flat 2 weeks), and survivor benefits last until the spouse remarries — not automatically for life.", enter(S){}},
+    { speaker:'NARRATOR', text:"And vocational rehabilitation is tied to total disabilities, not partial ones. Medical is the one place the limit gets removed entirely.", enter(S){
+        S.icon('secondary','📋',{label:'Other Benefits Have Limits'});
+    }},
+  ]},
+
+{ id:'bopdeductible', title:'THE $500<br>LINE ITEM', hook:'BOP\'s standard property deductible.', icon:'🧾', mood:'mood-bureau', tag:'ws47 · BOP Standard Deductible',
+  endRule:"The BOP's standard property deductible is $500 — but the liability side of the policy carries no deductible at all.",
+  beats:[
+    { speaker:'NARRATOR', text:"An agent is walking a client through their new Businessowners Policy declarations page.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','📄',{label:'BOP Declarations'});
+    }},
+    { speaker:'CLIENT', text:"\"What's my deductible if something happens to the building?\"", enter(S){
+        S.icon('secondary','🏢',{label:'Property Section'});
+    }},
+    { speaker:'NARRATOR', text:"$500 — the standard BOP property deductible, matching the pattern from earlier commercial property forms.", enter(S){
+        S.formula('STANDARD BOP DEDUCTIBLE',[
+          {text:'Property Section',cls:''},
+          {text:'= $500 deductible',cls:'result'},
+        ]);
+    }},
+    { speaker:'CLIENT', text:"\"And if someone sues me for a liability claim?\"", enter(S){
+        S.icon('secondary','⚖️',{label:'Liability Section'});
+    }},
+    { speaker:'NARRATOR', text:"Zero. The liability side of a BOP carries no deductible at all — the $500 only touches the property section.", enter(S){
+        S.stamp('secondary','check','$0 DEDUCTIBLE — LIABILITY');
+        S.flash('LIABILITY: NO DEDUCTIBLE','var(--safe)');
+    }},
+  ]},
+
+{ id:'premiseslia', title:'THE FENCE LINE<br>OF COVERAGE', hook:'Premises liability vs. personal liability on a DP.', icon:'🚧', mood:'mood-warmnight', tag:'ws48 · DP Premises Liability',
+  endRule:"The premises liability endorsement only follows the insured on the property itself. Personal liability is the broader option that follows them everywhere, on and off premises.",
+  beats:[
+    { speaker:'NARRATOR', text:"A homeowner insured on a Dwelling Property policy wants liability coverage — but only worries about exposure right on the property.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🏡',{label:'Dwelling Property Policy'});
+    }},
+    { speaker:'HOMEOWNER', text:"\"I just want to be covered if someone gets hurt here, on my land. Nothing more.\"", enter(S){
+        S.icon('secondary','🚧',{label:'On-Premises Only'});
+    }},
+    { speaker:'NARRATOR', text:"That's the premises liability endorsement — scoped specifically to the property itself, nothing beyond the fence line.", enter(S){
+        S.stamp('secondary','check','PREMISES LIABILITY');
+        S.flash('MATCHES THE NEED','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"Personal liability, on the other hand, follows the insured everywhere — on the property AND off it. Broader scope, different endorsement entirely.", enter(S){
+        S.icon('secondary','🌍',{label:'Personal Liability — Broader'});
+    }},
+    { speaker:'NARRATOR', text:"And DP-2 / DP-3? Those aren't liability endorsements at all — they're just cause-of-loss forms.", enter(S){}},
+  ]},
+
+{ id:'obligeepromise', title:'THE PROMISE<br>THAT WAS OWED', hook:'The Obligee as the bond\'s promisee.', icon:'🤝', mood:'mood-bureau', tag:'ws49 · Surety Bonds — Obligee',
+  endRule:"The obligee is the party a bond's promise was made TO — the one who receives the payout if the principal defaults. The principal is the promisor; the surety guarantees the promise.",
+  beats:[
+    { speaker:'NARRATOR', text:"A surety bond has three parties. One of them is owed a promise — the promisee.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','📜',{label:'Surety Bond — 3 Parties'});
+    }},
+    { speaker:'NARRATOR', text:"The principal makes the promise to perform. The surety backs that promise financially.", enter(S){
+        S.icon('secondary','👷',{label:'Principal: The Promisor'});
+    }},
+    { speaker:'NARRATOR', text:"And the third party — the one the promise was actually made TO — is the obligee.", enter(S){
+        S.icon('secondary','🤝',{label:'Obligee: The Promisee', anim:'glowgold'});
+        S.stamp('secondary','check','THE PROMISEE');
+    }},
+    { speaker:'NARRATOR', text:"If the principal defaults, it's the obligee who receives the bond proceeds — they're the one who was owed something in the first place.", enter(S){
+        S.flash('OBLIGEE RECEIVES THE PAYOUT','var(--safe)');
+    }},
+  ]},
+
+{ id:'income72', title:'THE 72-HOUR<br>WAITING ROOM', hook:'Business Income\'s time deductible.', icon:'⏱️', mood:'mood-industrial', tag:'ws50 · Business Income Deductible',
+  endRule:"Business Income coverage runs on a time deductible, not a dollar one — the standard waiting period is 72 hours before coverage kicks in.",
+  beats:[
+    { speaker:'NARRATOR', text:"A covered loss shuts down a small business. The clock starts immediately.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🏪',{label:'Business Income Coverage'});
+    }},
+    { speaker:'OWNER', text:"\"How much do I have to eat before the coverage kicks in? What's my deductible?\"", enter(S){
+        S.icon('secondary','💵',{label:'Deductible?'});
+    }},
+    { speaker:'NARRATOR', text:"It's not measured in dollars at all — it's measured in time. 72 hours, the standard waiting period.", enter(S){
+        S.meter({tag1:'WAITING PERIOD', pct1:100, val1:'72 Hours'});
+    }},
+    { speaker:'NARRATOR', text:"Three days pass with no coverage responding — then the period of restoration officially begins.", enter(S){
+        S.stamp('secondary','check','72-HOUR DEDUCTIBLE');
+        S.flash('COVERAGE STARTS AT HOUR 72','var(--safe)');
+    }},
+  ]},
+
+{ id:'ho3split', title:'THE HALFWAY<br>HOUSE FORM', hook:'HO-3: open peril on the dwelling, broad form on contents.', icon:'🏘️', mood:'mood-warmnight', tag:'ws51 · HO-3 Real Property vs Contents',
+  endRule:"HO-3 splits its coverage down the middle: open-peril (all risk) protection on real property like the dwelling, but named-peril (broad form) coverage on personal property/contents.",
+  beats:[
+    { speaker:'NARRATOR', text:"Four homeowners forms sit on the table — HO-2, HO-3, HO-4, HO-5. Each one draws the line differently.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🏘️',{label:'Homeowners Forms'});
+    }},
+    { speaker:'NARRATOR', text:"One form splits its coverage right down the middle — wide open on the building, narrower on the stuff inside it.", enter(S){
+        S.icon('secondary','🏠',{label:'Real Property: Open Peril'});
+    }},
+    { speaker:'NARRATOR', text:"The dwelling and other structures get open-peril, \\\"all risk\\\" protection.", enter(S){
+        S.stamp('secondary','check','OPEN PERIL — DWELLING');
+    }},
+    { speaker:'NARRATOR', text:"But contents only get named-peril, broad form coverage — a shorter list of what's actually covered.", enter(S){
+        S.icon('secondary','📦',{label:'Contents: Broad Form Only', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"That split — wide on real property, narrower on contents — is the signature of HO-3, the most common homeowners form written.", enter(S){
+        S.flash('THAT\'S HO-3','var(--safe)');
+    }},
+  ]},
+
+{ id:'theftchoice', title:'TWO DOORS,<br>ONE CHOICE', hook:'Owner occupant theft: limited or broad, not either/or eligibility.', icon:'🔐', mood:'mood-stormred', tag:'ws52 · DP Owner Occupant Theft',
+  endRule:"An owner occupant on a DP policy can purchase either the limited or the broad theft endorsement — both stay on the table, the right one depends on the customer's actual exposure, not eligibility rules.",
+  beats:[
+    { speaker:'NARRATOR', text:"An owner occupant sits down with an agent to talk personal theft coverage on their DP policy.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🏡',{label:'Owner Occupant — DP Policy'});
+    }},
+    { speaker:'AGENT', text:"\"There are two doors here — limited theft, on-premises only, or broad theft, on and off the premises.\"", enter(S){
+        S.icon('secondary','🔐',{label:'Limited vs. Broad Theft'});
+    }},
+    { speaker:'NARRATOR', text:"Both are genuinely available. It's not a question of who's eligible for which — it's a question of which fits the actual exposure.", enter(S){
+        S.stamp('secondary','check','EITHER IS AVAILABLE');
+        S.flash('BOTH OPTIONS ON THE TABLE','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"Someone who never leaves valuables in the car might pick limited. Someone who travels with expensive gear might want broad.", enter(S){}},
+  ]},
+
+{ id:'bopautomatic', title:'THE COVERAGE<br>ALREADY BUILT IN', hook:'BOP business income: automatic, not optional.', icon:'📦', mood:'mood-warning', tag:'ws53 · BOP Optional vs Automatic',
+  endRule:"Business income coverage is built into the standard BOP automatically for a covered property loss. Outdoor signs, employee dishonesty, and money/securities all require a separate optional purchase.",
+  beats:[
+    { speaker:'NARRATOR', text:"An agent is walking a business owner through BOP add-ons, one by one.", enter(S){
+        S.mood('mood-warning'); S.icon('main','🏢',{label:'BOP Add-On Menu'});
+    }},
+    { speaker:'NARRATOR', text:"Outdoor signs — extra purchase. Employee dishonesty — extra purchase. Money and securities — extra purchase.", enter(S){
+        S.icon('secondary','➕',{label:'Optional Endorsements', anim:'punch'});
+        S.stamp('secondary','x','ALL REQUIRE ADD-ON');
+    }},
+    { speaker:'OWNER', text:"\"And business income? I need that if a covered loss shuts me down.\"", enter(S){
+        S.icon('secondary','💵',{label:'Business Income'});
+    }},
+    { speaker:'NARRATOR', text:"That one's already in the box. Business income comes built into the base BOP automatically for a covered property loss.", enter(S){
+        S.stamp('secondary','check','ALREADY INCLUDED');
+        S.flash('NOT OPTIONAL — AUTOMATIC','var(--safe)');
+    }},
+  ]},
+
+{ id:'principalperform', title:'THE ONE WHO<br>HAS TO SHOW UP', hook:'Principal = the party who performs.', icon:'🔨', mood:'mood-bureau', tag:'ws54 · Bond Principal',
+  endRule:"The principal is the party who actually has to perform under the bond. \\\"P\\\" for principal, \\\"P\\\" for perform. \\\"Guarantor\\\" isn't one of the three real bond parties.",
+  beats:[
+    { speaker:'NARRATOR', text:"A contractor signs a bond and takes on the job — the roads have to get built, on schedule, no excuses.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','🔨',{label:'Bonded Contract'});
+    }},
+    { speaker:'NARRATOR', text:"Three names are on the bond paperwork: principal, surety, obligee. Only one of them actually has to swing the hammer.", enter(S){
+        S.icon('secondary','📜',{label:'Three Named Parties'});
+    }},
+    { speaker:'NARRATOR', text:"That's the principal — the party responsible to perform. \\\"P\\\" for principal, \\\"P\\\" for perform.", enter(S){
+        S.stamp('secondary','check','PRINCIPAL PERFORMS');
+        S.flash('THE ONE WHO BUILDS THE ROAD','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"The surety guarantees it gets done — stepping in financially if the principal fails. \\\"Guarantor\\\" isn't a real party here at all; it's a decoy.", enter(S){
+        S.icon('secondary','🛡️',{label:'Surety Guarantees'});
+    }},
+  ]},
+
+{ id:'pa153005', title:'THE 15/30/5<br>SAFETY NET', hook:'PA\'s state-minimum auto liability limits.', icon:'🚗', mood:'mood-industrial', tag:'ws55 + ws56 · PA State Minimum Auto Limits',
+  endRule:"Pennsylvania's state-required minimum auto liability is 15/30/5 — $15,000 per person, $30,000 per accident for bodily injury, and $5,000 for property damage.",
+  beats:[
+    { speaker:'NARRATOR', text:"Frank carries exactly the state-required minimum auto liability limits in Pennsylvania — nothing more.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🚗',{label:'Frank — State Minimum Auto'});
+    }},
+    { speaker:'NARRATOR', text:"A crash hurts two people in the other car, and crumples the fender too.", enter(S){
+        S.shake(); S.icon('secondary','💥',{label:'Two-Car Accident', anim:'punch'});
+        S.banner('🚨 ACCIDENT!','TWO INJURED + PROPERTY DAMAGE');
+    }},
+    { speaker:'NARRATOR', text:"For bodily injury, one person alone tops out at $15,000. But with two or more people hurt in the same accident, the ceiling rises.", enter(S){
+        S.formula('PA MINIMUM AUTO LIABILITY',[
+          {text:'Bodily Injury — 1 person',cls:''},
+          {text:'= $15,000',cls:''},
+          {text:'Bodily Injury — 2+ people',cls:''},
+          {text:'= $30,000',cls:'result'},
+        ]);
+    }},
+    { speaker:'NARRATOR', text:"And the crumpled fender — property damage — settles at the smallest number in the trio.", enter(S){
+        S.icon('secondary','🚙',{label:'Property Damage: $5,000'});
+        S.stamp('secondary','check','$5,000');
+    }},
+    { speaker:'NARRATOR', text:"15/30/5 — that's the whole structure. Per person, per accident, and property damage, smallest to largest.", enter(S){
+        S.flash('15 / 30 / 5','var(--safe)');
+    }},
+  ]},
+
+{ id:'addresschange', title:'THE ADDRESS<br>NOBODY UPDATED', hook:'Change-of-address failure as a Prohibited Act.', icon:'📬', mood:'mood-bureau', tag:'ws57 · Producer Duties — Address Change',
+  endRule:"Failing to report a change of address within 30 days is classified specifically as a Prohibited Act under PA producer duties — not a criminal charge, and not lumped in with deceptive practices.",
+  beats:[
+    { speaker:'NARRATOR', text:"Mary, a licensed agent, moves to a new address. Life gets busy. She forgets to tell the Department.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','📬',{label:'Address Change — Unreported'});
+    }},
+    { speaker:'NARRATOR', text:"30 days pass with no notice filed.", enter(S){
+        S.shake(); S.icon('secondary','⏰',{label:'30 Days Elapsed', anim:'punch'});
+        S.banner('⏰ DEADLINE MISSED!','NO NOTICE FILED');
+    }},
+    { speaker:'NARRATOR', text:"This isn't a felony. It isn't a misdemeanor. It isn't lumped in with deceptive practices either.", enter(S){
+        S.icon('secondary','🚫',{label:'Not a Criminal Charge'});
+    }},
+    { speaker:'NARRATOR', text:"It has its own specific label: a Prohibited Act. A distinct classification, separate from the criminal categories.", enter(S){
+        S.stamp('secondary','check','PROHIBITED ACT');
+        S.flash('ITS OWN CATEGORY','var(--safe)');
+    }},
+  ]},
+
+{ id:'knowingfine', title:'THE FINE THAT<br>KNEW BETTER', hook:'Knowing unfair competition: the steeper fine tier.', icon:'💰', mood:'mood-stormred', tag:'ws58 · Unfair Competition Fines',
+  endRule:"Knowing unfair competition sits at the steeper penalty tier: $5,000 per violation, capped at $50,000 in any six-month period. Unknowing violations sit at the lower $1,000/violation tier.",
+  beats:[
+    { speaker:'NARRATOR', text:"Edward knew exactly what he was doing when he used an unfair method of competition to close a sale.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','💼',{label:'Edward — Knowing Violation'});
+    }},
+    { speaker:'NARRATOR', text:"There are two ladders here — one for producers who didn't realize they were violating the rules, and one for producers who knew.", enter(S){
+        S.icon('secondary','⚖️',{label:'Two Fine Tiers'});
+    }},
+    { speaker:'NARRATOR', text:"Unknowing sits at $1,000 per violation. Edward doesn't get that tier — he knew.", enter(S){
+        S.stamp('secondary','x','NOT THE LOWER TIER');
+    }},
+    { speaker:'NARRATOR', text:"Knowing violations jump to $5,000 per violation, capped at an aggregate of $50,000 in any six-month period.", enter(S){
+        S.formula('KNOWING VIOLATION PENALTY',[
+          {text:'$5,000 <span class="op">×</span> per violation',cls:''},
+          {text:'= up to $50,000 / 6 months',cls:'result'},
+        ]);
+        S.flash('$50,000 AGGREGATE CAP','var(--danger)');
+    }},
+  ]},
+
+{ id:'templicense', title:'180 DAYS,<br>NOT TRANSFERABLE', hook:'The Temporary License\'s real limitation.', icon:'🪪', mood:'mood-warning', tag:'ws59 · Temporary Licenses',
+  endRule:"A Temporary License does run for 180 days — but it is NOT transferable. That's the false half of any statement claiming otherwise.",
+  beats:[
+    { speaker:'NARRATOR', text:"An agent passes away. His surviving spouse steps in to keep the book of business running.", enter(S){
+        S.mood('mood-warning'); S.icon('main','🪪',{label:'Temporary License Request'});
+    }},
+    { speaker:'NARRATOR', text:"A surviving spouse can be issued a Temporary License. So can a court-appointed representative for a disabled resident agent. Both check out.", enter(S){
+        S.icon('secondary','✅',{label:'Eligible Recipients'});
+        S.stamp('secondary','check','VALID RECIPIENTS');
+    }},
+    { speaker:'NARRATOR', text:"The license runs 180 days. That part's true too — and it can't be used to write brand-new business.", enter(S){
+        S.meter({tag1:'LICENSE DURATION', pct1:100, val1:'180 Days'});
+    }},
+    { speaker:'NARRATOR', text:"But here's the trap: it is NOT transferable. It stays with the person it was issued to — that's the one false detail hiding in an otherwise true-sounding statement.", enter(S){
+        S.icon('secondary','🚫',{label:'Not Transferable', anim:'shatter'});
+        S.flash('READ TO THE END OF THE SENTENCE','var(--danger)');
+    }},
+  ]},
+
+{ id:'twentyoneday', title:'THE 21-DAY<br>CLOCK', hook:'PA Workers\' Comp payment timing and interest.', icon:'⏳', mood:'mood-medical', tag:'ws60 · PA Workers\' Comp Payment Timing',
+  endRule:"PA law requires Workers' Comp benefits to be paid within 21 days, or interest starts accruing at 10%. Total disability pays 66 2/3% of average weekly wage — not 80% — and permanent injury follows a fixed payment schedule, not an arbitration board.",
+  beats:[
+    { speaker:'NARRATOR', text:"A Pennsylvania worker is approved for Workers' Comp benefits. Now the clock starts on the insurer.", enter(S){
+        S.mood('mood-medical'); S.icon('main','⏳',{label:'PA Workers\' Comp — Approved Claim'});
+    }},
+    { speaker:'NARRATOR', text:"21 days. That's the window to pay out — miss it, and interest starts accruing at 10%.", enter(S){
+        S.formula('PA PAYMENT TIMING RULE',[
+          {text:'Payment due within 21 days',cls:''},
+          {text:'Late = 10% interest',cls:'result'},
+        ]);
+        S.stamp('secondary','check','21 DAYS / 10% INTEREST');
+    }},
+    { speaker:'NARRATOR', text:"Someone guesses total disability pays 80% of average weekly wage. Tempting number — but wrong.", enter(S){
+        S.icon('secondary','❌',{label:'80% — WRONG NUMBER', anim:'punch'});
+        S.stamp('secondary','x','NOT 80%');
+    }},
+    { speaker:'NARRATOR', text:"The real figure is 66 2/3% of average weekly wage for total disability.", enter(S){
+        S.flash('66 2/3%, NOT 80%','var(--danger)');
+    }},
+    { speaker:'NARRATOR', text:"And permanent injury doesn't go through an arbitration board — it's paid on a fixed schedule of amounts and periods, based on the severity of the injury.", enter(S){}},
+  ]},
+
 ];
 
 /* ============================================================
