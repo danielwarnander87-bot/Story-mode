@@ -1985,57 +1985,87 @@ function toggleMute(){
 }
 updateMuteButtons();
 
-// ---- ambient background pad — a soft, detuned 1987-synth drone ----
-let ambientNodes=null;
-function startAmbient(){
-  if(sfxMuted || ambientNodes) return;
+// ---- ambient background — a real looping 8-bit tune, mellow triangle
+// lead over a soft "oom-pah" bass, run through a persistent echo/delay
+// chain so it trails off like it's bouncing around an old cartridge ----
+const SIXTEENTH=0.115; // seconds per 16th note (~130 BPM) — a touch more relaxed
+// Bar A — the "up" phrase
+const BAR_LEAD_A=[
+  {step:0, freq:523.25},{step:2, freq:659.25},{step:4, freq:783.99},{step:5, freq:659.25},
+  {step:6, freq:783.99},{step:8, freq:1046.50},{step:10, freq:880.00},{step:11, freq:783.99},
+  {step:12, freq:659.25},{step:14, freq:587.33},
+];
+const BAR_BASS_A=[0,2,4,6,8,10,12,14].map((step,i)=>({step, freq:i%2===0?130.81:196.00})); // C3/G3 oom-pah
+// Bar B — the "answer" phrase, resolves back down
+const BAR_LEAD_B=[
+  {step:0, freq:783.99},{step:2, freq:659.25},{step:4, freq:523.25},{step:5, freq:587.33},
+  {step:6, freq:659.25},{step:8, freq:783.99},{step:10, freq:659.25},{step:11, freq:523.25},
+  {step:12, freq:440.00},{step:14, freq:523.25},
+];
+const BAR_BASS_B=[0,2,4,6,8,10,12,14].map((step,i)=>({step, freq:i%2===0?174.61:130.81})); // F3/C3 oom-pah
+
+let ambientActive=false, ambientTimeoutId=null, ambientBarToggle=0;
+
+// ---- persistent echo/delay send, built once and reused for every ambient note ----
+let ambientDelay=null, ambientFeedback=null, ambientWet=null, ambientFXReady=false;
+function ensureAmbientFX(){
   const ctx=ensureAudioCtx();
-  if(!ctx) return;
+  if(!ctx || ambientFXReady) return;
   try{
-    const master=ctx.createGain();
-    master.gain.setValueAtTime(0.0001, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(0.028, ctx.currentTime+2.5);
-    master.connect(ctx.destination);
-
-    const filter=ctx.createBiquadFilter();
-    filter.type='lowpass'; filter.frequency.value=900;
-    filter.connect(master);
-
-    // three slightly-detuned pad voices for that warm analog-synth beating
-    const freqs=[110, 110.6, 165.2];
-    const oscs=freqs.map(f=>{
-      const o=ctx.createOscillator();
-      o.type='sawtooth'; o.frequency.value=f;
-      const g=ctx.createGain(); g.gain.value=0.33;
-      o.connect(g); g.connect(filter);
-      o.start();
-      return o;
-    });
-
-    // slow LFO sweeping the filter for movement, like an old arpeggiated pad
-    const lfo=ctx.createOscillator();
-    lfo.type='sine'; lfo.frequency.value=0.05;
-    const lfoGain=ctx.createGain(); lfoGain.gain.value=260;
-    lfo.connect(lfoGain); lfoGain.connect(filter.frequency);
-    lfo.start();
-
-    ambientNodes={master, filter, oscs, lfo};
+    ambientDelay=ctx.createDelay(1.0);
+    ambientDelay.delayTime.value=0.34; // a dotted, bouncy repeat rather than a straight slapback
+    ambientFeedback=ctx.createGain();
+    ambientFeedback.gain.value=0.4; // a handful of audible repeats before it fades
+    ambientWet=ctx.createGain();
+    ambientWet.gain.value=0.55;
+    ambientDelay.connect(ambientFeedback);
+    ambientFeedback.connect(ambientDelay);
+    ambientDelay.connect(ambientWet);
+    ambientWet.connect(ctx.destination);
+    ambientFXReady=true;
   }catch(e){}
 }
-function stopAmbient(){
-  if(!ambientNodes) return;
+function playAmbientTone(freq, startOffset, duration, type, gainVal){
+  if(sfxMuted) return;
+  const ctx=ensureAudioCtx();
+  if(!ctx) return;
+  ensureAmbientFX();
   try{
-    const ctx=audioCtx;
-    const now=ctx.currentTime;
-    ambientNodes.master.gain.cancelScheduledValues(now);
-    ambientNodes.master.gain.setValueAtTime(ambientNodes.master.gain.value, now);
-    ambientNodes.master.gain.linearRampToValueAtTime(0.0001, now+0.6);
-    const nodes=ambientNodes;
-    setTimeout(()=>{
-      try{ nodes.oscs.forEach(o=>o.stop()); nodes.lfo.stop(); }catch(e){}
-    }, 700);
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type=type||'triangle';
+    osc.frequency.value=freq;
+    const t0=ctx.currentTime+Math.max(0,startOffset);
+    gain.gain.setValueAtTime(0.0001,t0);
+    gain.gain.linearRampToValueAtTime(gainVal||0.04, t0+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0+duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);            // dry
+    if(ambientDelay) gain.connect(ambientDelay); // wet send — the echo
+    osc.start(t0); osc.stop(t0+duration+0.05);
   }catch(e){}
-  ambientNodes=null;
+}
+function playBar(leadPattern, bassPattern){
+  if(sfxMuted) return;
+  leadPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*SIXTEENTH, 0.2, 'triangle', 0.038); });
+  bassPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*SIXTEENTH, 0.26, 'triangle', 0.032); });
+}
+function scheduleAmbient(){
+  if(!ambientActive || sfxMuted) return;
+  const barDuration=16*SIXTEENTH;
+  if(ambientBarToggle===0){ playBar(BAR_LEAD_A, BAR_BASS_A); } else { playBar(BAR_LEAD_B, BAR_BASS_B); }
+  ambientBarToggle = ambientBarToggle===0 ? 1 : 0;
+  ambientTimeoutId=setTimeout(scheduleAmbient, barDuration*1000);
+}
+function startAmbient(){
+  if(ambientActive || sfxMuted) return;
+  ambientActive=true;
+  ambientBarToggle=0;
+  scheduleAmbient();
+}
+function stopAmbient(){
+  ambientActive=false;
+  if(ambientTimeoutId){ clearTimeout(ambientTimeoutId); ambientTimeoutId=null; }
 }
 
 // ---- named sound effects, built from playTone ----
