@@ -39,6 +39,39 @@
   .story-card .sc-done{position:absolute; top:8px; right:10px; font-size:14px; color:var(--safe);}
   .story-card .sc-tag{font-family:'VT323',monospace; font-size:12px; color:#8b9bd8; margin-top:6px;}
 
+  /* ============ CHAPTER SELECT ============ */
+  .chapter-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; max-width:720px; margin:0 auto;}
+  .chapter-card{background:rgba(10,11,26,0.78); border:2px solid var(--parchment-line); border-radius:10px; padding:16px;
+    cursor:pointer; transition:border-color 0.15s ease, transform 0.1s ease; position:relative; text-align:left;}
+  .chapter-card:hover{border-color:var(--gold); transform:translateY(-2px);}
+  .chapter-card:active{transform:translateY(0);}
+  .chapter-card .ch-num{font-family:'VT323',monospace; font-size:14px; color:#8b9bd8; letter-spacing:1px; margin-bottom:2px;}
+  .chapter-card .ch-top{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
+  .chapter-card .ch-icon{font-size:26px;}
+  .chapter-card .ch-title{font-family:'Press Start 2P',monospace; font-size:10.5px; color:var(--gold); line-height:1.5;}
+  .chapter-card .ch-blurb{font-size:13px; color:var(--parchment-line); line-height:1.45; margin-bottom:10px;}
+  .chapter-card .ch-progress{font-family:'VT323',monospace; font-size:14px; color:var(--parchment);}
+  .chapter-card .ch-bar{height:6px; border-radius:3px; background:rgba(255,255,255,0.12); margin-top:5px; overflow:hidden;}
+  .chapter-card .ch-bar-fill{height:100%; background:var(--gold); border-radius:3px; transition:width 0.4s ease;}
+
+  /* ============ CHAPTER DETAIL ============ */
+  .chapter-detail-head{max-width:700px; margin:0 auto 16px; text-align:center;}
+  .chapter-detail-head .cd-back{font-family:'VT323',monospace; font-size:15px; color:#8b9bd8; background:none; border:none;
+    cursor:pointer; padding:0 0 10px; display:inline-block;}
+  .chapter-detail-head .cd-num{font-family:'VT323',monospace; font-size:14px; color:#8b9bd8; letter-spacing:1px;}
+  .chapter-detail-head .cd-icon{font-size:34px; margin:4px 0 6px;}
+  .chapter-detail-head h2{font-family:'Press Start 2P',monospace; font-size:14px; color:var(--gold); text-shadow:2px 2px 0 #000; margin:0 0 10px; line-height:1.6;}
+  .chapter-detail-head .cd-blurb{font-family:'VT323',monospace; font-size:16px; color:var(--parchment-line); max-width:560px; margin:0 auto; line-height:1.4;}
+
+  /* ============ CRT / RETRO OVERLAY ============ */
+  .crt-overlay{position:absolute; inset:0; z-index:50; pointer-events:none; mix-blend-mode:overlay;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 3px);
+    opacity:0.5;}
+  .crt-vignette{position:absolute; inset:0; z-index:49; pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.35) 100%);}
+  @keyframes crtflicker{ 0%,100%{opacity:0.5;} 50%{opacity:0.42;} }
+  .crt-overlay{animation:crtflicker 6s ease-in-out infinite;}
+
   /* ============ STAGE (shared engine) ============ */
   .stage{position:absolute; inset:0; display:none;}
   .stage.active{display:block;}
@@ -154,13 +187,28 @@
 <body>
 
 <div class="screen">
+  <div class="crt-vignette"></div>
+  <div class="crt-overlay"></div>
 
-  <!-- ============ MENU ============ -->
+  <!-- ============ MENU (CHAPTER SELECT) ============ -->
   <div class="menu" id="menuScreen">
     <button id="menuMuteBtn" onclick="toggleMute()" style="position:absolute; top:16px; right:16px; font-family:'VT323',monospace; font-size:15px; color:var(--parchment-line); background:rgba(10,11,26,0.6); border:1px solid var(--parchment-line); border-radius:5px; padding:4px 10px; cursor:pointer; z-index:5;">🔊</button>
     <div class="menu-head">
       <h1>STORY MODE</h1>
-      <p>Watch it happen instead of reading it. Pick a scene.</p>
+      <p>Watch it happen instead of reading it. Pick a chapter.</p>
+    </div>
+    <div class="chapter-grid" id="chapterGrid"></div>
+  </div>
+
+  <!-- ============ CHAPTER DETAIL ============ -->
+  <div class="menu" id="chapterScreen" style="display:none;">
+    <button id="chapterMuteBtn" onclick="toggleMute()" style="position:absolute; top:16px; right:16px; font-family:'VT323',monospace; font-size:15px; color:var(--parchment-line); background:rgba(10,11,26,0.6); border:1px solid var(--parchment-line); border-radius:5px; padding:4px 10px; cursor:pointer; z-index:5;">🔊</button>
+    <div class="chapter-detail-head">
+      <button class="cd-back" onclick="closeChapter()">◂ All chapters</button>
+      <div class="cd-num" id="cdNum"></div>
+      <div class="cd-icon" id="cdIcon"></div>
+      <h2 id="cdTitle"></h2>
+      <div class="cd-blurb" id="cdBlurb"></div>
     </div>
     <div class="story-grid" id="storyGrid"></div>
   </div>
@@ -209,7 +257,7 @@
     </div>
 
     <div class="topbar">
-      <button onclick="backToMenu()">☰ Menu</button>
+      <button onclick="backToMenu()">☰ Chapter</button>
       <div style="display:flex; gap:6px; pointer-events:auto;">
         <button id="muteBtn" onclick="toggleMute()">🔊</button>
         <button id="skipBtn" onclick="skipToEnd()">Skip ▸</button>
@@ -227,7 +275,7 @@
       <div class="rule" id="endRule"></div>
       <div class="end-actions">
         <button onclick="restartStory()">↺ Watch again</button>
-        <button class="ghost" onclick="backToMenu()">☰ Back to menu</button>
+        <button class="ghost" onclick="backToMenu()">☰ Back to chapter</button>
       </div>
     </div>
   </div>
@@ -1367,7 +1415,438 @@ const STORIES = [
     { speaker:'NARRATOR', text:"And permanent injury doesn't go through an arbitration board — it's paid on a fixed schedule of amounts and periods, based on the severity of the injury.", enter(S){}},
   ]},
 
+{ id:'secondinjuryfund', title:'THE FUND THAT<br>REMOVES THE FEAR', hook:"Why the disabled still get hired.", icon:'🤝', mood:'mood-medical', tag:'ws61 · Second Injury Fund',
+  endRule:"The second injury fund pays for second and subsequent injuries to an already-disabled worker, without charging that cost against the employer's experience rating — removing the financial disincentive to hire the disabled.",
+  beats:[
+    { speaker:'NARRATOR', text:"A factory owner is deciding whether to hire an applicant who is already disabled.", enter(S){
+        S.mood('mood-medical'); S.icon('main','🏭',{label:'Hiring Decision'});
+    }},
+    { speaker:'OWNER', text:"\"If she's hurt again on my watch, won't that wreck my experience rating and raise my premiums?\"", enter(S){
+        S.icon('secondary','📉',{label:'Experience Rating Fear', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"That fear is exactly what discourages employers from hiring disabled workers — and exactly what the second injury fund was built to remove.", enter(S){
+        S.icon('secondary','🛡️',{label:'Second Injury Fund', anim:'glowgold'});
+    }},
+    { speaker:'NARRATOR', text:"If a second injury happens, this fund pays for it — and that cost is NOT charged against the employer's experience.", enter(S){
+        S.stamp('secondary','check','NOT CHARGED TO EMPLOYER');
+        S.flash('HIRING FEAR REMOVED','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"\"Handicapped Employee Discounts\" and \"Workers' Compensation Anti Discrimination coverage\" aren't real terms — the second injury fund is the one true mechanism at work here.", enter(S){}},
+  ]},
+
+{ id:'moneycrimeform', title:'THE MONEY THAT<br>NEEDS ITS OWN FORM', hook:"Robbery/safe burglary excludes money.", icon:'💵', mood:'mood-stormred', tag:'ws62 · Crime Forms — Money Exclusion',
+  endRule:"Money always needs its own dedicated crime form — Inside the Premises Robbery/Safe Burglary coverage carves it out even though it covers property in the safe, threat of harm, and forced-entry evidence.",
+  beats:[
+    { speaker:'NARRATOR', text:"A break-in at a small retail shop. The safe is cracked open overnight.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🏪',{label:'Safe Burglary'});
+    }},
+    { speaker:'NARRATOR', text:"Property sitting in the safe — covered. Signs of forced entry — that's literally the proof required. The threat of bodily harm during an attempted robbery — covered too.", enter(S){
+        S.icon('secondary','🔓',{label:'Forced Entry Evidence'});
+        S.stamp('secondary','check','COVERED ELEMENTS');
+    }},
+    { speaker:'OWNER', text:"\"And the cash that was in the safe?\"", enter(S){
+        S.icon('secondary','💵',{label:'Cash in the Safe', anim:'shatter'});
+    }},
+    { speaker:'NARRATOR', text:"Money has its own dedicated crime form entirely — it doesn't ride along on this coverage. It gets carved out and needs to be purchased separately.", enter(S){
+        S.stamp('secondary','x','MONEY — SEPARATE FORM');
+        S.flash('MONEY IS ALWAYS ITS OWN FORM','var(--danger)');
+    }},
+  ]},
+
+{ id:'inventoryshortage', title:'THE SHORTAGE<br>THAT ISN\'T PROOF', hook:"Employee Dishonesty won't pay on inventory shortage alone.", icon:'📦', mood:'mood-warning', tag:'ws63 · Employee Dishonesty Proof',
+  endRule:"Employee Dishonesty protects the employer against a disloyal employee — but it denies claims that can only be proven by an inventory shortage. More concrete evidence than \"the numbers don't add up\" is required.",
+  beats:[
+    { speaker:'NARRATOR', text:"A warehouse manager runs the year-end inventory count. The numbers don't match.", enter(S){
+        S.mood('mood-warning'); S.icon('main','📦',{label:'Inventory Count'});
+    }},
+    { speaker:'MANAGER', text:"\"Someone's been stealing from the shelves — I'll file an Employee Dishonesty claim.\"", enter(S){
+        S.icon('secondary','📋',{label:'Filing a Claim'});
+    }},
+    { speaker:'NARRATOR', text:"The form protects the EMPLOYER against a disloyal employee stealing money or property — that part checks out.", enter(S){
+        S.icon('secondary','🛡️',{label:'Employee Dishonesty Form'});
+    }},
+    { speaker:'NARRATOR', text:"But the only proof here is that the inventory count came up short. No witness, no camera footage, no direct evidence — just missing numbers.", enter(S){
+        S.icon('secondary','🔢',{label:'Inventory Shortage Only', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"That's specifically not enough. If an inventory computation is the ONLY proof, the form denies the claim outright.", enter(S){
+        S.stamp('secondary','x','DENIED — SHORTAGE ONLY');
+        S.flash('NEEDS MORE THAN MISSING NUMBERS','var(--danger)');
+    }},
+  ]},
+
+{ id:'driveothercar', title:'THE ENDORSEMENT<br>FOR ANYBODY\'S CAR', hook:"BAP\'s Drive Other Car coverage.", icon:'🔑', mood:'mood-industrial', tag:'ws64 · BAP Drive Other Car',
+  endRule:"The \"Drive Other Car\" endorsement extends the Business Auto Policy to cover the insured driving anybody's vehicle for personal use — not just business-owned autos.",
+  beats:[
+    { speaker:'NARRATOR', text:"A business owner's fleet is locked down by strict numeric symbols on the Business Auto Policy — built for business use only.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🚚',{label:'Business Auto Policy'});
+    }},
+    { speaker:'OWNER', text:"\"What if I borrow my neighbor's car for a weekend errand — am I covered?\"", enter(S){
+        S.icon('secondary','🔑',{label:'Borrowing a Neighbor\'s Car', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Not under the base BAP. That takes a specific endorsement — one built to extend coverage to ANYBODY's car, driven for personal use.", enter(S){
+        S.icon('secondary','📝',{label:'Drive Other Car Endorsement', anim:'glowgold'});
+        S.stamp('secondary','check','THE RIGHT ENDORSEMENT');
+    }},
+    { speaker:'NARRATOR', text:"\"Extended non-owned auto coverage,\" \"non-owned auto,\" and \"named non-owner endorsement\" are all decoys — the real name is literally Drive Other Car coverage.", enter(S){
+        S.flash('DRIVE OTHER CAR = PERSONAL USE FIX','var(--safe)');
+    }},
+  ]},
+
+{ id:'waitingsplit', title:'THE WAIT THAT<br>ONLY ONE BENEFIT TAKES', hook:"Disability waits; medical never does.", icon:'⏱️', mood:'mood-medical', tag:'ws65 · Workers\' Comp Waiting Periods',
+  endRule:"Disability income always has a waiting period (usually three, five, or seven days depending on the state) — but medical benefits are paid immediately, with no waiting period at all.",
+  beats:[
+    { speaker:'NARRATOR', text:"A worker is hurt on the job. Two clocks start ticking at once — one for medical care, one for lost wages.", enter(S){
+        S.mood('mood-medical'); S.icon('main','🏥',{label:'Job Injury — Two Benefits'});
+    }},
+    { speaker:'NARRATOR', text:"The medical bills start getting paid immediately — no delay, no waiting period, treatment starts covered right away.", enter(S){
+        S.icon('secondary','💊',{label:'Medical Benefits'});
+        S.stamp('secondary','check','NO WAITING PERIOD');
+    }},
+    { speaker:'WORKER', text:"\"So my paycheck replacement starts right away too?\"", enter(S){
+        S.icon('secondary','💵',{label:'Disability Income?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No — disability income always carries a waiting period, typically three, five, or seven days depending on the state.", enter(S){
+        S.stamp('secondary','x','WAITING PERIOD APPLIES');
+        S.flash('MEDICAL: IMMEDIATE. DISABILITY: WAITS.','var(--danger)');
+    }},
+  ]},
+
+{ id:'subrogationtransfer', title:'THE RIGHT<br>SIGNED AWAY', hook:"Subrogation as transfer of rights of recovery.", icon:'⚖️', mood:'mood-bureau', tag:'ws66 · Subrogation',
+  endRule:"Transfer of rights of recovery — commonly called subrogation — is when the insured signs over their right to sue the at-fault party to the insurer, preventing a double recovery on the same loss.",
+  beats:[
+    { speaker:'NARRATOR', text:"A driver is hit by a negligent third party. Her own insurer pays the claim right away.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','🚗',{label:'Insured Paid by Own Insurer'});
+    }},
+    { speaker:'INSURED', text:"\"Great, I got paid. Now can I also sue the guy who hit me for the same damage?\"", enter(S){
+        S.icon('secondary','⚖️',{label:'Double Recovery?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No — she signs over her right of action against the at-fault party to her own insurer. That's the transfer of rights of recovery.", enter(S){
+        S.icon('secondary','📜',{label:'Transfer of Rights of Recovery', anim:'glowgold'});
+        S.stamp('secondary','check','SUBROGATION');
+    }},
+    { speaker:'NARRATOR', text:"This exists specifically to stop the insured from collecting twice on the same loss. Indemnification is a related idea, but it's about the payment itself — this is about who gets to sue whom afterward.", enter(S){
+        S.flash('NO DOUBLE RECOVERY','var(--safe)');
+    }},
+  ]},
+
+{ id:'expressauthority', title:'WHAT THE<br>CONTRACT SAYS', hook:"The agent contract as express authority.", icon:'📝', mood:'mood-bureau', tag:'ws67 · Agent Express Authority',
+  endRule:"Express authority is whatever the written agent contract explicitly says the agent can or cannot do. Implied authority covers reasonable extensions of that; apparent authority is about third-party perception.",
+  beats:[
+    { speaker:'NARRATOR', text:"A new agent signs a contract with an insurance company, spelling out exactly what they can and can't do.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','📝',{label:'Agent Contract'});
+    }},
+    { speaker:'AGENT', text:"\"So this contract is the final word on my authority?\"", enter(S){
+        S.icon('secondary','📄',{label:'Written Authority'});
+    }},
+    { speaker:'NARRATOR', text:"For what's written in it — yes. That's express authority: whatever the contract explicitly grants or denies.", enter(S){
+        S.stamp('secondary','check','EXPRESS AUTHORITY');
+        S.flash('WRITTEN = EXPRESS','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"Implied authority picks up things reasonably necessary but not specifically written down. Apparent authority is about what a third party would reasonably believe, based on the insurer's own conduct.", enter(S){
+        S.icon('secondary','🤔',{label:'Implied & Apparent — Different Categories'});
+    }},
+  ]},
+
+{ id:'lossofuse', title:'THE LOSS THAT<br>BELONGS TO PROPERTY', hook:"Loss of use sits under property damage, not bodily injury.", icon:'🚗', mood:'mood-warning', tag:'ws68 · PAP Bodily Injury Definition',
+  endRule:"Loss of use belongs under the PAP's property damage definition, not bodily injury. Death, sickness, and bodily harm are the actual components of bodily injury.",
+  beats:[
+    { speaker:'NARRATOR', text:"A claims adjuster is walking through the Personal Auto Policy's definitions section, sorting terms into categories.", enter(S){
+        S.mood('mood-warning'); S.icon('main','📖',{label:'PAP Definitions'});
+    }},
+    { speaker:'NARRATOR', text:"Death, sickness, bodily harm — all filed neatly under bodily injury. That part's straightforward.", enter(S){
+        S.icon('secondary','🩹',{label:'Bodily Injury Definition'});
+        S.stamp('secondary','check','CORRECTLY FILED');
+    }},
+    { speaker:'ADJUSTER', text:"\"And loss of use — that goes here too, right? It's about someone being harmed.\"", enter(S){
+        S.icon('secondary','🚙',{label:'Loss of Use', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Wrong file. Loss of use belongs under PROPERTY damage — it's what applies when a car sits undrivable during repairs, not something that happens to a person.", enter(S){
+        S.stamp('secondary','x','WRONG CATEGORY');
+        S.flash('LOSS OF USE = PROPERTY DAMAGE','var(--danger)');
+    }},
+  ]},
+
+{ id:'punitivedamages', title:'THE DAMAGE<br>THAT DOESN\'T PAY', hook:"Employer Liability covers defense costs only.", icon:'🚫', mood:'mood-stormred', tag:'ws69 · Workers\' Comp Part Two',
+  endRule:"Part Two, Employer Liability, provides defense costs only — it does not cover actual benefits or punitive damages awarded to an employee. Punitive damages are rarely covered by any insurance policy.",
+  beats:[
+    { speaker:'NARRATOR', text:"An employer is sued directly, on top of a standard Workers' Comp claim — the suit seeks punitive damages.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','⚖️',{label:'Employer Sued Directly'});
+    }},
+    { speaker:'EMPLOYER', text:"\"Part Two, Employer Liability — that'll cover the punitive damages if I lose, right?\"", enter(S){
+        S.icon('secondary','💰',{label:'Punitive Damages?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No. Employer Liability only pays defense costs — the cost of defending the suit, not any actual damages awarded.", enter(S){
+        S.stamp('secondary','x','DEFENSE COSTS ONLY');
+    }},
+    { speaker:'NARRATOR', text:"And punitive damages specifically? Those are rarely covered under ANY insurance policy — this one included.", enter(S){
+        S.flash('PUNITIVE DAMAGES: NOT COVERED','var(--danger)');
+    }},
+    { speaker:'NARRATOR', text:"Everything else about Workers' Comp still holds true elsewhere: unlimited medical, disability capped at 2/3 of wages, and death benefits ending on remarriage with a final lump sum.", enter(S){}},
+  ]},
+
+{ id:'cplendorsement', title:'THE LIABILITY<br>THAT NEVER COMES FREE', hook:"Comprehensive Personal Liability on a DP policy.", icon:'📋', mood:'mood-warmnight', tag:'ws70 · DP Comprehensive Personal Liability',
+  endRule:"No Dwelling Property form includes liability coverage automatically — not even DP-3. Comprehensive Personal Liability has to be added by endorsement, for extra premium, and it covers both on and off premises.",
+  beats:[
+    { speaker:'NARRATOR', text:"A homeowner reviews her DP-3 policy, the highest form available, assuming it comes fully loaded.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🏡',{label:'DP-3 Policy'});
+    }},
+    { speaker:'HOMEOWNER', text:"\"DP-3 is the best form — liability coverage must be built in automatically.\"", enter(S){
+        S.icon('secondary','🛡️',{label:'Assumed Included', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Not true — no Dwelling Property form includes liability automatically. Not DP-1, not DP-2, not even DP-3.", enter(S){
+        S.stamp('secondary','x','NOT AUTOMATIC — ANY FORM');
+    }},
+    { speaker:'NARRATOR', text:"Comprehensive Personal Liability has to be added by endorsement, for an extra premium — and once added, it covers her both ON and OFF the premises.", enter(S){
+        S.icon('secondary','📝',{label:'Endorsed for Extra Premium', anim:'glowgold'});
+        S.flash('ADD-ON, NOT AUTOMATIC','var(--safe)');
+    }},
+  ]},
+
+{ id:'growingcrops', title:'THE FIELD THAT<br>NEEDS ITS OWN POLICY', hook:"Farm property excludes growing crops.", icon:'🌾', mood:'mood-warning', tag:'ws71 · Farm Property Exclusion',
+  endRule:"A Farm property policy covers silos, tractors, and livestock — but growing crops are excluded and picked up by a separate line called crop insurance instead.",
+  beats:[
+    { speaker:'NARRATOR', text:"A farmer walks his agent through everything on the property — the silo, the tractor, the herd of livestock.", enter(S){
+        S.mood('mood-warning'); S.icon('main','🚜',{label:'Farm Property'});
+    }},
+    { speaker:'NARRATOR', text:"Silo storing grain — covered. Tractor — covered. Livestock — covered. All part of the physical operation of the farm.", enter(S){
+        S.icon('secondary','🐄',{label:'Structures, Machinery, Animals'});
+        S.stamp('secondary','check','ALL COVERED');
+    }},
+    { speaker:'FARMER', text:"\"And the wheat still out in the field, growing?\"", enter(S){
+        S.icon('secondary','🌾',{label:'Growing Crops', anim:'shatter'});
+    }},
+    { speaker:'NARRATOR', text:"That one falls outside the Farm property policy entirely — it needs its own separate product: crop insurance.", enter(S){
+        S.stamp('secondary','x','EXCLUDED — SEPARATE LINE');
+        S.flash('GROWING CROPS = CROP INSURANCE','var(--danger)');
+    }},
+  ]},
+
+{ id:'catastrophicexposure', title:'THE LOSS TOO<br>BIG TO INSURE', hook:"Catastrophic exposure isn\'t an insurable element.", icon:'🌊', mood:'mood-stormred', tag:'ws72 · Elements of Insurable Risk',
+  endRule:"A catastrophic exposure is the opposite of insurable — losses like war, earthquake, and flood get excluded because the scale can't be reasonably measured. Real insurable elements: accidental, definite/definable, and the law of large numbers applying.",
+  beats:[
+    { speaker:'NARRATOR', text:"A student is memorizing the checklist for what makes a risk insurable in the first place.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','📋',{label:'Insurable Risk Checklist'});
+    }},
+    { speaker:'NARRATOR', text:"The loss must be accidental. It must be definite and definable. The law of large numbers has to apply.", enter(S){
+        S.icon('secondary','✅',{label:'Three Real Elements'});
+        S.stamp('secondary','check','ACCIDENTAL / DEFINABLE / LARGE NUMBERS');
+    }},
+    { speaker:'STUDENT', text:"\"And a catastrophic exposure — that's an element too, right? Big losses need insurance most.\"", enter(S){
+        S.icon('secondary','🌊',{label:'Catastrophic Exposure?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Backwards. Catastrophic perils like war, earthquake, and flood are the OPPOSITE of insurable — the scale of the loss can't be reasonably measured or spread.", enter(S){
+        S.flash('CATASTROPHIC = EXCLUDED, NOT INSURABLE','var(--danger)');
+    }},
+  ]},
+
+{ id:'attorneyinfact', title:'THE TITLE THAT<br>SOUNDS LEGAL BUT ISN\'T', hook:"The reciprocal exchange\'s attorney-in-fact.", icon:'🏛️', mood:'mood-bureau', tag:'ws73 · Reciprocal Exchange Management',
+  endRule:"A reciprocal exchange, similar to a mutual insurer, is managed by an attorney-in-fact — a fixed, specific title, not a legal-sounding decoy like \"attorney-ex-officio.\"",
+  beats:[
+    { speaker:'NARRATOR', text:"A student is sorting through insurer types — stock, mutual, and now a reciprocal exchange.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','🏛️',{label:'Reciprocal Exchange'});
+    }},
+    { speaker:'STUDENT', text:"\"Who runs a reciprocal — some kind of attorney-ex-officio?\"", enter(S){
+        S.icon('secondary','⚖️',{label:'Attorney-Ex-Officio?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"That's not a real title — it just sounds legal enough to be tempting. The actual title is a fixed two-word phrase.", enter(S){
+        S.stamp('secondary','x','NOT A REAL TERM');
+    }},
+    { speaker:'NARRATOR', text:"Attorney-in-fact — functionally the CEO of a reciprocal exchange, managing it similar to how a mutual insurer is run.", enter(S){
+        S.icon('secondary','🖋️',{label:'Attorney-in-Fact', anim:'glowgold'});
+        S.flash('ATTORNEY-IN-FACT = THE MANAGER','var(--safe)');
+    }},
+  ]},
+
+{ id:'brokerrepresents', title:'THE CHAIN OF<br>WHO REPRESENTS WHOM', hook:"Broker represents the applicant.", icon:'🔗', mood:'mood-warmnight', tag:'ws74 · Distribution Channels',
+  endRule:"Agent represents the company, solicitor represents the agent, broker represents the applicant — a clean chain worth memorizing as a whole rather than as isolated facts.",
+  beats:[
+    { speaker:'NARRATOR', text:"A customer is shopping for insurance and sits down with three different types of professionals.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🔗',{label:'Three Roles, Three Loyalties'});
+    }},
+    { speaker:'NARRATOR', text:"The agent she meets first works FOR the insurance company — that's who they represent.", enter(S){
+        S.icon('secondary','🏢',{label:'Agent → Company'});
+    }},
+    { speaker:'NARRATOR', text:"The solicitor she talks to next works FOR that agent, not the company directly.", enter(S){
+        S.icon('secondary','👤',{label:'Solicitor → Agent'});
+    }},
+    { speaker:'CUSTOMER', text:"\"And the broker I called to shop around — who does THEY work for?\"", enter(S){
+        S.icon('secondary','🔍',{label:'Broker\'s Loyalty?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"The broker is the one working for HER — the applicant. The only one of the three actually on the customer's side of the table.", enter(S){
+        S.stamp('secondary','check','BROKER → APPLICANT');
+        S.flash('THE CUSTOMER\'S OWN REPRESENTATIVE','var(--safe)');
+    }},
+  ]},
+
+{ id:'dp1rental', title:'THE 20% CARVED<br>FROM THE DWELLING', hook:"DP-1 rental value coverage math.", icon:'🏠', mood:'mood-industrial', tag:'ws75 · DP-1 Rental Value',
+  endRule:"Under a DP-1, the insured can apply up to 20% of the DWELLING coverage amount (not the whole policy, not contents) toward rental value — and using it reduces the dwelling limit left for actual repair.",
+  beats:[
+    { speaker:'NARRATOR', text:"A rental property is insured on a DP-1: $60,000 on the dwelling, $30,000 on contents.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🏠',{label:'DP-1: $60K Dwelling / $30K Contents'});
+    }},
+    { speaker:'NARRATOR', text:"A covered loss forces the tenants out. The landlord loses rent while repairs happen.", enter(S){
+        S.shake(); S.icon('secondary','📉',{label:'Lost Rental Income', anim:'punch'});
+        S.banner('💸 RENT INTERRUPTED!','TENANTS DISPLACED BY LOSS');
+    }},
+    { speaker:'LANDLORD', text:"\"How much of my policy can I apply toward the rent I'm losing?\"", enter(S){
+        S.icon('secondary','🧮',{label:'Rental Value Question'});
+    }},
+    { speaker:'NARRATOR', text:"20% — but only 20% of the DWELLING amount, never the full policy and never the contents figure.", enter(S){
+        S.formula('DP-1 RENTAL VALUE',[
+          {text:'$60,000 dwelling <span class="op">×</span> 20%',cls:''},
+          {text:'= $12,000 available for rent',cls:'result'},
+        ]);
+        S.stamp('secondary','check','20% OF DWELLING ONLY');
+    }},
+    { speaker:'NARRATOR', text:"And here's the catch: using that money reduces the Coverage A dollars left over for repairing the actual damage. It's carved out of the same pool, not extra on top.", enter(S){
+        S.flash('SAME LIMIT, NOT EXTRA MONEY','var(--danger)');
+    }},
+  ]},
+
+{ id:'periodterritory', title:'WHEN AND<br>WHERE', hook:"Policy period vs. policy territory.", icon:'🗺️', mood:'mood-bureau', tag:'ws76 · Policy Period & Territory',
+  endRule:"Policy period is WHEN coverage applies (the time frame). Policy territory is WHERE coverage applies (generally the U.S., its territories, Puerto Rico, and Canada).",
+  beats:[
+    { speaker:'NARRATOR', text:"An agent is walking a new policyholder through two fundamental policy concepts.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','🗺️',{label:'Two Basic Concepts'});
+    }},
+    { speaker:'CLIENT', text:"\"How do I know WHEN my coverage applies, and WHERE?\"", enter(S){
+        S.icon('secondary','❓',{label:'When and Where?'});
+    }},
+    { speaker:'NARRATOR', text:"WHEN is the policy period — the time frame your coverage is active.", enter(S){
+        S.icon('secondary','📅',{label:'Policy Period = Time Frame'});
+    }},
+    { speaker:'NARRATOR', text:"WHERE is the policy territory — generally the U.S., its territories, Puerto Rico, and Canada.", enter(S){
+        S.stamp('secondary','check','PERIOD + TERRITORY');
+        S.flash('TIME = PERIOD, PLACE = TERRITORY','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"Exclusions, claim conditions, and proof-of-loss reporting are all real policy concepts too — just not the ones answering this particular question.", enter(S){}},
+  ]},
+
+{ id:'definitioninsurance', title:'THE PLAINEST<br>DEFINITION', hook:"Insurance as pure risk transfer.", icon:'📖', mood:'mood-warmnight', tag:'ws77 · Definition of Insurance',
+  endRule:"Insurance is the transfer of financial risk for damage to property or health from the individual to the insurance company, with no losses borne by the individual — the plain, textbook definition.",
+  beats:[
+    { speaker:'NARRATOR', text:"A student is stuck between four similar-sounding terms on a definitions quiz.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','📖',{label:'Four Similar Terms'});
+    }},
+    { speaker:'NARRATOR', text:"\"Insurability\" is about whether a risk even QUALIFIES to be insured — a gatekeeping concept, not a transfer mechanism.", enter(S){
+        S.icon('secondary','🚪',{label:'Insurability — Qualifying'});
+    }},
+    { speaker:'NARRATOR', text:"\"Principle of indemnity\" is about restoring someone to their pre-loss position — a payment concept, not a transfer concept.", enter(S){
+        S.icon('secondary','⚖️',{label:'Indemnity — Restoring Position'});
+    }},
+    { speaker:'STUDENT', text:"\"So what actually describes the risk being MOVED from me to the company entirely?\"", enter(S){}},
+    { speaker:'NARRATOR', text:"That's just the plain definition of insurance itself — transferring financial risk to the company, with no losses left on the individual.", enter(S){
+        S.stamp('secondary','check','INSURANCE — THE PLAIN DEFINITION');
+        S.flash('THE SIMPLEST ANSWER WINS','var(--safe)');
+    }},
+  ]},
+
+{ id:'splitlimitwendy', title:'THREE NUMBERS,<br>THREE CATEGORIES', hook:"Wendy\'s split limit policy.", icon:'🔢', mood:'mood-industrial', tag:'ws78 · Auto Split Limits',
+  endRule:"A split limit policy states separate dollar figures for per-person bodily injury, per-accident bodily injury, and property damage — three numbers for three categories, unlike a combined single limit's one number.",
+  beats:[
+    { speaker:'NARRATOR', text:"Wendy pulls out her auto policy declarations page to check her coverage.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','📄',{label:'Wendy\'s Auto Declarations'});
+    }},
+    { speaker:'NARRATOR', text:"$25,000 for injury to any one person. $50,000 for all people injured. $10,000 for property damage.", enter(S){
+        S.formula('WENDY\'S POLICY LIMITS',[
+          {text:'$25,000 <span class="op">/</span> $50,000 <span class="op">/</span> $10,000',cls:''},
+          {text:'Three separate numbers',cls:'result'},
+        ]);
+    }},
+    { speaker:'WENDY', text:"\"Is this one big number covering everything, or something else?\"", enter(S){
+        S.icon('secondary','🤔',{label:'One Number or Three?'});
+    }},
+    { speaker:'NARRATOR', text:"Three separate numbers for three separate categories — that's the signature of a split limit policy.", enter(S){
+        S.stamp('secondary','check','SPLIT LIMIT');
+        S.flash('THREE NUMBERS = SPLIT LIMIT','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"A combined single limit would collapse all of that into ONE figure covering the whole accident, regardless of category — that's not what Wendy has.", enter(S){}},
+  ]},
+
+{ id:'coinsurancewalt', title:'THE 75% THAT<br>WALT ACTUALLY OWNS', hook:"HO-3 co-insurance math.", icon:'🔥', mood:'mood-stormred', tag:'ws79 · HO-3 Co-insurance',
+  endRule:"Co-insurance requires carrying 80% of replacement cost for full payment. Walt's $60,000 against an $80,000 requirement gives him 75% coverage, so he collects 75% of the $30,000 loss — $22,500.",
+  beats:[
+    { speaker:'NARRATOR', text:"Walt's home would cost $100,000 to fully rebuild. His HO-3 only carries $60,000 in coverage.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🏠',{label:'Walt — $60K on $100K Home'});
+    }},
+    { speaker:'NARRATOR', text:"Fire breaks out. $30,000 in damage.", enter(S){
+        S.shake(); S.icon('secondary','🔥',{label:'Fire — $30,000 Damage', anim:'shatter'});
+        S.banner('🔥 FIRE LOSS!','$30,000 IN DAMAGE');
+    }},
+    { speaker:'WALT', text:"\"My policy should just pay the full $30,000, right?\"", enter(S){
+        S.icon('secondary','💰',{label:'Expecting Full Payout', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Not quite. Co-insurance requires carrying 80% of replacement cost — that's $80,000. Walt only carries $60,000.", enter(S){
+        S.formula('CO-INSURANCE REQUIREMENT',[
+          {text:'$100,000 <span class="op">×</span> 80%',cls:''},
+          {text:'= $80,000 required',cls:'result'},
+        ]);
+    }},
+    { speaker:'NARRATOR', text:"$60,000 ÷ $80,000 = 75%. That's Walt's co-insurance percentage — and it applies to the loss, not the policy limit.", enter(S){
+        S.formula('WALT\'S ACTUAL PAYOUT',[
+          {text:'75% <span class="op">×</span> $30,000 loss',cls:''},
+          {text:'= $22,500',cls:'result'},
+        ]);
+        S.stamp('secondary','check','$22,500');
+        S.flash('UNDERINSURED = PARTIAL PENALTY','var(--danger)');
+    }},
+  ]},
+
+{ id:'baileedoctrine', title:'THE SHIRTS, THE<br>CLEANER, AND THE CHECK', hook:"Doctrine of No Benefit to a Bailee.", icon:'👔', mood:'mood-warning', tag:'ws80 · No Benefit to a Bailee',
+  endRule:"A bailee is anyone with temporary custody of someone else's property. The Doctrine of No Benefit to a Bailee ensures the insured's own policy pays the insured — not a third party merely holding the property.",
+  beats:[
+    { speaker:'NARRATOR', text:"Larry drops his shirts off at the dry cleaner. That night, a fire breaks out at the shop.", enter(S){
+        S.mood('mood-warning'); S.icon('main','👔',{label:'Larry\'s Shirts at the Cleaner'});
+    }},
+    { speaker:'NARRATOR', text:"Larry files a claim with his own insurer. The dry cleaner has an idea.", enter(S){
+        S.shake(); S.icon('secondary','🔥',{label:'Fire at the Dry Cleaner', anim:'shatter'});
+    }},
+    { speaker:'DRY CLEANER', text:"\"Larry still owes us for the cleaning bill — make the claim check out to both of us.\"", enter(S){
+        S.icon('secondary','🧾',{label:'Requesting Joint Payee', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"The insurer denies it. A bailee — someone with temporary custody of someone else's property, exactly what a dry cleaner is — doesn't get named on the check.", enter(S){
+        S.icon('secondary','🚫',{label:'Doctrine of No Benefit to a Bailee'});
+        S.stamp('secondary','x','REQUEST DENIED');
+    }},
+    { speaker:'NARRATOR', text:"Larry's policy pays LARRY, the insured — not a third party who merely had custody of the property, even one who's separately owed money.", enter(S){
+        S.flash('THE POLICY PAYS THE INSURED','var(--safe)');
+    }},
+  ]},
+
 ];
+
+/* ============================================================
+   CHAPTERS — groups the 70 scenes into a book, so a weak area
+   (like Dwelling Property or Workers' Comp) is one tap away
+   instead of buried in a single long scroll.
+   ============================================================ */
+const CHAPTERS = [
+  { id:'licensing', num:'I', icon:'📋', title:'Licensing & Producer Conduct',
+    blurb:"What it actually takes to get and keep a PA producer license — the real requirements, self-reporting duties, referral-fee and rebate limits, and how temporary licenses work." ,
+    storyIds:['rebate','gafine','addresschange','templicense'] },
+  { id:'regulatory', num:'II', icon:'⚖️', title:"The Commissioner's Authority",
+    blurb:"What the Insurance Commissioner can and can't do when a producer breaks the rules — Cease and Desist orders, unfair-practice fines, and where that administrative power runs out.",
+    storyIds:['ceasedesist','knowingfine'] },
+  { id:'general', num:'III', icon:'📖', title:'General Insurance Concepts',
+    blurb:"The definitional bedrock underneath everything else — subrogation, agent authority, insurable risk, who represents whom, and the doctrines that decide who actually gets paid.",
+    storyIds:['twoyear','subrogationtransfer','expressauthority','catastrophicexposure','attorneyinfact','brokerrepresents','periodterritory','definitioninsurance','baileedoctrine'] },
+  { id:'dwelling', num:'IV', icon:'🏚️', title:'Dwelling Property (DP Policies)',
+    blurb:"Your biggest chapter, on purpose. DP-1 vs. DP-2 vs. DP-3, valuation, theft and liability endorsements, excluded perils, rental value — the whole form, piece by piece.",
+    storyIds:['propremoved','appraiser','liabilityfollow','breakin','earthquake','whichform','construction','vandalism','othercoverage','explosion','autoincrease','burglardp','premiseslia','theftchoice','cplendorsement','dp1rental'] },
+  { id:'homeowners', num:'V', icon:'🏠', title:'Homeowners (HO Policies)',
+    blurb:"HO-2 through HO-8, Coverage A through F, Section I vs. Section II, endorsements like day care and watercraft, and the co-insurance math that trips almost everyone up.",
+    storyIds:['fourforms','personalinjury','multiline','filingcabinet','worldwide','coveredproperty','termite','daycare','medpay','watercraft','heatingsystem','garage','ho3split','coinsurancewalt'] },
+  { id:'auto', num:'VI', icon:'🚗', title:'Auto Insurance',
+    blurb:"PA's own auto quirks — the assigned-risk plan, state-minimum split limits, and exactly what does and doesn't count as bodily injury under a Personal Auto Policy.",
+    storyIds:['paip','pa153005','lossofuse','splitlimitwendy'] },
+  { id:'workcomp', num:'VII', icon:'🩹', title:"Workers' Compensation",
+    blurb:"Your other weak spot, isolated on its own. Medical vs. disability waiting periods, the Second Injury Fund, Part Two Employer Liability, and the 21-day payment rule.",
+    storyIds:['workcomp','nolimitmed','twentyoneday','secondinjuryfund','waitingsplit','punitivedamages'] },
+  { id:'commercial', num:'VIII', icon:'🏢', title:'Liability & Commercial Lines',
+    blurb:"Umbrella vs. CGL, BOP quirks, Business Auto, surety bonds, crime forms, and farm property — the commercial-side traps that don't show up anywhere else in the book.",
+    storyIds:['umbrella','claimsmade','wallcollapse','blackoutmeat','underground','poormanscomp','bopdeductible','obligeepromise','income72','bopautomatic','principalperform','moneycrimeform','inventoryshortage','driveothercar','growingcrops'] },
+];
+let currentChapterId=null;
 
 /* ============================================================
    ENGINE
@@ -1377,11 +1856,44 @@ const WATCHED_KEY='storyModeWatched_v1';
 function getWatched(){ try{ return JSON.parse(localStorage.getItem(WATCHED_KEY)||'{}'); }catch(e){ return {}; } }
 function markWatched(id){ const w=getWatched(); w[id]=true; try{ localStorage.setItem(WATCHED_KEY, JSON.stringify(w)); }catch(e){} }
 
-function renderMenu(){
+function chapterProgress(ch){
   const watched=getWatched();
-  const grid=document.getElementById('storyGrid');
+  const done=ch.storyIds.filter(id=>watched[id]).length;
+  return {done, total:ch.storyIds.length};
+}
+function renderChapters(){
+  const grid=document.getElementById('chapterGrid');
   grid.innerHTML='';
-  STORIES.forEach(story=>{
+  CHAPTERS.forEach(ch=>{
+    const {done,total}=chapterProgress(ch);
+    const pct=total?Math.round(done/total*100):0;
+    const card=document.createElement('div');
+    card.className='chapter-card';
+    card.onclick=()=>openChapter(ch.id);
+    card.innerHTML=
+      '<div class="ch-num">CHAPTER '+ch.num+'</div>'+
+      '<div class="ch-top"><span class="ch-icon">'+ch.icon+'</span><span class="ch-title">'+ch.title+'</span></div>'+
+      '<div class="ch-blurb">'+ch.blurb+'</div>'+
+      '<div class="ch-progress">'+done+' / '+total+' scenes watched'+
+        '<div class="ch-bar"><div class="ch-bar-fill" style="width:'+pct+'%;"></div></div></div>';
+    grid.appendChild(card);
+  });
+}
+function openChapter(chapterId, silent){
+  if(!silent) sfxChapterOpen();
+  currentChapterId=chapterId;
+  const ch=CHAPTERS.find(c=>c.id===chapterId);
+  if(!ch) return;
+  document.getElementById('cdNum').textContent='CHAPTER '+ch.num;
+  document.getElementById('cdIcon').textContent=ch.icon;
+  document.getElementById('cdTitle').textContent=ch.title;
+  document.getElementById('cdBlurb').textContent=ch.blurb;
+  const grid=document.getElementById('storyGrid');
+  const watched=getWatched();
+  grid.innerHTML='';
+  ch.storyIds.forEach(id=>{
+    const story=STORIES.find(s=>s.id===id);
+    if(!story) return;
     const card=document.createElement('div');
     card.className='story-card';
     card.onclick=()=>loadStory(story.id);
@@ -1393,8 +1905,17 @@ function renderMenu(){
       '<div class="sc-tag">'+story.tag+'</div>';
     grid.appendChild(card);
   });
+  document.getElementById('menuScreen').style.display='none';
+  document.getElementById('chapterScreen').style.display='block';
 }
-renderMenu();
+function closeChapter(){
+  sfxBack();
+  currentChapterId=null;
+  document.getElementById('chapterScreen').style.display='none';
+  document.getElementById('menuScreen').style.display='block';
+  renderChapters();
+}
+renderChapters();
 
 /* ---------- Guaranteed sizing fallback — works even where aspect-ratio isn't supported ---------- */
 function sizeGameScreen(){
@@ -1411,6 +1932,14 @@ window.addEventListener('resize', sizeGameScreen);
 window.addEventListener('orientationchange', sizeGameScreen);
 sizeGameScreen();
 setTimeout(sizeGameScreen, 200); // catches late font/layout shifts
+
+// ---- start the ambient pad on the first tap/click anywhere, since browsers
+// block audio until a real user gesture happens ----
+document.addEventListener('click', function firstTouch(){
+  ensureAudioCtx();
+  if(!sfxMuted) startAmbient();
+  document.removeEventListener('click', firstTouch);
+}, {once:true});
 
 /* ============================================================
    AUDIO — a small Web Audio synth engine, no external files.
@@ -1446,18 +1975,73 @@ function updateMuteButtons(){
   const icon=sfxMuted?'🔇':'🔊';
   const a=document.getElementById('muteBtn'); if(a) a.textContent=icon;
   const b=document.getElementById('menuMuteBtn'); if(b) b.textContent=icon;
+  const c=document.getElementById('chapterMuteBtn'); if(c) c.textContent=icon;
 }
 function toggleMute(){
   sfxMuted=!sfxMuted;
   try{ localStorage.setItem('storyModeMuted_v1', sfxMuted?'1':'0'); }catch(e){}
   updateMuteButtons();
-  if(!sfxMuted) ensureAudioCtx();
+  if(!sfxMuted){ ensureAudioCtx(); startAmbient(); } else { stopAmbient(); }
 }
 updateMuteButtons();
+
+// ---- ambient background pad — a soft, detuned 1987-synth drone ----
+let ambientNodes=null;
+function startAmbient(){
+  if(sfxMuted || ambientNodes) return;
+  const ctx=ensureAudioCtx();
+  if(!ctx) return;
+  try{
+    const master=ctx.createGain();
+    master.gain.setValueAtTime(0.0001, ctx.currentTime);
+    master.gain.linearRampToValueAtTime(0.028, ctx.currentTime+2.5);
+    master.connect(ctx.destination);
+
+    const filter=ctx.createBiquadFilter();
+    filter.type='lowpass'; filter.frequency.value=900;
+    filter.connect(master);
+
+    // three slightly-detuned pad voices for that warm analog-synth beating
+    const freqs=[110, 110.6, 165.2];
+    const oscs=freqs.map(f=>{
+      const o=ctx.createOscillator();
+      o.type='sawtooth'; o.frequency.value=f;
+      const g=ctx.createGain(); g.gain.value=0.33;
+      o.connect(g); g.connect(filter);
+      o.start();
+      return o;
+    });
+
+    // slow LFO sweeping the filter for movement, like an old arpeggiated pad
+    const lfo=ctx.createOscillator();
+    lfo.type='sine'; lfo.frequency.value=0.05;
+    const lfoGain=ctx.createGain(); lfoGain.gain.value=260;
+    lfo.connect(lfoGain); lfoGain.connect(filter.frequency);
+    lfo.start();
+
+    ambientNodes={master, filter, oscs, lfo};
+  }catch(e){}
+}
+function stopAmbient(){
+  if(!ambientNodes) return;
+  try{
+    const ctx=audioCtx;
+    const now=ctx.currentTime;
+    ambientNodes.master.gain.cancelScheduledValues(now);
+    ambientNodes.master.gain.setValueAtTime(ambientNodes.master.gain.value, now);
+    ambientNodes.master.gain.linearRampToValueAtTime(0.0001, now+0.6);
+    const nodes=ambientNodes;
+    setTimeout(()=>{
+      try{ nodes.oscs.forEach(o=>o.stop()); nodes.lfo.stop(); }catch(e){}
+    }, 700);
+  }catch(e){}
+  ambientNodes=null;
+}
 
 // ---- named sound effects, built from playTone ----
 function sfxCardSelect(){ playTone(392,0,0.05,'triangle',0.06); playTone(587,0.05,0.09,'triangle',0.07); }
 function sfxBack(){ playTone(330,0,0.06,'triangle',0.05); playTone(220,0.05,0.08,'triangle',0.05); }
+function sfxChapterOpen(){ playTone(261.6,0,0.07,'square',0.06); playTone(392,0.06,0.07,'square',0.06); playTone(523.25,0.12,0.14,'triangle',0.08); }
 function sfxTypeBlip(){ playTone(320+Math.random()*90,0,0.035,'square',0.028); }
 function sfxBannerGood(){ playTone(523.25,0,0.08,'triangle',0.09); playTone(659.25,0.07,0.08,'triangle',0.09); playTone(783.99,0.14,0.16,'triangle',0.1); }
 function sfxBannerBad(){ playTone(220,0,0.09,'sawtooth',0.08); playTone(164.81,0.08,0.16,'sawtooth',0.07); }
@@ -1478,6 +2062,7 @@ function loadStory(id){
   if(!currentStory) return;
   sfxCardSelect();
   document.getElementById('menuScreen').style.display='none';
+  document.getElementById('chapterScreen').style.display='none';
   document.getElementById('stageScreen').classList.add('active');
   document.getElementById('skipBtn').style.display='inline-block';
   resetStage();
@@ -1487,8 +2072,12 @@ function loadStory(id){
 function backToMenu(){
   sfxBack();
   document.getElementById('stageScreen').classList.remove('active');
-  document.getElementById('menuScreen').style.display='block';
-  renderMenu();
+  if(currentChapterId){
+    openChapter(currentChapterId, true);
+  } else {
+    document.getElementById('menuScreen').style.display='block';
+    renderChapters();
+  }
 }
 
 /* ---- typewriter ---- */
