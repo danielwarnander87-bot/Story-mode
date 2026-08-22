@@ -1847,6 +1847,10 @@ const CHAPTERS = [
     storyIds:['umbrella','claimsmade','wallcollapse','blackoutmeat','underground','poormanscomp','bopdeductible','obligeepromise','income72','bopautomatic','principalperform','moneycrimeform','inventoryshortage','driveothercar','growingcrops'] },
 ];
 let currentChapterId=null;
+// Which ambient theme plays inside each chapter — Dwelling gets its own
+// epic, driving theme since it's the biggest/hardest chapter; everything
+// else defaults to the underwater theme.
+const CHAPTER_THEMES={ dwelling:'epic', homeowners:'home', auto:'auto', general:'general' };
 
 /* ============================================================
    ENGINE
@@ -1907,6 +1911,7 @@ function openChapter(chapterId, silent){
   });
   document.getElementById('menuScreen').style.display='none';
   document.getElementById('chapterScreen').style.display='block';
+  switchAmbientMode(CHAPTER_THEMES[chapterId] || 'underwater');
 }
 function closeChapter(){
   sfxBack();
@@ -1914,6 +1919,7 @@ function closeChapter(){
   document.getElementById('chapterScreen').style.display='none';
   document.getElementById('menuScreen').style.display='block';
   renderChapters();
+  switchAmbientMode('overworld');
 }
 renderChapters();
 
@@ -1985,10 +1991,12 @@ function toggleMute(){
 }
 updateMuteButtons();
 
-// ---- ambient background — a real looping 8-bit tune, mellow triangle
-// lead over a soft "oom-pah" bass, run through a persistent echo/delay
-// chain so it trails off like it's bouncing around an old cartridge ----
-const SIXTEENTH=0.115; // seconds per 16th note (~130 BPM) — a touch more relaxed
+// ---- ambient background — two looping themes. "Overworld" is a bouncy
+// triangle-lead tune for the chapter-select screen; "Underwater" is a
+// slow, drifting, sine-wave theme for inside a chapter — long sustained
+// notes, gentle vibrato, sparse bass, that woozy submerged feel. Both
+// run through the same persistent echo/delay chain. ----
+const SIXTEENTH=0.115; // seconds per 16th note (~130 BPM) — overworld tempo
 // Bar A — the "up" phrase
 const BAR_LEAD_A=[
   {step:0, freq:523.25},{step:2, freq:659.25},{step:4, freq:783.99},{step:5, freq:659.25},
@@ -2004,7 +2012,55 @@ const BAR_LEAD_B=[
 ];
 const BAR_BASS_B=[0,2,4,6,8,10,12,14].map((step,i)=>({step, freq:i%2===0?174.61:130.81})); // F3/C3 oom-pah
 
-let ambientActive=false, ambientTimeoutId=null, ambientBarToggle=0;
+const UNDER_STEP=0.2; // seconds per step — slow and drifting, roughly a lazy 6/8 sway
+// Under-A — rising, drifting phrase
+const UNDER_LEAD_A=[
+  {step:0, freq:440.00},{step:3, freq:523.25},{step:6, freq:587.33},{step:9, freq:523.25},
+];
+const UNDER_BASS_A=[{step:0, freq:220.00}]; // one long sustained root per bar
+// Under-B — sinks back down
+const UNDER_LEAD_B=[
+  {step:0, freq:493.88},{step:3, freq:440.00},{step:6, freq:392.00},{step:9, freq:440.00},
+];
+const UNDER_BASS_B=[{step:0, freq:196.00}];
+
+// ---- Epic theme — the Dwelling chapter's own, driving and dramatic,
+// a galloping ostinato bass under a sawtooth lead with big octave leaps ----
+const EPIC_STEP=0.11; // ~136 steps/min — driving, traveling-the-world-map pace
+const EPIC_LEAD_A=[
+  {step:0, freq:440.00, dur:0.35},{step:4, freq:523.25, dur:0.22},{step:6, freq:659.25, dur:0.22},
+  {step:8, freq:880.00, dur:0.42},{step:12, freq:783.99, dur:0.22},{step:14, freq:659.25, dur:0.32},
+];
+const EPIC_BASS_A=[0,2,4,6,8,10,12,14].map(step=>({step, freq:110.00, dur:0.14})); // A2 gallop
+const EPIC_LEAD_B=[
+  {step:0, freq:349.23, dur:0.32},{step:4, freq:440.00, dur:0.22},{step:6, freq:523.25, dur:0.22},
+  {step:8, freq:698.46, dur:0.42},{step:12, freq:659.25, dur:0.22},{step:14, freq:587.33, dur:0.32},
+];
+const EPIC_BASS_B=[0,2,4,6,8,10,12,14].map(step=>({step, freq:87.31, dur:0.14})); // F2 gallop — the lift
+
+// ---- General Concepts theme — a bright, catchy hook meant to actually
+// draw the ear in: square-wave lead over a groovy walking bass ----
+const GENERAL_STEP=0.1; // ~150 steps/min, bright and energetic
+const GENERAL_LEAD_A=[
+  {step:0, freq:783.99},{step:2, freq:659.25},{step:3, freq:523.25},{step:4, freq:659.25},
+  {step:6, freq:783.99},{step:8, freq:880.00},{step:10, freq:783.99},{step:11, freq:659.25},
+  {step:12, freq:523.25},{step:14, freq:587.33},
+];
+const GENERAL_BASS_A=[
+  {step:0, freq:130.81},{step:3, freq:196.00},{step:6, freq:130.81},
+  {step:8, freq:174.61},{step:11, freq:196.00},{step:14, freq:130.81},
+];
+const GENERAL_LEAD_B=[
+  {step:0, freq:880.00},{step:2, freq:783.99},{step:3, freq:659.25},{step:4, freq:783.99},
+  {step:6, freq:880.00},{step:8, freq:1046.50},{step:10, freq:880.00},{step:11, freq:783.99},
+  {step:12, freq:659.25},{step:14, freq:587.33},
+];
+const GENERAL_BASS_B=[
+  {step:0, freq:220.00},{step:3, freq:164.81},{step:6, freq:220.00},
+  {step:8, freq:146.83},{step:11, freq:164.81},{step:14, freq:220.00},
+];
+
+let ambientActive=false, ambientTimeoutId=null, ambientBarToggle=0, ambientMode='overworld';
 
 // ---- persistent echo/delay send, built once and reused for every ambient note ----
 let ambientDelay=null, ambientFeedback=null, ambientWet=null, ambientFXReady=false;
@@ -2025,7 +2081,7 @@ function ensureAmbientFX(){
     ambientFXReady=true;
   }catch(e){}
 }
-function playAmbientTone(freq, startOffset, duration, type, gainVal){
+function playAmbientTone(freq, startOffset, duration, type, gainVal, vibrato){
   if(sfxMuted) return;
   const ctx=ensureAudioCtx();
   if(!ctx) return;
@@ -2042,20 +2098,175 @@ function playAmbientTone(freq, startOffset, duration, type, gainVal){
     osc.connect(gain);
     gain.connect(ctx.destination);            // dry
     if(ambientDelay) gain.connect(ambientDelay); // wet send — the echo
+    let lfo=null;
+    if(vibrato){
+      lfo=ctx.createOscillator();
+      lfo.type='sine'; lfo.frequency.value=4.8;
+      const lfoGain=ctx.createGain(); lfoGain.gain.value=4.5; // gentle underwater wobble, a few Hz of wander
+      lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
+      lfo.start(t0); lfo.stop(t0+duration+0.05);
+    }
     osc.start(t0); osc.stop(t0+duration+0.05);
   }catch(e){}
 }
-function playBar(leadPattern, bassPattern){
+// ---- pitch-sweep tone — for glide-y imitation sounds (a meow's rise-and-fall,
+// an engine rev, a screech) that a static frequency can't produce ----
+function playSweep(startOffset, points, duration, gainVal, type){
   if(sfxMuted) return;
+  const ctx=ensureAudioCtx();
+  if(!ctx) return;
+  ensureAmbientFX();
+  try{
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type=type||'sine';
+    const t0=ctx.currentTime+Math.max(0,startOffset);
+    osc.frequency.setValueAtTime(points[0].freq, t0);
+    points.slice(1).forEach(p=>{ osc.frequency.linearRampToValueAtTime(p.freq, t0+p.t); });
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(gainVal||0.05, t0+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0+duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    if(ambientDelay) gain.connect(ambientDelay);
+    osc.start(t0); osc.stop(t0+duration+0.05);
+  }catch(e){}
+}
+// ---- white-noise burst, filtered — for barks, screeches, clicks, chatter texture ----
+let noiseBuffer=null;
+function ensureNoiseBuffer(){
+  const ctx=ensureAudioCtx();
+  if(!ctx || noiseBuffer) return;
+  try{
+    const len=ctx.sampleRate*1; // 1 second, reused for every hit
+    noiseBuffer=ctx.createBuffer(1, len, ctx.sampleRate);
+    const data=noiseBuffer.getChannelData(0);
+    for(let i=0;i<len;i++){ data[i]=Math.random()*2-1; }
+  }catch(e){}
+}
+function playNoiseHit(startOffset, duration, gainVal, filterType, freqStart, freqEnd, q){
+  if(sfxMuted) return;
+  const ctx=ensureAudioCtx();
+  if(!ctx) return;
+  ensureNoiseBuffer();
+  if(!noiseBuffer) return;
+  try{
+    const src=ctx.createBufferSource();
+    src.buffer=noiseBuffer;
+    const filter=ctx.createBiquadFilter();
+    filter.type=filterType||'bandpass';
+    const t0=ctx.currentTime+Math.max(0,startOffset);
+    filter.frequency.setValueAtTime(freqStart, t0);
+    if(freqEnd && freqEnd!==freqStart) filter.frequency.linearRampToValueAtTime(freqEnd, t0+duration);
+    if(q) filter.Q.value=q;
+    const gain=ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(gainVal||0.06, t0+0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0+duration);
+    src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    src.start(t0); src.stop(t0+duration+0.02);
+  }catch(e){}
+}
+function playOverworldBar(leadPattern, bassPattern){
   leadPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*SIXTEENTH, 0.2, 'triangle', 0.038); });
   bassPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*SIXTEENTH, 0.26, 'triangle', 0.032); });
 }
+function playUnderwaterBar(leadPattern, bassPattern){
+  leadPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*UNDER_STEP, 0.85, 'sine', 0.032, true); });
+  bassPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*UNDER_STEP, 2.3, 'sine', 0.03, true); });
+}
+function playEpicBar(leadPattern, bassPattern){
+  leadPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*EPIC_STEP, n.dur, 'sawtooth', 0.05); });
+  bassPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*EPIC_STEP, n.dur, 'sawtooth', 0.045); });
+}
+function playGeneralBar(leadPattern, bassPattern){
+  leadPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*GENERAL_STEP, 0.19, 'square', 0.045); });
+  bassPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*GENERAL_STEP, 0.28, 'triangle', 0.038); });
+}
+
+// ---- Homeowners soundscape — flatter than the melodic chapters on
+// purpose: no song, just imitation domestic sounds drifting through ----
+function playDoorbell(){
+  playAmbientTone(659.25, 0, 0.3, 'sine', 0.05);     // ding
+  playAmbientTone(523.25, 0.28, 0.45, 'sine', 0.05); // dong
+}
+function playDogBark(){
+  playNoiseHit(0, 0.11, 0.09, 'bandpass', 500, 350, 4);
+  playNoiseHit(0.16, 0.1, 0.08, 'bandpass', 480, 320, 4);
+}
+function playCatMeow(){
+  playSweep(0, [{t:0,freq:480},{t:0.14,freq:760},{t:0.4,freq:340}], 0.42, 0.045, 'sawtooth');
+}
+function playBirdChirp(){
+  playSweep(0,    [{t:0,freq:2200},{t:0.05,freq:3000}], 0.07, 0.032, 'sine');
+  playSweep(0.11, [{t:0,freq:2400},{t:0.05,freq:3200}], 0.07, 0.028, 'sine');
+  playSweep(0.24, [{t:0,freq:2000},{t:0.04,freq:2800}], 0.06, 0.028, 'sine');
+}
+function playChatter(){
+  const count=4+Math.floor(Math.random()*3);
+  let t=0;
+  for(let i=0;i<count;i++){
+    const f=160+Math.random()*140;
+    playAmbientTone(f, t, 0.05+Math.random()*0.03, 'triangle', 0.02);
+    t+=0.07+Math.random()*0.09;
+  }
+}
+const HOME_SOUNDS=[playDoorbell, playDogBark, playCatMeow, playBirdChirp, playChatter];
+
+// ---- Auto soundscape — same flat, sound-effect-driven idea as Homeowners,
+// but with imitation car noises instead, like an old racing game's world ----
+function playCarHorn(){
+  playAmbientTone(440, 0, 0.22, 'sawtooth', 0.05);
+  playAmbientTone(440, 0.3, 0.22, 'sawtooth', 0.05);
+}
+function playEngineRev(){
+  playSweep(0, [{t:0,freq:80},{t:0.35,freq:220},{t:0.5,freq:140}], 0.55, 0.045, 'sawtooth');
+}
+function playBlinkerClick(){
+  playNoiseHit(0, 0.02, 0.05, 'bandpass', 1200, 1200, 8);
+  playNoiseHit(0.16, 0.02, 0.05, 'bandpass', 1200, 1200, 8);
+}
+function playTireScreech(){
+  playNoiseHit(0, 0.5, 0.06, 'bandpass', 2600, 900, 6);
+  playSweep(0, [{t:0,freq:900},{t:0.5,freq:400}], 0.5, 0.018, 'sawtooth');
+}
+const AUTO_SOUNDS=[playCarHorn, playEngineRev, playBlinkerClick, playTireScreech];
 function scheduleAmbient(){
   if(!ambientActive || sfxMuted) return;
-  const barDuration=16*SIXTEENTH;
-  if(ambientBarToggle===0){ playBar(BAR_LEAD_A, BAR_BASS_A); } else { playBar(BAR_LEAD_B, BAR_BASS_B); }
-  ambientBarToggle = ambientBarToggle===0 ? 1 : 0;
+  let barDuration;
+  if(ambientMode==='home'){
+    const fn=HOME_SOUNDS[Math.floor(Math.random()*HOME_SOUNDS.length)];
+    fn();
+    barDuration=1.6+Math.random()*2.8; // sparse, irregular — a house, not a song
+  } else if(ambientMode==='auto'){
+    const fn=AUTO_SOUNDS[Math.floor(Math.random()*AUTO_SOUNDS.length)];
+    fn();
+    barDuration=1.4+Math.random()*2.6;
+  } else if(ambientMode==='general'){
+    barDuration=16*GENERAL_STEP;
+    if(ambientBarToggle===0){ playGeneralBar(GENERAL_LEAD_A, GENERAL_BASS_A); } else { playGeneralBar(GENERAL_LEAD_B, GENERAL_BASS_B); }
+    ambientBarToggle = ambientBarToggle===0 ? 1 : 0;
+  } else if(ambientMode==='underwater'){
+    barDuration=12*UNDER_STEP;
+    if(ambientBarToggle===0){ playUnderwaterBar(UNDER_LEAD_A, UNDER_BASS_A); } else { playUnderwaterBar(UNDER_LEAD_B, UNDER_BASS_B); }
+    ambientBarToggle = ambientBarToggle===0 ? 1 : 0;
+  } else if(ambientMode==='epic'){
+    barDuration=16*EPIC_STEP;
+    if(ambientBarToggle===0){ playEpicBar(EPIC_LEAD_A, EPIC_BASS_A); } else { playEpicBar(EPIC_LEAD_B, EPIC_BASS_B); }
+    ambientBarToggle = ambientBarToggle===0 ? 1 : 0;
+  } else {
+    barDuration=16*SIXTEENTH;
+    if(ambientBarToggle===0){ playOverworldBar(BAR_LEAD_A, BAR_BASS_A); } else { playOverworldBar(BAR_LEAD_B, BAR_BASS_B); }
+    ambientBarToggle = ambientBarToggle===0 ? 1 : 0;
+  }
   ambientTimeoutId=setTimeout(scheduleAmbient, barDuration*1000);
+}
+function switchAmbientMode(mode){
+  if(ambientMode===mode) return;
+  ambientMode=mode;
+  ambientBarToggle=0;
+  if(ambientTimeoutId){ clearTimeout(ambientTimeoutId); ambientTimeoutId=null; }
+  if(ambientActive) scheduleAmbient();
 }
 function startAmbient(){
   if(ambientActive || sfxMuted) return;
