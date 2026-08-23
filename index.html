@@ -2040,7 +2040,7 @@ const EPIC_BASS_B=[0,2,4,6,8,10,12,14].map(step=>({step, freq:87.31, dur:0.14}))
 
 // ---- General Concepts theme — a bright, catchy hook meant to actually
 // draw the ear in: square-wave lead over a groovy walking bass ----
-const GENERAL_STEP=0.1; // ~150 steps/min, bright and energetic
+const GENERAL_STEP=0.135; // eased back from 0.1 — still has the hook, just breathes more
 const GENERAL_LEAD_A=[
   {step:0, freq:783.99},{step:2, freq:659.25},{step:3, freq:523.25},{step:4, freq:659.25},
   {step:6, freq:783.99},{step:8, freq:880.00},{step:10, freq:783.99},{step:11, freq:659.25},
@@ -2180,8 +2180,8 @@ function playEpicBar(leadPattern, bassPattern){
   bassPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*EPIC_STEP, n.dur, 'sawtooth', 0.045); });
 }
 function playGeneralBar(leadPattern, bassPattern){
-  leadPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*GENERAL_STEP, 0.19, 'square', 0.045); });
-  bassPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*GENERAL_STEP, 0.28, 'triangle', 0.038); });
+  leadPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*GENERAL_STEP, 0.26, 'triangle', 0.042); });
+  bassPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*GENERAL_STEP, 0.34, 'triangle', 0.036); });
 }
 
 // ---- Homeowners soundscape — flatter than the melodic chapters on
