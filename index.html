@@ -19,13 +19,12 @@
   body{font-family:'Nunito',sans-serif; color:var(--parchment); display:flex; align-items:center; justify-content:center; min-height:100vh; min-height:100dvh;}
   .screen{position:relative; width:100%; max-width:780px; aspect-ratio:16/10; min-height:420px; overflow:hidden; border-radius:6px;
     box-shadow:0 0 0 3px var(--night-deep), 0 0 0 6px #4a4670, 0 20px 60px rgba(0,0,0,0.6);
-    background:var(--night-deep);}
+    background:var(--night-deep); transform:translateZ(0);}
   @media (max-height:560px){ .screen{max-height:94vh; max-height:94dvh; width:auto;} }
 
   /* ============ MENU ============ */
-  .menu{position:absolute; inset:0; overflow-y:auto; padding:22px 18px 26px;
-    background:linear-gradient(160deg,#161832 0%, #201c3d 45%, #26301f 100%);}
-  .menu-head{text-align:center; margin-bottom:16px;}
+  .menu{position:absolute; inset:0; overflow-y:auto; padding:22px 18px 26px;}
+  .menu-head{position:relative; z-index:2; text-align:center; margin-bottom:16px;}
   .menu-head h1{font-family:'Press Start 2P',monospace; font-size:15px; color:var(--gold); text-shadow:2px 2px 0 #000; margin:0 0 8px; line-height:1.7;}
   .menu-head p{font-family:'VT323',monospace; font-size:17px; color:var(--parchment-line); margin:0;}
   .story-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; max-width:700px; margin:0 auto;}
@@ -40,10 +39,132 @@
   .story-card .sc-tag{font-family:'VT323',monospace; font-size:12px; color:#8b9bd8; margin-top:6px;}
 
   /* ============ CHAPTER SELECT ============ */
-  .chapter-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; max-width:720px; margin:0 auto;}
+  .chapter-grid{position:relative; z-index:2; display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; max-width:720px; margin:0 auto;}
   .chapter-card{background:rgba(10,11,26,0.78); border:2px solid var(--parchment-line); border-radius:10px; padding:16px;
     cursor:pointer; transition:border-color 0.15s ease, transform 0.1s ease; position:relative; text-align:left;}
   .chapter-card:hover{border-color:var(--gold); transform:translateY(-2px);}
+
+  /* ============ TOWN SCENE — a little living town behind chapter select ============ */
+  .town-scene{position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;
+    background:linear-gradient(160deg,#006064 0%, #00a86b 32%, #d1003c 66%, #ffe000 100%);}
+  .town-star{position:absolute; width:2px; height:2px; background:#ffe000; border-radius:50%;
+    animation:townTwinkle 3.2s ease-in-out infinite;}
+  @keyframes townTwinkle{ 0%,100%{opacity:0.4;} 50%{opacity:1;} }
+  .town-cloud{position:absolute; top:6%; width:110px; height:26px; border-radius:50px;
+    background:rgba(0,229,208,0.16); filter:blur(2px);}
+  .town-cloud-1{animation:townCloudDrift 46s linear infinite; top:8%;}
+  .town-cloud-2{animation:townCloudDrift 64s linear infinite; top:16%; width:150px; height:32px; animation-delay:-20s;
+    background:rgba(220,20,60,0.14);}
+  .town-cloud-3{animation:townCloudDrift 38s linear infinite; top:4%; width:80px; height:20px; animation-delay:-9s;
+    background:rgba(255,224,0,0.13);}
+  .town-cloud-4{animation:townCloudDriftRev 55s linear infinite; top:22%; width:130px; height:28px; animation-delay:-30s;
+    background:rgba(0,230,118,0.13);}
+  .town-cloud-5{animation:townCloudDrift 71s linear infinite; top:11%; width:95px; height:22px; animation-delay:-48s;
+    background:rgba(0,229,208,0.12);}
+  @keyframes townCloudDrift{
+    0%{transform:translateX(-160px);}
+    100%{transform:translateX(calc(100vw + 160px));}
+  }
+  @keyframes townCloudDriftRev{
+    0%{transform:translateX(calc(100vw + 160px));}
+    100%{transform:translateX(-160px);}
+  }
+  .town-blimp{position:absolute; top:13%; width:70px; height:28px; border-radius:50%;
+    background:#0a0a0a; border:2.5px solid #ffe000; animation:townBlimpDrift 75s linear infinite;}
+  .town-blimp::before{content:''; position:absolute; right:-9px; top:7px; width:11px; height:14px;
+    background:#0a0a0a; border:2px solid #ffe000; border-radius:2px;}
+  .town-blimp::after{content:''; position:absolute; left:10px; top:9px; width:20px; height:5px;
+    background:#ffe000; border-radius:2px; opacity:0.8;}
+  @keyframes townBlimpDrift{
+    0%{transform:translateX(-140px) translateY(0);}
+    50%{transform:translateX(calc(50vw)) translateY(-10px);}
+    100%{transform:translateX(calc(100vw + 140px)) translateY(0);}
+  }
+  .town-firefly{position:absolute; left:20%; bottom:34%; width:4px; height:4px; border-radius:50%;
+    background:#ffe000; box-shadow:0 0 9px 3px rgba(255,224,0,0.95);
+    animation:townFireflyPath 14s ease-in-out infinite;}
+  .town-firefly-2{left:65%; bottom:40%; background:#00e5d0; box-shadow:0 0 9px 3px rgba(0,229,208,0.95);
+    animation:townFireflyPath2 11s ease-in-out infinite;}
+  @keyframes townFireflyPath{
+    0%{transform:translate(0,0); opacity:0.3;}
+    20%{opacity:1;}
+    25%{transform:translate(60px,-24px);}
+    50%{transform:translate(140px,10px); opacity:0.4;}
+    55%{opacity:1;}
+    75%{transform:translate(80px,-30px);}
+    100%{transform:translate(0,0); opacity:0.3;}
+  }
+  @keyframes townFireflyPath2{
+    0%{transform:translate(0,0); opacity:0.3;}
+    30%{opacity:1; transform:translate(-70px,-18px);}
+    60%{transform:translate(-130px,14px); opacity:0.4;}
+    80%{opacity:1; transform:translate(-40px,-26px);}
+    100%{transform:translate(0,0); opacity:0.3;}
+  }
+  .town-skyline{position:absolute; left:0; right:0; bottom:34px; display:flex; align-items:flex-end;
+    justify-content:center; gap:8px;}
+  .town-bldg{position:relative; width:var(--w); height:var(--h);
+    background:#0a0a0a; border:2.5px solid #00e5d0;}
+  .town-bldg:nth-of-type(3n+2){border-color:#ff3d6b;}
+  .town-bldg:nth-of-type(3n){border-color:#ffe000;}
+  .town-bldg-roof::before{content:''; position:absolute; top:-13px; left:50%; transform:translateX(-50%); z-index:0;
+    width:0; height:0; border-left:calc(var(--w) / 2 + 6px) solid transparent;
+    border-right:calc(var(--w) / 2 + 6px) solid transparent; border-bottom:15px solid #00e5d0;}
+  .town-bldg-roof:nth-of-type(3n+2)::before{border-bottom-color:#ff3d6b;}
+  .town-bldg-roof:nth-of-type(3n)::before{border-bottom-color:#ffe000;}
+  .town-bldg-roof::after{content:''; position:absolute; top:-10px; left:50%; transform:translateX(-50%); z-index:1;
+    width:0; height:0; border-left:calc(var(--w) / 2 + 3px) solid transparent;
+    border-right:calc(var(--w) / 2 + 3px) solid transparent; border-bottom:12px solid #0a0a0a;}
+  .town-win{position:absolute; left:var(--wx); top:var(--wy); width:6px; height:8px;
+    background:#ffe000; box-shadow:0 0 6px rgba(255,224,0,0.95);
+    animation:townWinFlicker 5s ease-in-out infinite;}
+  .town-win:nth-of-type(4n+2){background:#00e5d0; box-shadow:0 0 6px rgba(0,229,208,0.95);}
+  .town-win:nth-of-type(4n+3){background:#ff3d6b; box-shadow:0 0 6px rgba(255,61,107,0.95);}
+  .town-win:nth-of-type(4n){background:#00e676; box-shadow:0 0 6px rgba(0,230,118,0.95);}
+  @keyframes townWinFlicker{ 0%,40%,100%{opacity:0.95;} 45%,55%{opacity:0.25;} 60%{opacity:0.95;} }
+  .town-tree{position:relative; width:24px; height:var(--th, 46px); flex-shrink:0;}
+  .town-tree::before{content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:6px; height:16px; background:#0a0a0a; border:2px solid #ffe000;}
+  .town-tree::after{content:''; position:absolute; bottom:13px; left:50%; transform:translateX(-50%);
+    width:28px; height:28px; border-radius:50% 50% 45% 45% / 60% 60% 40% 40%;
+    background:#0a0a0a; border:2.5px solid #00e676;}
+  .town-tree:nth-of-type(3n)::after{border-color:#00e5d0;}
+  .town-tree:nth-of-type(3n+2)::after{border-color:#ff3d6b;}
+  .town-ground{position:absolute; left:0; right:0; bottom:0; height:34px;
+    background:#0a0a0a; border-top:2.5px solid #ffe000;}
+  .town-walker{position:absolute; bottom:32px; font-size:15px; opacity:0.95; filter:drop-shadow(0 0 4px rgba(0,0,0,0.6));}
+  .town-walker-1{animation:townWalk1 22s ease-in-out infinite;}
+  .town-walker-2{animation:townWalk2 17s ease-in-out infinite; animation-delay:-6s;}
+  .town-walker-3{animation:townWalk3 26s ease-in-out infinite; animation-delay:-11s;}
+  .town-walker-4{animation:townWalk4 19s ease-in-out infinite; animation-delay:-3s;}
+  @keyframes townWalk1{
+    0%{left:-6%; transform:scaleX(1);}
+    45%{left:70%; transform:scaleX(1);}
+    50%{left:70%; transform:scaleX(-1);}
+    95%{left:-6%; transform:scaleX(-1);}
+    100%{left:-6%; transform:scaleX(1);}
+  }
+  @keyframes townWalk2{
+    0%{left:90%; transform:scaleX(-1);}
+    48%{left:15%; transform:scaleX(-1);}
+    52%{left:15%; transform:scaleX(1);}
+    98%{left:90%; transform:scaleX(1);}
+    100%{left:90%; transform:scaleX(-1);}
+  }
+  @keyframes townWalk3{
+    0%{left:30%; transform:scaleX(1);}
+    40%{left:85%; transform:scaleX(1);}
+    45%{left:85%; transform:scaleX(-1);}
+    90%{left:30%; transform:scaleX(-1);}
+    100%{left:30%; transform:scaleX(1);}
+  }
+  @keyframes townWalk4{
+    0%{left:55%; transform:scaleX(-1);}
+    42%{left:5%; transform:scaleX(-1);}
+    47%{left:5%; transform:scaleX(1);}
+    92%{left:55%; transform:scaleX(1);}
+    100%{left:55%; transform:scaleX(-1);}
+  }
   .chapter-card:active{transform:translateY(0);}
   .chapter-card .ch-num{font-family:'VT323',monospace; font-size:14px; color:#8b9bd8; letter-spacing:1px; margin-bottom:2px;}
   .chapter-card .ch-top{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
@@ -192,6 +313,43 @@
 
   <!-- ============ MENU (CHAPTER SELECT) ============ -->
   <div class="menu" id="menuScreen">
+    <div class="town-scene" id="townScene">
+      <div class="town-star" style="left:8%; top:12%; animation-delay:0s;"></div>
+      <div class="town-star" style="left:18%; top:22%; animation-delay:0.6s;"></div>
+      <div class="town-star" style="left:30%; top:9%; animation-delay:1.4s;"></div>
+      <div class="town-star" style="left:44%; top:16%; animation-delay:0.3s;"></div>
+      <div class="town-star" style="left:58%; top:8%; animation-delay:1.9s;"></div>
+      <div class="town-star" style="left:70%; top:20%; animation-delay:0.9s;"></div>
+      <div class="town-star" style="left:82%; top:11%; animation-delay:1.2s;"></div>
+      <div class="town-star" style="left:92%; top:24%; animation-delay:0.4s;"></div>
+      <div class="town-cloud town-cloud-1"></div>
+      <div class="town-cloud town-cloud-2"></div>
+      <div class="town-cloud town-cloud-3"></div>
+      <div class="town-cloud town-cloud-4"></div>
+      <div class="town-cloud town-cloud-5"></div>
+      <div class="town-blimp"></div>
+      <div class="town-firefly"></div>
+      <div class="town-firefly town-firefly-2"></div>
+      <div class="town-skyline">
+        <div class="town-tree" style="--th:38px;"></div>
+        <div class="town-bldg" style="--h:70px; --w:44px;"><span class="town-win" style="--wx:10px; --wy:14px; animation-delay:0.2s;"></span><span class="town-win" style="--wx:10px; --wy:34px; animation-delay:1.8s;"></span><span class="town-win" style="--wx:26px; --wy:14px; animation-delay:0.9s;"></span><span class="town-win" style="--wx:26px; --wy:34px; animation-delay:2.4s;"></span></div>
+        <div class="town-bldg" style="--h:100px; --w:52px;"><span class="town-win" style="--wx:10px; --wy:12px; animation-delay:0.5s;"></span><span class="town-win" style="--wx:10px; --wy:32px; animation-delay:2.1s;"></span><span class="town-win" style="--wx:10px; --wy:52px; animation-delay:1.1s;"></span><span class="town-win" style="--wx:30px; --wy:12px; animation-delay:1.6s;"></span><span class="town-win" style="--wx:30px; --wy:32px; animation-delay:0.3s;"></span><span class="town-win" style="--wx:30px; --wy:52px; animation-delay:2.7s;"></span></div>
+        <div class="town-tree" style="--th:50px;"></div>
+        <div class="town-bldg town-bldg-roof" style="--h:58px; --w:60px;"><span class="town-win" style="--wx:14px; --wy:16px; animation-delay:1.3s;"></span><span class="town-win" style="--wx:34px; --wy:16px; animation-delay:0.7s;"></span></div>
+        <div class="town-bldg" style="--h:130px; --w:46px;"><span class="town-win" style="--wx:9px; --wy:14px; animation-delay:0.8s;"></span><span class="town-win" style="--wx:9px; --wy:34px; animation-delay:2.2s;"></span><span class="town-win" style="--wx:9px; --wy:54px; animation-delay:1.5s;"></span><span class="town-win" style="--wx:9px; --wy:74px; animation-delay:0.4s;"></span><span class="town-win" style="--wx:27px; --wy:14px; animation-delay:2.6s;"></span><span class="town-win" style="--wx:27px; --wy:34px; animation-delay:1s;"></span><span class="town-win" style="--wx:27px; --wy:54px; animation-delay:0.1s;"></span><span class="town-win" style="--wx:27px; --wy:74px; animation-delay:1.9s;"></span></div>
+        <div class="town-tree" style="--th:34px;"></div>
+        <div class="town-bldg town-bldg-roof" style="--h:66px; --w:50px;"><span class="town-win" style="--wx:12px; --wy:16px; animation-delay:0.6s;"></span><span class="town-win" style="--wx:30px; --wy:16px; animation-delay:2s;"></span></div>
+        <div class="town-bldg" style="--h:88px; --w:44px;"><span class="town-win" style="--wx:9px; --wy:12px; animation-delay:1.7s;"></span><span class="town-win" style="--wx:9px; --wy:32px; animation-delay:0.2s;"></span><span class="town-win" style="--wx:9px; --wy:52px; animation-delay:2.3s;"></span><span class="town-win" style="--wx:25px; --wy:12px; animation-delay:1.1s;"></span><span class="town-win" style="--wx:25px; --wy:32px; animation-delay:0.5s;"></span><span class="town-win" style="--wx:25px; --wy:52px; animation-delay:1.4s;"></span></div>
+        <div class="town-tree" style="--th:44px;"></div>
+        <div class="town-bldg" style="--h:60px; --w:40px;"><span class="town-win" style="--wx:9px; --wy:14px; animation-delay:2.5s;"></span><span class="town-win" style="--wx:9px; --wy:34px; animation-delay:0.9s;"></span></div>
+        <div class="town-tree" style="--th:30px;"></div>
+      </div>
+      <div class="town-ground"></div>
+      <div class="town-walker town-walker-1">🧙</div>
+      <div class="town-walker town-walker-2">🦊</div>
+      <div class="town-walker town-walker-3">🐉</div>
+      <div class="town-walker town-walker-4">🐈</div>
+    </div>
     <button id="menuMuteBtn" onclick="toggleMute()" style="position:absolute; top:16px; right:16px; font-family:'VT323',monospace; font-size:15px; color:var(--parchment-line); background:rgba(10,11,26,0.6); border:1px solid var(--parchment-line); border-radius:5px; padding:4px 10px; cursor:pointer; z-index:5;">🔊</button>
     <div class="menu-head">
       <h1>STORY MODE</h1>
@@ -1813,6 +1971,440 @@ const STORIES = [
     }},
   ]},
 
+{ id:'hopersonalliab', title:'THE DOG THAT<br>BIT THE WRONG POLICY', hook:"HO Personal Liability covers what the insured DOES, not what happens to them.", icon:'⚖️', mood:'mood-warmnight', tag:'ws81 · HO Personal Liability Section',
+  endRule:"Personal Liability covers the insured's own negligence — bodily injury or property damage caused BY the insured's activities, on or off premises. It never covers injury to the insured or their own property, and war is always excluded.",
+  beats:[
+    { speaker:'NARRATOR', text:"A homeowner gets bitten by a neighbor's dog while walking down her own driveway.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🐕',{label:'Neighbor\'s Dog Bites Insured'});
+    }},
+    { speaker:'HOMEOWNER', text:"\"My Personal Liability section covers this, right? I got hurt.\"", enter(S){
+        S.icon('secondary','🩹',{label:'Injury to the Insured', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No — Personal Liability only covers harm the INSURED causes to someone else, never harm that happens TO the insured.", enter(S){
+        S.stamp('secondary','x','WRONG DIRECTION');
+    }},
+    { speaker:'NARRATOR', text:"What it actually covers: bodily injury or property damage caused by the insured's own personal activities — both on and off the premises.", enter(S){
+        S.icon('secondary','⚖️',{label:'Insured\'s Own Negligence', anim:'glowgold'});
+        S.stamp('secondary','check','CAUSED BY THE INSURED');
+    }},
+    { speaker:'NARRATOR', text:"And no matter the scenario — war is always excluded, full stop, across every line of insurance.", enter(S){
+        S.flash('WAR: ALWAYS EXCLUDED','var(--danger)');
+    }},
+  ]},
+
+{ id:'oceanimplied', title:'THE FLAG THAT<br>WASN\'T A WARRANTY', hook:"Ocean marine\'s three real implied warranties — and the fake fourth one.", icon:'⚓', mood:'mood-industrial', tag:'ws82 · Ocean Marine Implied Warranties',
+  endRule:"Ocean marine's implied warranties are that the ship is seaworthy, the voyage is legal, and the course won't deviate. There's no implied warranty about a vessel's flag or country of origin.",
+  beats:[
+    { speaker:'NARRATOR', text:"A cargo shipper is reading through what ocean marine coverage implicitly promises, without it even being written down.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🚢',{label:'Ocean Marine — Implied Warranties'});
+    }},
+    { speaker:'NARRATOR', text:"The ship is seaworthy. The voyage is legal. The course won't deviate. Three warranties, always implied, never needing to be spelled out.", enter(S){
+        S.icon('secondary','✅',{label:'Seaworthy / Legal / No Deviation'});
+        S.stamp('secondary','check','THE REAL THREE');
+    }},
+    { speaker:'SHIPPER', text:"\"And the ship has to fly the flag of the country the goods came from — that's implied too, right?\"", enter(S){
+        S.icon('secondary','🚩',{label:'Flag of Origin?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No — that's not one of the real implied warranties at all. It doesn't describe the ship or voyage being sound, so it doesn't belong on this list.", enter(S){
+        S.stamp('secondary','x','NOT A REAL WARRANTY');
+        S.flash('NO FLAG REQUIREMENT','var(--danger)');
+    }},
+  ]},
+
+{ id:'abandonment', title:'THE PROPERTY<br>YOU CAN\'T WALK AWAY FROM', hook:"Abandonment after a loss is prohibited, not required.", icon:'🚫', mood:'mood-stormred', tag:'ws83 · Duties After a Property Loss',
+  endRule:"After a property loss, the insured must report promptly, protect the property from further damage, and cooperate with the insurer. Abandoning the property is strictly prohibited, not a duty at all.",
+  beats:[
+    { speaker:'NARRATOR', text:"A fire damages part of a home. The insured is listing out what she thinks she has to do next.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🔥',{label:'Property Loss — Fire Damage'});
+    }},
+    { speaker:'NARRATOR', text:"Report the loss promptly. Protect what's left from further damage. Cooperate with the insurer's investigation.", enter(S){
+        S.icon('secondary','📋',{label:'Three Real Duties'});
+        S.stamp('secondary','check','REQUIRED DUTIES');
+    }},
+    { speaker:'INSURED', text:"\"And honestly, at this point, can't I just walk away and let the insurer deal with it?\"", enter(S){
+        S.icon('secondary','🚪',{label:'Just Abandon It?', anim:'shatter'});
+    }},
+    { speaker:'NARRATOR', text:"No — abandonment is strictly prohibited by policy provisions. She can't just walk away and expect the insurer to take the property as-is.", enter(S){
+        S.stamp('secondary','x','PROHIBITED, NOT REQUIRED');
+        S.flash('YOU CANNOT ABANDON THE PROPERTY','var(--danger)');
+    }},
+  ]},
+
+{ id:'dpunderconstruct100', title:'THE HOUSE THAT<br>ISN\'T BUILT YET', hook:"Dwelling Under Construction: insure the FULL future value now.", icon:'🏗️', mood:'mood-warning', tag:'ws84 · DP Under Construction — 100% Value',
+  endRule:"The Dwelling Under Construction endorsement requires insuring the structure at 100% of its completed value from inception — not 80%, and not reported later. The insurer gives a premium discount until the build finishes.",
+  beats:[
+    { speaker:'NARRATOR', text:"Gary breaks ground on a new house. He's got a Dwelling Under Construction endorsement on the DP policy.", enter(S){
+        S.mood('mood-warning'); S.icon('main','🏗️',{label:'Gary — Dwelling Under Construction'});
+    }},
+    { speaker:'GARY', text:"\"I'll just insure it for 80% of what it'll be worth when it's done — that's the usual rule, right?\"", enter(S){
+        S.icon('secondary','📉',{label:'80% Coverage?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Not here. This endorsement requires insuring the structure at 100% of its COMPLETED value — from the very first day of construction.", enter(S){
+        S.stamp('secondary','x','NOT 80% — 100%');
+    }},
+    { speaker:'NARRATOR', text:"In exchange for covering the full future value up front, the insurer gives Gary a premium discount for the time before the home is actually finished.", enter(S){
+        S.icon('secondary','💰',{label:'Discount Until Completion', anim:'glowgold'});
+        S.flash('100% FROM DAY ONE','var(--safe)');
+    }},
+  ]},
+
+{ id:'mortgageerights', title:'THE BANK THAT<br>WANTED ITS NAME ON IT', hook:"Mortgagee rights protect the lender\'s interest in the property.", icon:'🏦', mood:'mood-bureau', tag:'ws85 · Mortgagee Rights',
+  endRule:"When a bank holds the mortgage and demands to be listed as an insurable interest, that's mortgagee rights — a named provision protecting the lender's financial stake in the property.",
+  beats:[
+    { speaker:'NARRATOR', text:"A homeowner finances her house through a bank. The bank has a condition before it'll approve the loan.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','🏦',{label:'Bank Holds the Mortgage'});
+    }},
+    { speaker:'BANK', text:"\"We want to be listed as an insurable interest on the property policy. Non-negotiable.\"", enter(S){
+        S.icon('secondary','📜',{label:'Demanding Insurable Interest'});
+    }},
+    { speaker:'NARRATOR', text:"This is a named, specific provision — mortgagee rights. It protects the bank's financial interest in the property it's lending against.", enter(S){
+        S.stamp('secondary','check','MORTGAGEE RIGHTS');
+        S.flash('THE LENDER\'S PROTECTION','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"Remember the roles: the MORTGAGEE is the lender — the bank. The MORTGAGOR is the borrower. \"Additional insured interest\" and \"lender lien interest\" aren't real terms here.", enter(S){
+        S.icon('secondary','🔑',{label:'Mortgagee = Lender'});
+    }},
+  ]},
+
+{ id:'scheduledpersonalprop', title:'MORE THAN JUST<br>JEWELRY', hook:"The Personal Articles Floater\'s real scope: broad all-risk coverage.", icon:'💎', mood:'mood-warmnight', tag:'ws86 · Scheduled Personal Property',
+  endRule:"The Scheduled Personal Property endorsement / Personal Articles Floater is best described by its BROAD all-risk coverage for scheduled items — not just jewelry, and it absolutely can cover fine arts and antiques.",
+  beats:[
+    { speaker:'NARRATOR', text:"A client wants to schedule some valuable items separately from her regular homeowners policy.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','💎',{label:'Personal Articles Floater'});
+    }},
+    { speaker:'CLIENT', text:"\"This only covers jewelry, silverware, and furs, right? And I know it won't touch my grandmother's paintings — too irreplaceable.\"", enter(S){
+        S.icon('secondary','🖼️',{label:'Fine Arts Excluded?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Both wrong. This endorsement's real strength is BROAD, open-peril \"all risk\" coverage for whatever gets scheduled — far more than just the classic three categories.", enter(S){
+        S.stamp('secondary','check','BROAD ALL-RISK COVERAGE');
+    }},
+    { speaker:'NARRATOR', text:"And fine arts and antiques? Covering irreplaceable items like that is actually one of the MOST common reasons people use this floater in the first place.", enter(S){
+        S.icon('secondary','🎨',{label:'Fine Arts — Actually Covered', anim:'glowgold'});
+        S.flash('NOT EXCLUDED — A COMMON USE','var(--safe)');
+    }},
+  ]},
+
+{ id:'hoeligibility', title:'THE FIFTH UNIT<br>THAT BROKE THE DEAL', hook:"Homeowners eligibility caps out at four-family dwellings.", icon:'🏘️', mood:'mood-stormred', tag:'ws87 · HO Eligibility Limits',
+  endRule:"Homeowners policies are only eligible for dwellings up to four-family units. A five-unit structure — regardless of who occupies it — simply doesn't qualify for an HO policy.",
+  beats:[
+    { speaker:'NARRATOR', text:"An underwriter is reviewing four different applications for Homeowners coverage, one after another.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🏘️',{label:'Four Applications'});
+    }},
+    { speaker:'NARRATOR', text:"A standard owner-occupant. An intended owner-occupant of a home still under construction. One co-owner occupying a two-family dwelling. All three: eligible.", enter(S){
+        S.icon('secondary','✅',{label:'Three Eligible Scenarios'});
+        S.stamp('secondary','check','ELIGIBLE');
+    }},
+    { speaker:'NARRATOR', text:"Then the fourth application: an owner-occupant of a five-unit structure.", enter(S){
+        S.icon('secondary','🏢',{label:'Five-Unit Structure', anim:'shatter'});
+    }},
+    { speaker:'NARRATOR', text:"Denied — automatically. Homeowners policies cap out at four-family dwellings. Five units breaks the ceiling, no matter who lives there or how normal the rest of the situation looks.", enter(S){
+        S.stamp('secondary','x','OVER THE 4-UNIT CAP');
+        S.flash('FOUR UNITS IS THE HARD LIMIT','var(--danger)');
+    }},
+  ]},
+
+{ id:'warehousetowarehouse', title:'THE NICKNAME<br>THAT GIVES IT AWAY', hook:"Ocean marine covers cargo warehouse-to-warehouse.", icon:'📦', mood:'mood-industrial', tag:'ws88 · Ocean Marine — Warehouse-to-Warehouse',
+  endRule:"Ocean marine is the broadest marine coverage available, protecting cargo on the water, over the water, or on land in transit — which is exactly why it's nicknamed \"warehouse-to-warehouse\" coverage.",
+  beats:[
+    { speaker:'NARRATOR', text:"A shipment of goods needs coverage for its full journey — off a warehouse shelf, onto a truck, across the ocean, into another warehouse.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','📦',{label:'Full Journey — Warehouse to Warehouse'});
+    }},
+    { speaker:'SHIPPER', text:"\"Motor truck cargo should cover the whole trip, right? It's cargo, it's on a truck part of the way.\"", enter(S){
+        S.icon('secondary','🚚',{label:'Motor Truck Cargo?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"That only covers the trucking leg — not the ocean crossing, not the full door-to-door journey.", enter(S){
+        S.stamp('secondary','x','TRUCKING LEG ONLY');
+    }},
+    { speaker:'NARRATOR', text:"Ocean marine is the broadest marine coverage there is — on the water, over the water, or on land. That's exactly why it earned the nickname \"warehouse-to-warehouse.\"", enter(S){
+        S.icon('secondary','⚓',{label:'Ocean Marine — Warehouse-to-Warehouse', anim:'glowgold'});
+        S.stamp('secondary','check','FULL DOOR-TO-DOOR COVERAGE');
+        S.flash('THE NICKNAME IS THE ANSWER','var(--safe)');
+    }},
+  ]},
+
+{ id:'bopdirectdamage', title:'THE MEAT VS.<br>THE MONEY', hook:"Same blackout, two different BOP endorsements.", icon:'🥩', mood:'mood-stormred', tag:'ws89 · BOP Utility Services Direct Damage',
+  endRule:"Direct Damage endorsement covers physical property/contents lost in a utility outage. Time Element endorsement covers the resulting income loss. Same outage, different endorsement depending on what's actually being asked.",
+  beats:[
+    { speaker:'NARRATOR', text:"Same blackout at Strasburg Meats — six blocks away, a crash knocks out the substation, power's down for 3 days.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🏪',{label:'Strasburg Meats — Power Out Again'});
+    }},
+    { speaker:'NARRATOR', text:"The health department orders every last bit of spoiled meat thrown out.", enter(S){
+        S.shake(); S.icon('secondary','🥩',{label:'Contents Destroyed', anim:'shatter'});
+        S.banner('🗑️ CONTENTS LOST!','ALL PRODUCT DISCARDED');
+    }},
+    { speaker:'OWNER', text:"\"Last time we talked about the income I lost. This time — what covers the actual MEAT that spoiled?\"", enter(S){
+        S.icon('secondary','❓',{label:'Physical Contents, Not Income'});
+    }},
+    { speaker:'NARRATOR', text:"Different question, different endorsement. The power interruption directly caused physical loss to the contents — base contents coverage excludes that.", enter(S){
+        S.stamp('secondary','x','CONTENTS COVERAGE EXCLUDES IT');
+    }},
+    { speaker:'NARRATOR', text:"The fix is the Utility Services Direct Damage endorsement — a separate endorsement from the Time Element version, which instead handles the INCOME side, not the physical property.", enter(S){
+        S.icon('secondary','🔧',{label:'Direct Damage Endorsement', anim:'glowgold'});
+        S.flash('DIRECT DAMAGE = PROPERTY, TIME ELEMENT = INCOME','var(--safe)');
+    }},
+  ]},
+
+{ id:'splitlimittom', title:'THE $5,000<br>RAY DIDN\'T GET', hook:"Split limits cap EACH person, not the total damages.", icon:'🚗', mood:'mood-industrial', tag:'ws90 · PAP Split Limit Math',
+  endRule:"With split limits, check each injured person individually against the per-person cap first, then add the capped amounts together. Defense costs are always paid on top, never subtracted from the limit.",
+  beats:[
+    { speaker:'NARRATOR', text:"Tom carries a Personal Auto Policy with 100/300/50 limits. He causes a collision, injuring two people — Bob and Ray.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🚗',{label:'Tom — 100/300/50 PAP'});
+    }},
+    { speaker:'NARRATOR', text:"Bob suffers $45,000 in damages. Ray suffers $105,000.", enter(S){
+        S.icon('secondary','💥',{label:'Bob: $45K — Ray: $105K', anim:'punch'});
+    }},
+    { speaker:'TOM', text:"\"So my policy pays the full $150,000 total, right? That's what they actually suffered.\"", enter(S){
+        S.icon('secondary','🧮',{label:'$150,000 Total?'});
+    }},
+    { speaker:'NARRATOR', text:"No — check EACH person against the $100,000 per-person cap individually. Bob's $45,000 stays as-is. Ray's $105,000 gets capped down to $100,000.", enter(S){
+        S.stamp('secondary','x','NOT A SIMPLE TOTAL');
+        S.formula('TOM\'S ACTUAL PAYOUT',[
+          {text:'Bob: $45,000 <span class="op">+</span> Ray: $100,000 (capped)',cls:''},
+          {text:'= $145,000',cls:'result'},
+        ]);
+    }},
+    { speaker:'NARRATOR', text:"And defense costs get added on top of that $145,000 — they're never carved out of the liability limit itself.", enter(S){
+        S.icon('secondary','⚖️',{label:'Defense Costs — Always Extra', anim:'glowgold'});
+        S.flash('$145,000 PLUS DEFENSE COSTS','var(--safe)');
+    }},
+  ]},
+
+{ id:'felalongshore', title:'THE TWO LAWS<br>THAT OUTRANK THE STATE', hook:"FELA and Longshore/Harbor both provide greater federal benefits.", icon:'⚓', mood:'mood-medical', tag:'ws91 · Workers\' Comp Federal Overlap',
+  endRule:"FELA covers interstate railroad workers, and the Longshore and Harbor Workers' Compensation Act covers those who load, unload, build, and repair ships. Both are separate federal laws providing greater benefits than state Workers' Comp.",
+  beats:[
+    { speaker:'NARRATOR', text:"Two very different workers get hurt on the job in the same week — a railroad engineer, and a dockworker loading a cargo ship.", enter(S){
+        S.mood('mood-medical'); S.icon('main','⚓',{label:'Two Workers, Two Federal Laws'});
+    }},
+    { speaker:'STUDENT', text:"\"There's ONE federal law that beats state Workers' Comp for special cases, right? Which one is it?\"", enter(S){
+        S.icon('secondary','❓',{label:'Just One Law?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Notice the question's own wording — \"certain categories of employees,\" plural. That's the tell: there isn't just one law here, there are two.", enter(S){
+        S.icon('secondary','🔍',{label:'Plural = Two Laws'});
+    }},
+    { speaker:'NARRATOR', text:"FELA covers interstate railroad workers. The Longshore and Harbor Workers' Compensation Act covers those who load, unload, build, and repair ships in port or at sea.", enter(S){
+        S.stamp('secondary','check','BOTH LAWS APPLY');
+    }},
+    { speaker:'NARRATOR', text:"Each one provides greater benefits than state Workers' Comp for its own category of worker — the correct answer is both, not either one alone.", enter(S){
+        S.flash('BOTH FELA AND LONGSHORE/HARBOR','var(--safe)');
+    }},
+  ]},
+
+{ id:'mysteriousdisappearance', title:'THE WATCH THAT<br>JUST WASN\'T THERE', hook:"No force, no break-in, no known cause — that\'s its own category.", icon:'⌚', mood:'mood-warmnight', tag:'ws92 · Mysterious Disappearance',
+  endRule:"Robbery needs a threat of force; burglary needs visible signs of forced entry. When property is simply gone with no known cause, that's a mysterious disappearance — a distinct category from either.",
+  beats:[
+    { speaker:'NARRATOR', text:"The Chens host a party for close friends. Guests pile their coats onto the bed in the back bedroom.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🎉',{label:'The Chens\' Party'});
+    }},
+    { speaker:'NARRATOR', text:"Two days later, Mr. Chen notices his wristwatch is gone from the dresser.", enter(S){
+        S.icon('secondary','⌚',{label:'Watch Missing — 2 Days Later', anim:'punch'});
+        S.banner('❓ MISSING!','NO IDEA WHAT HAPPENED');
+    }},
+    { speaker:'MR. CHEN', text:"\"Someone at the party must have robbed me, or broken in to steal it.\"", enter(S){
+        S.icon('secondary','🔍',{label:'Robbery or Burglary?'});
+    }},
+    { speaker:'NARRATOR', text:"Neither fits. Robbery needs a threat of force. Burglary needs visible signs of forced entry. There's no evidence of either one here.", enter(S){
+        S.stamp('secondary','x','NEITHER FITS THE EVIDENCE');
+    }},
+    { speaker:'NARRATOR', text:"Property missing, cause completely unknown, two full days of unaccounted-for time — that's its own defined category: mysterious disappearance.", enter(S){
+        S.icon('secondary','❓',{label:'Mysterious Disappearance', anim:'glowgold'});
+        S.flash('UNKNOWN CAUSE = ITS OWN CATEGORY','var(--safe)');
+    }},
+  ]},
+
+{ id:'allriskexclusions', title:'THE PROMISE<br>THAT WASN\'T THE POLICY', hook:"All-risk coverage lives and dies in the exclusions section.", icon:'📖', mood:'mood-bureau', tag:'ws93 · All-Risk — Where to Check',
+  endRule:"An all-risk policy covers everything unless specifically excluded. After a loss, the real answer to \"is this covered\" lives in the exclusions section, not in whatever the agent said in passing.",
+  beats:[
+    { speaker:'NARRATOR', text:"Phil buys an all-risk policy. His agent tells him, casually, that everything's covered.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','📋',{label:'Phil\'s All-Risk Policy'});
+    }},
+    { speaker:'PHIL', text:"\"Great, so after a loss I don't need to check anything — the agent already told me I'm covered.\"", enter(S){
+        S.icon('secondary','🤝',{label:'Trusting the Agent\'s Word', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"That broad statement isn't proof of anything. All-risk means covered UNLESS excluded — the actual boundaries live in one specific place.", enter(S){
+        S.stamp('secondary','x','AGENT\'S WORD ISN\'T THE POLICY');
+    }},
+    { speaker:'NARRATOR', text:"The exclusions section. That's where Phil actually needs to look to see if his specific cause of loss is carved out or not.", enter(S){
+        S.icon('secondary','📖',{label:'Exclusions Section', anim:'glowgold'});
+        S.flash('CHECK THE EXCLUSIONS, NOT THE AGENT\'S MEMORY','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"If the agent turns out to be wrong, that could open the door to an errors and omissions claim — but Phil would still have to prove he was misled.", enter(S){}},
+  ]},
+
+{ id:'mortgagee60days', title:'THE LENDER\'S<br>SECOND CHANCE', hook:"60 extra days if the insured drops the ball on paperwork.", icon:'🏦', mood:'mood-bureau', tag:'ws94 · Mortgagee Proof of Loss',
+  endRule:"If the insured fails to submit proof of loss, the mortgagee gets an additional 60 days after the loss to submit it themselves — protecting the lender's interest even when the insured misses the paperwork.",
+  beats:[
+    { speaker:'NARRATOR', text:"A house fire damages a mortgaged property. The insured is supposed to file the proof of loss — but doesn't.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','📄',{label:'Proof of Loss — Insured Drops It'});
+    }},
+    { speaker:'BANK', text:"\"Wait — does our interest in this property just evaporate because HE forgot to file paperwork?\"", enter(S){
+        S.icon('secondary','😰',{label:'Lender\'s Interest at Risk', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No — the mortgagee gets a built-in safety net. An additional 60 days after the loss to submit the proof of loss themselves.", enter(S){
+        S.stamp('secondary','check','60 DAYS — MORTGAGEE\'S BACKSTOP');
+        S.flash('THE LENDER\'S INTEREST STAYS PROTECTED','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"This pairs directly with mortgagee rights — the lender's protections don't stop at just being named on the policy. There's a real deadline safety net behind it too.", enter(S){}},
+  ]},
+
+{ id:'hocoverageCsublimits', title:'THE WATCH<br>THAT HAD A CEILING', hook:"Named sublimit categories vs. ordinary worldwide personal property.", icon:'💍', mood:'mood-warning', tag:'ws95 · HO Coverage C Sublimits',
+  endRule:"Firearms, silverware/gold/pewter, and jewelry/watches/furs/stones all carry dollar sublimits and require theft specifically. Ordinary personal property, by contrast, is covered worldwide with no such cap.",
+  beats:[
+    { speaker:'NARRATOR', text:"An adjuster is walking through what Coverage C actually caps versus what it doesn't.", enter(S){
+        S.mood('mood-warning'); S.icon('main','💍',{label:'Coverage C — Personal Property'});
+    }},
+    { speaker:'NARRATOR', text:"Firearms — capped. Silverware, gold ware, pewter — capped. Jewelry, watches, furs, precious stones — capped. All three, theft-only, dollar-limited.", enter(S){
+        S.icon('secondary','🔒',{label:'Three Named Sublimit Categories'});
+        S.stamp('secondary','check','ALL THREE HAVE SUBLIMITS');
+    }},
+    { speaker:'CLIENT', text:"\"And my regular stuff I packed for my trip to Myrtle Beach — that's capped too, right?\"", enter(S){
+        S.icon('secondary','🏖️',{label:'Property on a Trip?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No — ordinary personal property is covered worldwide under Coverage C, no special sublimit category. It just travels with the policy wherever it goes.", enter(S){
+        S.stamp('secondary','x','NOT ONE OF THE NAMED CATEGORIES');
+        S.flash('WORLDWIDE, NO SUBLIMIT','var(--safe)');
+    }},
+  ]},
+
+{ id:'boatownersscope', title:'THE HULL, THE GEAR,<br>AND THE LIABILITY', hook:"Boatowners bundles all three, like an auto policy for the water.", icon:'🚤', mood:'mood-industrial', tag:'ws96 · Boatowners Policy Scope',
+  endRule:"A Boatowners policy bundles hull damage, equipment coverage, and watercraft liability all in one package — not limited to inland lakes, and not stopping short at just one or two pieces.",
+  beats:[
+    { speaker:'NARRATOR', text:"A boat owner is shopping for coverage, assuming a Boatowners policy is just hull damage and nothing more.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🚤',{label:'Boatowners Policy'});
+    }},
+    { speaker:'OWNER', text:"\"So this just covers the hull if it gets damaged? And only on inland lakes?\"", enter(S){
+        S.icon('secondary','🌊',{label:'Hull Only? Lakes Only?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Neither limitation is real. Think of it as the marine version of an auto policy — physical damage to the vessel AND liability for what it does to others, bundled together.", enter(S){
+        S.stamp('secondary','x','NOT HULL-ONLY, NOT LAKES-ONLY');
+    }},
+    { speaker:'NARRATOR', text:"The hull. The equipment aboard it. And watercraft liability for harm caused to others. All three, one policy.", enter(S){
+        S.icon('secondary','⛵',{label:'Hull + Equipment + Liability', anim:'glowgold'});
+        S.flash('THE FULL PACKAGE, LIKE AN AUTO POLICY','var(--safe)');
+    }},
+  ]},
+
+{ id:'dp1businessexclusion', title:'THE SHED THAT<br>BECAME A BUSINESS', hook:"Farming counts as business use, even in a DP-1 storage shed.", icon:'🌾', mood:'mood-warning', tag:'ws97 · DP-1 Business Use Exclusion',
+  endRule:"Coverage B on other structures excludes business use. Farming counts as a business activity — storing farm machinery and hay crosses that line, even in a structure that otherwise looks like ordinary storage.",
+  beats:[
+    { speaker:'NARRATOR', text:"George insures his dwelling for $40,000 under a DP-1. Coverage B lets him apply up to 10% toward other structures on the property.", enter(S){
+        S.mood('mood-warning'); S.icon('main','🏠',{label:'George — DP-1, $40K Dwelling'});
+    }},
+    { speaker:'NARRATOR', text:"A garage rented to a neighbor for personal car storage — fine. A boathouse for his own speedboat — fine. A hobby woodworking shed — fine.", enter(S){
+        S.icon('secondary','🚗',{label:'Personal Use Structures'});
+        S.stamp('secondary','check','ALL PERSONAL USE — COVERED');
+    }},
+    { speaker:'NARRATOR', text:"Then there's the shed storing baled hay and a neighbor's farm combine.", enter(S){
+        S.icon('secondary','🌾',{label:'Farm Equipment Storage', anim:'shatter'});
+    }},
+    { speaker:'NARRATOR', text:"That one's excluded — farming is classified as a BUSINESS activity, even when it just looks like stuff sitting in a shed. Coverage B doesn't extend to business use.", enter(S){
+        S.stamp('secondary','x','FARMING = BUSINESS USE');
+        S.flash('BUSINESS USE IS ALWAYS EXCLUDED','var(--danger)');
+    }},
+  ]},
+
+{ id:'ho2broadboth', title:'BROAD ON BOTH<br>SIDES OF THE LEDGER', hook:"HO-2 is the one form that\'s broad form on dwelling AND contents.", icon:'🏡', mood:'mood-warmnight', tag:'ws98 · HO-2 Broad Form Both Sides',
+  endRule:"HO-2 provides broad form coverage on both the dwelling and personal property. HO-3 mixes special/broad, HO-5 is special/special (all risk on both), and HO-8 is basic/basic.",
+  beats:[
+    { speaker:'NARRATOR', text:"Four homeowners forms, lined up by their actual coverage levels on two things: the dwelling, and the contents inside it.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🏡',{label:'Four HO Forms, Two Categories'});
+    }},
+    { speaker:'NARRATOR', text:"HO-8 sits at the bottom — basic coverage on both sides. HO-5 sits at the top — special/all-risk on both sides.", enter(S){
+        S.icon('secondary','📊',{label:'HO-8: Basic/Basic — HO-5: Special/Special'});
+    }},
+    { speaker:'STUDENT', text:"\"And HO-3 — that's broad form on both the dwelling and the contents, right? It's the most common one.\"", enter(S){
+        S.icon('secondary','🤔',{label:'HO-3 = Broad/Broad?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Close, but no — HO-3 actually MIXES levels: special/open-peril on the dwelling, broad form on contents. Not broad on both.", enter(S){
+        S.stamp('secondary','x','HO-3 IS A MIX, NOT BROAD/BROAD');
+    }},
+    { speaker:'NARRATOR', text:"The one that's genuinely broad form on BOTH the dwelling and personal property is HO-2 — one level down from HO-3's special-dwelling upgrade.", enter(S){
+        S.icon('secondary','✅',{label:'HO-2 — Broad/Broad', anim:'glowgold'});
+        S.flash('HO-2 IS THE TRUE BROAD/BROAD FORM','var(--safe)');
+    }},
+  ]},
+
+{ id:'representations', title:'THE TRUTH,<br>AS BEST HE KNEW IT', hook:"Application answers are representations, not warranties.", icon:'📝', mood:'mood-bureau', tag:'ws99 · Applications — Representations',
+  endRule:"A representation is the truth to the best of the applicant's knowledge and belief — not an absolute guarantee (warranty), and not automatically a lie (misrepresentation). Application answers are held to this standard.",
+  beats:[
+    { speaker:'NARRATOR', text:"An applicant fills out an insurance application, answering every question as honestly as he knows how.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','📝',{label:'Insurance Application'});
+    }},
+    { speaker:'STUDENT', text:"\"These answers are basically warranties, right? He's guaranteeing they're all completely accurate.\"", enter(S){
+        S.icon('secondary','⚖️',{label:'Warranty = Absolute Guarantee?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Not quite that strict. A warranty is an absolute guarantee — application answers don't rise to that bar.", enter(S){
+        S.stamp('secondary','x','NOT A WARRANTY');
+    }},
+    { speaker:'NARRATOR', text:"They're representations — the truth to the best of the applicant's own knowledge and belief at the time. Not a guarantee, and not automatically a lie either.", enter(S){
+        S.icon('secondary','✅',{label:'Representations', anim:'glowgold'});
+        S.flash('BEST KNOWLEDGE, NOT ABSOLUTE GUARANTEE','var(--safe)');
+    }},
+  ]},
+
+{ id:'foreigncoverage90', title:'THE 90-DAY<br>BRIDGE OVERSEAS', hook:"A temporary endorsement, on purpose — not a permanent fix.", icon:'✈️', mood:'mood-medical', tag:'ws100 · Foreign Coverage Endorsement',
+  endRule:"The Foreign Coverage Endorsement provides temporary Workers' Comp coverage for US citizens working outside the country for no longer than 90 days — a bridge, not a long-term solution.",
+  beats:[
+    { speaker:'NARRATOR', text:"A US company sends an employee overseas for a short-term assignment. Workers' Comp needs to follow them.", enter(S){
+        S.mood('mood-medical'); S.icon('main','✈️',{label:'US Citizen Working Abroad'});
+    }},
+    { speaker:'EMPLOYEE', text:"\"So this Foreign Coverage Endorsement covers me the whole time I'm out here — however long that ends up being?\"", enter(S){
+        S.icon('secondary','🌍',{label:'Open-Ended Coverage?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No — this is explicitly a temporary bridge, not a permanent solution. It's built with a hard cutoff.", enter(S){
+        S.stamp('secondary','x','NOT OPEN-ENDED');
+    }},
+    { speaker:'NARRATOR', text:"90 days, maximum. Longer overseas assignments need a different, more permanent coverage arrangement entirely.", enter(S){
+        S.icon('secondary','📅',{label:'90-Day Cap', anim:'glowgold'});
+        S.flash('90 DAYS — TEMPORARY BY DESIGN','var(--safe)');
+    }},
+  ]},
+
+{ id:'waiverdefinition', title:'THE RIGHT<br>SHE GAVE UP ON PURPOSE', hook:"Waiver is voluntary; estoppel is being blocked by your own conduct.", icon:'🤝', mood:'mood-bureau', tag:'ws101 · Waiver',
+  endRule:"Waiver means voluntarily giving up a known right, on purpose. Estoppel is different — being prevented from later asserting a right because of your own prior conduct or statements.",
+  beats:[
+    { speaker:'NARRATOR', text:"An insured knows she has a specific right under her policy — and chooses, deliberately, to let it go.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','🤝',{label:'A Known Right, Given Up'});
+    }},
+    { speaker:'STUDENT', text:"\"Isn't that estoppel? She's not going to be able to use that right later.\"", enter(S){
+        S.icon('secondary','🚫',{label:'Estoppel?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Close cousins, but different mechanisms. Estoppel is being BLOCKED from asserting a right because of your own earlier conduct or statements — it's not really a choice.", enter(S){
+        S.stamp('secondary','x','ESTOPPEL IS ABOUT BEING BLOCKED');
+    }},
+    { speaker:'NARRATOR', text:"This is simpler and more direct: the voluntary abandonment of a known legal right. That's the textbook definition of waiver.", enter(S){
+        S.icon('secondary','✅',{label:'Waiver — Voluntary Abandonment', anim:'glowgold'});
+        S.flash('VOLUNTARY = WAIVER','var(--safe)');
+    }},
+  ]},
+
+{ id:'coinsurancesmith', title:'THE SAME MATH,<br>A BIGGER BUILDING', hook:"Commercial co-insurance, same two-step formula as Walt\'s fire.", icon:'🏢', mood:'mood-stormred', tag:'ws102 · Commercial Co-insurance Math',
+  endRule:"Same co-insurance formula every time: find the required coverage (replacement cost × 80%), divide what's actually carried by that requirement, then apply that percentage to the LOSS — not the policy limit. Deductible comes off last.",
+  beats:[
+    { speaker:'NARRATOR', text:"Mr. Smith carries $400,000 of commercial property coverage on a building that would cost $600,000 to replace.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🏢',{label:'Mr. Smith — $400K on a $600K Building'});
+    }},
+    { speaker:'NARRATOR', text:"A fire causes $120,000 in damage. His policy carries an 80% co-insurance clause.", enter(S){
+        S.shake(); S.icon('secondary','🔥',{label:'$120,000 Fire Loss', anim:'shatter'});
+        S.banner('🔥 FIRE LOSS!','80% CO-INSURANCE CLAUSE');
+    }},
+    { speaker:'NARRATOR', text:"Step one: the required coverage. $600,000 × 80% = $480,000 needed to avoid a penalty.", enter(S){
+        S.formula('CO-INSURANCE REQUIREMENT',[
+          {text:'$600,000 <span class="op">×</span> 80%',cls:''},
+          {text:'= $480,000 required',cls:'result'},
+        ]);
+    }},
+    { speaker:'NARRATOR', text:"Step two: what he actually carries ($400,000) divided by what's required ($480,000) — his co-insurance percentage.", enter(S){
+        S.formula('MR. SMITH\'S ACTUAL PAYOUT',[
+          {text:'($400,000 <span class="op">÷</span> $480,000) <span class="op">×</span> $120,000',cls:''},
+          {text:'= $100,000',cls:'result'},
+        ]);
+        S.stamp('secondary','check','$100,000 MINUS DEDUCTIBLE');
+    }},
+    { speaker:'NARRATOR', text:"Exact same formula as Walt's HO-3 fire loss — just commercial numbers this time. The deductible comes off at the very end.", enter(S){
+        S.flash('SAME TWO-STEP FORMULA, EVERY TIME','var(--safe)');
+    }},
+  ]},
+
 ];
 
 /* ============================================================
@@ -1829,22 +2421,22 @@ const CHAPTERS = [
     storyIds:['ceasedesist','knowingfine'] },
   { id:'general', num:'III', icon:'📖', title:'General Insurance Concepts',
     blurb:"The definitional bedrock underneath everything else — subrogation, agent authority, insurable risk, who represents whom, and the doctrines that decide who actually gets paid.",
-    storyIds:['twoyear','subrogationtransfer','expressauthority','catastrophicexposure','attorneyinfact','brokerrepresents','periodterritory','definitioninsurance','baileedoctrine'] },
+    storyIds:['twoyear','subrogationtransfer','expressauthority','catastrophicexposure','attorneyinfact','brokerrepresents','periodterritory','definitioninsurance','baileedoctrine','abandonment','mysteriousdisappearance','allriskexclusions','representations','waiverdefinition'] },
   { id:'dwelling', num:'IV', icon:'🏚️', title:'Dwelling Property (DP Policies)',
     blurb:"Your biggest chapter, on purpose. DP-1 vs. DP-2 vs. DP-3, valuation, theft and liability endorsements, excluded perils, rental value — the whole form, piece by piece.",
-    storyIds:['propremoved','appraiser','liabilityfollow','breakin','earthquake','whichform','construction','vandalism','othercoverage','explosion','autoincrease','burglardp','premiseslia','theftchoice','cplendorsement','dp1rental'] },
+    storyIds:['propremoved','appraiser','liabilityfollow','breakin','earthquake','whichform','construction','vandalism','othercoverage','explosion','autoincrease','burglardp','premiseslia','theftchoice','cplendorsement','dp1rental','dpunderconstruct100','mortgageerights','mortgagee60days','dp1businessexclusion'] },
   { id:'homeowners', num:'V', icon:'🏠', title:'Homeowners (HO Policies)',
     blurb:"HO-2 through HO-8, Coverage A through F, Section I vs. Section II, endorsements like day care and watercraft, and the co-insurance math that trips almost everyone up.",
-    storyIds:['fourforms','personalinjury','multiline','filingcabinet','worldwide','coveredproperty','termite','daycare','medpay','watercraft','heatingsystem','garage','ho3split','coinsurancewalt'] },
+    storyIds:['fourforms','personalinjury','multiline','filingcabinet','worldwide','coveredproperty','termite','daycare','medpay','watercraft','heatingsystem','garage','ho3split','coinsurancewalt','hopersonalliab','scheduledpersonalprop','hoeligibility','hocoverageCsublimits','ho2broadboth','coinsurancesmith'] },
   { id:'auto', num:'VI', icon:'🚗', title:'Auto Insurance',
     blurb:"PA's own auto quirks — the assigned-risk plan, state-minimum split limits, and exactly what does and doesn't count as bodily injury under a Personal Auto Policy.",
-    storyIds:['paip','pa153005','lossofuse','splitlimitwendy'] },
+    storyIds:['paip','pa153005','lossofuse','splitlimitwendy','splitlimittom'] },
   { id:'workcomp', num:'VII', icon:'🩹', title:"Workers' Compensation",
     blurb:"Your other weak spot, isolated on its own. Medical vs. disability waiting periods, the Second Injury Fund, Part Two Employer Liability, and the 21-day payment rule.",
-    storyIds:['workcomp','nolimitmed','twentyoneday','secondinjuryfund','waitingsplit','punitivedamages'] },
+    storyIds:['workcomp','nolimitmed','twentyoneday','secondinjuryfund','waitingsplit','punitivedamages','felalongshore','foreigncoverage90'] },
   { id:'commercial', num:'VIII', icon:'🏢', title:'Liability & Commercial Lines',
     blurb:"Umbrella vs. CGL, BOP quirks, Business Auto, surety bonds, crime forms, and farm property — the commercial-side traps that don't show up anywhere else in the book.",
-    storyIds:['umbrella','claimsmade','wallcollapse','blackoutmeat','underground','poormanscomp','bopdeductible','obligeepromise','income72','bopautomatic','principalperform','moneycrimeform','inventoryshortage','driveothercar','growingcrops'] },
+    storyIds:['umbrella','claimsmade','wallcollapse','blackoutmeat','underground','poormanscomp','bopdeductible','obligeepromise','income72','bopautomatic','principalperform','moneycrimeform','inventoryshortage','driveothercar','growingcrops','oceanimplied','warehousetowarehouse','bopdirectdamage','boatownersscope'] },
 ];
 let currentChapterId=null;
 // Which ambient theme plays inside each chapter — Dwelling gets its own
