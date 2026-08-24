@@ -290,6 +290,7 @@
   .topbar{position:absolute; top:10px; left:12px; right:12px; z-index:25; display:flex; justify-content:space-between; pointer-events:none;}
   .topbar button{pointer-events:auto; font-family:'VT323',monospace; font-size:13px; color:var(--parchment-line);
     background:rgba(10,11,26,0.6); border:1px solid var(--parchment-line); border-radius:5px; padding:3px 9px; cursor:pointer;}
+  .topbar button:disabled{opacity:0.35; cursor:default; pointer-events:none;}
 
   .end-card{position:absolute; inset:0; z-index:30; background:rgba(10,11,26,0.97);
     display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0 8%;
@@ -418,6 +419,8 @@
       <button onclick="backToMenu()">☰ Chapter</button>
       <div style="display:flex; gap:6px; pointer-events:auto;">
         <button id="muteBtn" onclick="toggleMute()">🔊</button>
+        <button id="prevStoryBtn" onclick="prevStory()">◂ Prev</button>
+        <button id="nextStoryBtn" onclick="nextStory()">Next ▸</button>
         <button id="skipBtn" onclick="skipToEnd()">Skip ▸</button>
       </div>
     </div>
@@ -2405,6 +2408,280 @@ const STORIES = [
     }},
   ]},
 
+{ id:'bopdebrisremoval', title:'THE CLEANUP<br>THAT CAME FREE', hook:"Debris removal is automatic on the unendorsed BOP.", icon:'🧹', mood:'mood-warning', tag:'ws103 · BOP Debris Removal',
+  endRule:"Debris removal is included automatically on an unendorsed BOP — no add-on needed. Pollution cleanup, wear and tear, and smoke/vapor/gas contamination are all classic exclusions, not automatic coverages.",
+  beats:[
+    { speaker:'NARRATOR', text:"A storm rips through a small shop, leaving broken building materials scattered everywhere.", enter(S){
+        S.mood('mood-warning'); S.icon('main','🏚️',{label:'Storm Damage — Debris Everywhere'});
+    }},
+    { speaker:'OWNER', text:"\"I bet I have to buy a special endorsement just to get this debris hauled away.\"", enter(S){
+        S.icon('secondary','🧹',{label:'Debris Removal', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Nope — debris removal comes built into the unendorsed BOP automatically. No add-on required.", enter(S){
+        S.stamp('secondary','check','AUTOMATIC — NO ENDORSEMENT NEEDED');
+        S.flash('DEBRIS REMOVAL IS BUILT IN','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"Pollution cleanup ordered by the government, ordinary wear and tear, and smoke/vapor/gas contamination — those are the real exclusions here, not debris removal.", enter(S){
+        S.icon('secondary','🚫',{label:'The Real Exclusions'});
+    }},
+  ]},
+
+{ id:'bopcantendorse', title:'THE COVERAGE<br>YOU CAN\'T ADD', hook:"Premises and operations is already there — you can\'t endorse in what\'s automatic.", icon:'🏢', mood:'mood-bureau', tag:'ws104 · BOP Endorsements That Can\'t Be Added',
+  endRule:"Premises and operations liability is a foundational, automatic part of the BOP — it can't be added as an endorsement because it's already there. Hired auto, valuable papers, and accounts receivable are all real optional endorsements.",
+  beats:[
+    { speaker:'NARRATOR', text:"An agent is walking through the BOP endorsement menu with a client, checking off what to add.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','📋',{label:'BOP Endorsement Menu'});
+    }},
+    { speaker:'CLIENT', text:"\"Let's add hired auto, valuable papers, accounts receivable — and premises and operations too, just to be safe.\"", enter(S){
+        S.icon('secondary','➕',{label:'Adding Premises & Operations?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"That last one can't actually be added — it's not optional at all. Premises and operations liability is already a foundational part of the base BOP.", enter(S){
+        S.stamp('secondary','x','ALREADY AUTOMATIC — CAN\'T ENDORSE IT IN');
+        S.flash('NOTHING TO ADD — IT\'S ALREADY THERE','var(--danger)');
+    }},
+    { speaker:'NARRATOR', text:"Hired auto, valuable papers and records, and accounts receivable, though — those are all real, purchasable endorsements.", enter(S){
+        S.icon('secondary','✅',{label:'Real Optional Endorsements'});
+    }},
+  ]},
+
+{ id:'bopdebris180', title:'THE 180-DAY<br>WINDOW', hook:"Debris removal claims get a generous reporting window.", icon:'📅', mood:'mood-industrial', tag:'ws105 · BOP Debris Removal Reporting',
+  endRule:"A business has 180 days from the date of physical loss to report a debris removal claim — a much longer window than the general property-loss reporting duty.",
+  beats:[
+    { speaker:'NARRATOR', text:"A fire damages a warehouse. Weeks pass while the owner deals with the bigger cleanup priorities first.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🔥',{label:'Fire Damage — Weeks Later'});
+    }},
+    { speaker:'OWNER', text:"\"Oh no — I needed to report the debris removal claim immediately, didn't I? It's already been a month!\"", enter(S){
+        S.icon('secondary','😰',{label:'Worried About the Deadline', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No need to panic — debris removal gets its own generous window, separate from the general \"report promptly\" duty.", enter(S){
+        S.stamp('secondary','check','PLENTY OF TIME LEFT');
+    }},
+    { speaker:'NARRATOR', text:"180 days from the date of the physical loss. The claim itself is limited to actual removal expense, or a max of 25% of the direct damage paid, plus the deductible.", enter(S){
+        S.icon('secondary','📅',{label:'180 Days', anim:'glowgold'});
+        S.flash('180 DAYS TO REPORT DEBRIS REMOVAL','var(--safe)');
+    }},
+  ]},
+
+{ id:'bopincome12mo', title:'THE YEAR<br>THE BOP GIVES YOU', hook:"BOP Business Income runs up to 12 months, not a percentage.", icon:'📈', mood:'mood-warning', tag:'ws106 · BOP Business Income Period',
+  endRule:"BOP Business Income and Extra Expense coverage extends for up to 12 months following a direct physical loss — a time-based coverage period, not a percentage of the policy limits.",
+  beats:[
+    { speaker:'NARRATOR', text:"A covered fire shuts a small business down completely. Income stops the moment the doors close.", enter(S){
+        S.mood('mood-warning'); S.icon('main','📈',{label:'Business Income Coverage'});
+    }},
+    { speaker:'OWNER', text:"\"How much of my policy limit gets set aside for lost income — 25%? 10%?\"", enter(S){
+        S.icon('secondary','💰',{label:'A Percentage of Limits?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Wrong shape entirely — this isn't a percentage-of-limits coverage. It's measured in TIME.", enter(S){
+        S.stamp('secondary','x','NOT A PERCENTAGE');
+    }},
+    { speaker:'NARRATOR', text:"Up to 12 months following the direct physical loss — that's the real coverage period for Business Income and Extra Expense under the BOP.", enter(S){
+        S.icon('secondary','📅',{label:'12 Months', anim:'glowgold'});
+        S.flash('12 MONTHS, MEASURED IN TIME','var(--safe)');
+    }},
+  ]},
+
+{ id:'bopsignsincluded', title:'THE SIGN THAT<br>STAYED COVERED', hook:"Signs attached to the building are covered property, not excluded.", icon:'🪧', mood:'mood-stormred', tag:'ws107 · BOP Sign Coverage',
+  endRule:"Signs permanently attached to the building are considered part of covered property under a BOP — not excluded. Radio antenna towers, contraband, and lawns are the real exclusions.",
+  beats:[
+    { speaker:'NARRATOR', text:"A windstorm rips through town, damaging a radio antenna tower, some landscaping, and a shop's exterior sign.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🌪️',{label:'Windstorm Damage'});
+    }},
+    { speaker:'NARRATOR', text:"The antenna tower — excluded. The lawns — excluded. Any contraband on the property — excluded.", enter(S){
+        S.icon('secondary','🚫',{label:'Three Real Exclusions'});
+        S.stamp('secondary','x','EXCLUDED');
+    }},
+    { speaker:'OWNER', text:"\"And my business sign bolted to the front of the building — that's excluded too, right?\"", enter(S){
+        S.icon('secondary','🪧',{label:'Sign on the Building?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No — signs attached to the building are actually treated as part of the covered PROPERTY, not land or a freestanding excluded structure.", enter(S){
+        S.stamp('secondary','check','SIGNS ARE COVERED');
+        S.flash('ATTACHED SIGNS = COVERED PROPERTY','var(--safe)');
+    }},
+  ]},
+
+{ id:'bopanimalsexception', title:'THE PET SHOP<br>EXCEPTION', hook:"Animals for sale get a carve-out from the general animal exclusion.", icon:'🐠', mood:'mood-warmnight', tag:'ws108 · BOP Animal Exception',
+  endRule:"The BOP generally excludes animals, but carves out an exception for animals kept as stock for sale (like a pet shop) or animals owned by others and boarded with the insured.",
+  beats:[
+    { speaker:'NARRATOR', text:"A pet shop owner is reading through the BOP's excluded property list, getting increasingly worried.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🐠',{label:'Pet Shop — BOP Coverage'});
+    }},
+    { speaker:'NARRATOR', text:"Autos — excluded. Illegal contraband — excluded. Floating watercraft — excluded. Computers permanently installed in vehicles — excluded.", enter(S){
+        S.icon('secondary','🚫',{label:'Four Real Exclusions'});
+        S.stamp('secondary','x','ALL EXCLUDED');
+    }},
+    { speaker:'SHOP OWNER', text:"\"So my entire inventory of animals for sale is excluded too? My whole business is animals!\"", enter(S){
+        S.icon('secondary','😰',{label:'Animals Excluded?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Here's the carve-out: while animals are generally excluded, there's a specific exception for animals kept as STOCK FOR SALE — exactly a pet shop's situation.", enter(S){
+        S.stamp('secondary','check','EXCEPTION FOR STOCK FOR SALE');
+        S.flash('PET SHOP INVENTORY: COVERED','var(--safe)');
+    }},
+  ]},
+
+{ id:'boppainterpayroll', title:'THE PAINTER\'S<br>PAYROLL CEILING', hook:"Contractors are eligible for a BOP — up to a $300,000 payroll cap.", icon:'🎨', mood:'mood-industrial', tag:'ws109 · BOP Contractor Payroll Cap',
+  endRule:"Contractors like painters, electricians, drywallers, and carpenters are all eligible for a BOP, capped at a maximum payroll of $300,000 — not turned away as an ineligible occupation.",
+  beats:[
+    { speaker:'NARRATOR', text:"A painting contractor applies for a Businessowners Policy, worried his trade might not even qualify.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🎨',{label:'Painter Applying for BOP'});
+    }},
+    { speaker:'PAINTER', text:"\"I'm probably just an ineligible occupation for a BOP, aren't I? Painters aren't exactly low-risk.\"", enter(S){
+        S.icon('secondary','😟',{label:'Assuming Ineligibility', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Not true — contractors like painters, electricians, drywallers, and carpenters are all eligible occupations for a BOP.", enter(S){
+        S.stamp('secondary','check','CONTRACTORS ARE ELIGIBLE');
+    }},
+    { speaker:'NARRATOR', text:"The real constraint is a payroll ceiling: $300,000 maximum. Cross that, and eligibility changes — but it's not about the trade itself.", enter(S){
+        S.icon('secondary','💰',{label:'$300,000 Payroll Cap', anim:'glowgold'});
+        S.flash('$300,000 — THE REAL CEILING','var(--safe)');
+    }},
+  ]},
+
+{ id:'boppremiumaudit', title:'THE BILL THAT<br>COMES LATER', hook:"BOP premium audits happen AFTER the coverage period closes.", icon:'🧾', mood:'mood-bureau', tag:'ws110 · BOP Premium Audit Timing',
+  endRule:"When a premium is designated as an advance premium, the insurer can conduct a premium audit after the coverage period closes, and raise the premium for the period that just concluded.",
+  beats:[
+    { speaker:'NARRATOR', text:"A business owner pays an \"advance premium\" at the start of the BOP coverage period, based on estimated exposure.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','🧾',{label:'Advance Premium Paid'});
+    }},
+    { speaker:'OWNER', text:"\"So the insurer will audit and true this up sometime during underwriting, before the policy even starts?\"", enter(S){
+        S.icon('secondary','📋',{label:'Audit Before Coverage Starts?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No — the real audit happens on the other end, AFTER the coverage period closes, once actual exposure is known.", enter(S){
+        S.stamp('secondary','x','NOT DURING UNDERWRITING');
+    }},
+    { speaker:'NARRATOR', text:"The insurer can then make warranted changes to the premium for the period that just concluded — reconciling the estimate against reality.", enter(S){
+        S.icon('secondary','✅',{label:'Audit After Close of Period', anim:'glowgold'});
+        S.flash('AUDITED AFTER THE PERIOD ENDS','var(--safe)');
+    }},
+  ]},
+
+{ id:'bopmedmalexcluded', title:'THE COVERAGE<br>THAT NEEDS ITS OWN POLICY', hook:"Medical malpractice isn\'t a BOP optional coverage — it never was.", icon:'🏥', mood:'mood-medical', tag:'ws111 · BOP Optional Coverage Not Available',
+  endRule:"Medical malpractice isn't available as an optional BOP coverage — it's a specialized professional liability product for healthcare providers, entirely separate from general small-business liability.",
+  beats:[
+    { speaker:'NARRATOR', text:"A small medical practice is shopping the BOP's optional coverage list, hoping to bundle everything under one policy.", enter(S){
+        S.mood('mood-medical'); S.icon('main','🏥',{label:'Medical Practice — Shopping Options'});
+    }},
+    { speaker:'NARRATOR', text:"Burglary and robbery — available. Outdoor signs — available. Equipment Breakdown coverage — available.", enter(S){
+        S.icon('secondary','✅',{label:'Three Real Optional Coverages'});
+        S.stamp('secondary','check','ALL AVAILABLE');
+    }},
+    { speaker:'PRACTICE MANAGER', text:"\"Great — let's add medical malpractice too, right here on the BOP.\"", enter(S){
+        S.icon('secondary','❌',{label:'Medical Malpractice?', anim:'shatter'});
+    }},
+    { speaker:'NARRATOR', text:"Not available — never has been. Medical malpractice is a specialized professional liability product built specifically for healthcare providers, completely separate from a small-business BOP.", enter(S){
+        S.stamp('secondary','x','NOT A BOP OPTION AT ALL');
+        S.flash('NEEDS ITS OWN DEDICATED POLICY','var(--danger)');
+    }},
+  ]},
+
+{ id:'bopapartmenteligible', title:'SIX STORIES,<br>SIXTY UNITS', hook:"BOP apartment eligibility: six stories AND 60 units, both \"or less.\"", icon:'🏢', mood:'mood-warning', tag:'ws112 · BOP Apartment Eligibility',
+  endRule:"Eligible apartment houses for a BOP don't exceed six stories and 60 units or less — both figures capped as ceilings, not floors.",
+  beats:[
+    { speaker:'NARRATOR', text:"An underwriter is checking whether a mid-sized apartment complex qualifies for a Businessowners Policy.", enter(S){
+        S.mood('mood-warning'); S.icon('main','🏢',{label:'Apartment Complex — Eligibility Check'});
+    }},
+    { speaker:'UNDERWRITER', text:"\"Four stories, sixty units or more — that should still fit inside BOP eligibility, right?\"", enter(S){
+        S.icon('secondary','🤔',{label:'Checking the Numbers', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Watch the direction of those numbers carefully — the real limits are both CEILINGS, not floors.", enter(S){
+        S.stamp('secondary','x','WRONG DIRECTION ON THE NUMBERS');
+    }},
+    { speaker:'NARRATOR', text:"Six stories and 60 units OR LESS — both figures capped as maximums. Cross either ceiling, and it needs more specialized coverage.", enter(S){
+        S.icon('secondary','📏',{label:'6 Stories / 60 Units — Both \"Or Less\"', anim:'glowgold'});
+        S.flash('BOTH NUMBERS ARE CEILINGS','var(--safe)');
+    }},
+  ]},
+
+{ id:'bopland', title:'THE GROUND<br>THAT NEVER COUNTS', hook:"Land is never covered property under a BOP.", icon:'🌍', mood:'mood-stormred', tag:'ws113 · BOP Land Exclusion',
+  endRule:"Land itself is excluded from BOP coverage as a non-depreciable asset — floor coverings, outdoor furniture, and appliances are all covered, but the land underneath never is.",
+  beats:[
+    { speaker:'NARRATOR', text:"A property loss hits a small business — floor coverings damaged, outdoor furniture destroyed, a dishwasher ruined.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🏪',{label:'Property Loss — Multiple Items'});
+    }},
+    { speaker:'NARRATOR', text:"Floor coverings — covered. Outdoor furniture — covered. The dishwasher — covered. All legitimate BOP property.", enter(S){
+        S.icon('secondary','✅',{label:'All Covered Property'});
+        S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'OWNER', text:"\"And the actual ground my building sits on — that's covered too, right? It's part of my property.\"", enter(S){
+        S.icon('secondary','🌍',{label:'The Land Itself?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No — land is excluded, full stop. It's a non-depreciable asset that doesn't face the same physical-loss risk as structures and contents.", enter(S){
+        S.stamp('secondary','x','LAND — NEVER COVERED');
+        S.flash('LAND IS ALWAYS EXCLUDED','var(--danger)');
+    }},
+  ]},
+
+{ id:'bopfireperfire', title:'THE LANDLORD\'S<br>WALL, PER FIRE', hook:"Fire legal liability is structured on a per-fire basis.", icon:'🔥', mood:'mood-bureau', tag:'ws114 · BOP Fire Legal Liability Limit',
+  endRule:"Fire legal liability (Damage to Premises Rented To You) pays for landlord property damage caused by tenant negligence, structured specifically on a per-fire basis — not aggregate, dual, or per-occurrence.",
+  beats:[
+    { speaker:'NARRATOR', text:"A tenant's careless mistake starts a fire that damages the landlord's rented space.", enter(S){
+        S.mood('mood-bureau'); S.icon('main','🔥',{label:'Tenant Negligence — Fire Damage'});
+    }},
+    { speaker:'TENANT', text:"\"My fire legal liability coverage — that's on some kind of aggregate limit across the whole year, right?\"", enter(S){
+        S.icon('secondary','📊',{label:'Aggregate Limit?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No — this coverage has its own name for a reason. Damage to Premises Rented To You (fire legal liability) is structured on a PER FIRE basis.", enter(S){
+        S.stamp('secondary','check','PER FIRE LIMIT');
+        S.flash('THE NAME TELLS YOU THE LIMIT TYPE','var(--safe)');
+    }},
+    { speaker:'NARRATOR', text:"Both names of this coverage mention fire directly — that's the tell that the limit itself is built specifically around fire events, not a broad aggregate or occurrence limit.", enter(S){}},
+  ]},
+
+{ id:'bopcivilauthority', title:'THE ROADBLOCK<br>NEXT DOOR', hook:"Civil Authority pays when access is blocked, not when your own building is damaged.", icon:'🚧', mood:'mood-industrial', tag:'ws115 · BOP Civil Authority Coverage',
+  endRule:"Civil Authority coverage pays Business Income after a 72-hour wait when police or government order blocks access to the premises — often due to a NEARBY property issue, not damage to the insured's own building.",
+  beats:[
+    { speaker:'NARRATOR', text:"A gas leak at a neighboring building forces police to cordon off the whole block for safety — including the business next door.", enter(S){
+        S.mood('mood-industrial'); S.icon('main','🚧',{label:'Police Block Access — Nearby Hazard'});
+    }},
+    { speaker:'OWNER', text:"\"My building isn't even damaged — how am I supposed to collect Business Income for this?\"", enter(S){
+        S.icon('secondary','🚔',{label:'Access Blocked, No Direct Damage', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"This is exactly what Civil Authority coverage exists for — access blocked by government order, even when the trigger is a NEARBY property, not the insured's own building.", enter(S){
+        S.stamp('secondary','check','CIVIL AUTHORITY');
+    }},
+    { speaker:'NARRATOR', text:"After the standard 72-hour wait, Business Income kicks in for a limited period — 3 weeks on older forms, 4 weeks on more recent ones.", enter(S){
+        S.icon('secondary','📅',{label:'72-Hour Wait, Then Limited Weeks', anim:'glowgold'});
+        S.flash('BLOCKED ACCESS = CIVIL AUTHORITY','var(--safe)');
+    }},
+  ]},
+
+{ id:'bopcoverageb', title:'WHOSE STUFF<br>IS IT ANYWAY', hook:"Coverage B follows OWNERSHIP, not just location on the premises.", icon:'📦', mood:'mood-warmnight', tag:'ws116 · BOP Coverage B Exceptions',
+  endRule:"Coverage B covers the insured's OWN business personal property. Client property physically on the premises still isn't the insured's — protecting it needs separate coverage like Bailees or Inland Marine.",
+  beats:[
+    { speaker:'NARRATOR', text:"A repair shop has all kinds of property sitting around — its own tools, appliances, stock nearby, and customers' belongings dropped off for service.", enter(S){
+        S.mood('mood-warmnight'); S.icon('main','🔧',{label:'Repair Shop — Mixed Property'});
+    }},
+    { speaker:'NARRATOR', text:"Exterior glass (as a tenant), appliances used for refrigeration/cooking/dishwashing/laundry, business property stored within 100 feet — all covered under Coverage B.", enter(S){
+        S.icon('secondary','✅',{label:'Three Real Coverage B Items'});
+        S.stamp('secondary','check','COVERED');
+    }},
+    { speaker:'SHOP OWNER', text:"\"And my customers' items sitting right here on my own premises — those are covered too under Coverage B, right?\"", enter(S){
+        S.icon('secondary','📦',{label:'Client Property?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"No — Coverage B only follows what the INSURED owns. Client property stays the client's property, even sitting on the insured's own floor.", enter(S){
+        S.stamp('secondary','x','CLIENT PROPERTY — NOT COVERAGE B');
+        S.flash('OWNERSHIP, NOT LOCATION, IS THE TEST','var(--danger)');
+    }},
+    { speaker:'NARRATOR', text:"Protecting that customer property needs its own separate coverage — Bailees Coverage or Inland Marine.", enter(S){}},
+  ]},
+
+{ id:'bopvacancy69', title:'THE 69% THAT<br>DEFINES EMPTY', hook:"BOP vacancy kicks in past 69% unused — not a rounder number.", icon:'🏚️', mood:'mood-stormred', tag:'ws117 · BOP Vacancy Definition',
+  endRule:"A BOP-insured building is defined as vacant if MORE than 69% of the square footage is unused or unleased — meaning less than 31% is actually occupied. A different, lower threshold applies to \"unoccupied\" (below 35%).",
+  beats:[
+    { speaker:'NARRATOR', text:"A commercial building sits mostly empty. The owner is trying to figure out exactly when it crosses into \"vacant\" territory for BOP purposes.", enter(S){
+        S.mood('mood-stormred'); S.icon('main','🏚️',{label:'Mostly Empty Commercial Building'});
+    }},
+    { speaker:'OWNER', text:"\"It's probably vacant once about 70% sits empty — close enough, right?\"", enter(S){
+        S.icon('secondary','🤔',{label:'Rounding to 70%?', anim:'punch'});
+    }},
+    { speaker:'NARRATOR', text:"Close, but the real number is specific and deliberately not a round figure — memorize it exactly.", enter(S){
+        S.stamp('secondary','x','NOT A ROUNDED NUMBER');
+    }},
+    { speaker:'NARRATOR', text:"More than 69% unused or unleased is the actual threshold for \"vacant\" — meaning less than 31% of the space is actually in use.", enter(S){
+        S.icon('secondary','📏',{label:'69% — The Exact Threshold', anim:'glowgold'});
+        S.flash('MORE THAN 69% UNUSED = VACANT','var(--safe)');
+    }},
+  ]},
+
 ];
 
 /* ============================================================
@@ -2436,7 +2713,7 @@ const CHAPTERS = [
     storyIds:['workcomp','nolimitmed','twentyoneday','secondinjuryfund','waitingsplit','punitivedamages','felalongshore','foreigncoverage90'] },
   { id:'commercial', num:'VIII', icon:'🏢', title:'Liability & Commercial Lines',
     blurb:"Umbrella vs. CGL, BOP quirks, Business Auto, surety bonds, crime forms, and farm property — the commercial-side traps that don't show up anywhere else in the book.",
-    storyIds:['umbrella','claimsmade','wallcollapse','blackoutmeat','underground','poormanscomp','bopdeductible','obligeepromise','income72','bopautomatic','principalperform','moneycrimeform','inventoryshortage','driveothercar','growingcrops','oceanimplied','warehousetowarehouse','bopdirectdamage','boatownersscope'] },
+    storyIds:['umbrella','claimsmade','wallcollapse','blackoutmeat','underground','poormanscomp','bopdeductible','obligeepromise','income72','bopautomatic','principalperform','moneycrimeform','inventoryshortage','driveothercar','growingcrops','oceanimplied','warehousetowarehouse','bopdirectdamage','boatownersscope','bopdebrisremoval','bopcantendorse','bopdebris180','bopincome12mo','bopsignsincluded','bopanimalsexception','boppainterpayroll','boppremiumaudit','bopmedmalexcluded','bopapartmenteligible','bopland','bopfireperfire','bopcivilauthority','bopcoverageb','bopvacancy69'] },
 ];
 let currentChapterId=null;
 // Which ambient theme plays inside each chapter — Dwelling gets its own
@@ -2901,6 +3178,33 @@ function loadStory(id){
   resetStage();
   beatIdx=0;
   playBeat(0);
+  updatePrevNextButtons();
+}
+function updatePrevNextButtons(){
+  const prevBtn=document.getElementById('prevStoryBtn');
+  const nextBtn=document.getElementById('nextStoryBtn');
+  if(!prevBtn || !nextBtn) return;
+  const ch = currentChapterId ? CHAPTERS.find(c=>c.id===currentChapterId) : null;
+  if(!ch || !currentStory){
+    prevBtn.style.display='none'; nextBtn.style.display='none';
+    return;
+  }
+  prevBtn.style.display='inline-block'; nextBtn.style.display='inline-block';
+  const idx = ch.storyIds.indexOf(currentStory.id);
+  prevBtn.disabled = (idx<=0);
+  nextBtn.disabled = (idx===-1 || idx>=ch.storyIds.length-1);
+}
+function prevStory(){ goToAdjacentStory(-1); }
+function nextStory(){ goToAdjacentStory(1); }
+function goToAdjacentStory(direction){
+  if(!currentChapterId || !currentStory) return;
+  const ch = CHAPTERS.find(c=>c.id===currentChapterId);
+  if(!ch) return;
+  const idx = ch.storyIds.indexOf(currentStory.id);
+  if(idx===-1) return;
+  const newIdx = idx+direction;
+  if(newIdx<0 || newIdx>=ch.storyIds.length) return;
+  loadStory(ch.storyIds[newIdx]);
 }
 function backToMenu(){
   sfxBack();
