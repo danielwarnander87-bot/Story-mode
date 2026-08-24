@@ -352,6 +352,8 @@
       <div class="town-walker town-walker-4">🐈</div>
     </div>
     <button id="menuMuteBtn" onclick="toggleMute()" style="position:absolute; top:16px; right:16px; font-family:'VT323',monospace; font-size:15px; color:var(--parchment-line); background:rgba(10,11,26,0.6); border:1px solid var(--parchment-line); border-radius:5px; padding:4px 10px; cursor:pointer; z-index:5;">🔊</button>
+    <button id="menuImportBtn" onclick="document.getElementById('importFileInput').click()" style="position:absolute; top:16px; left:16px; font-family:'VT323',monospace; font-size:15px; color:var(--parchment-line); background:rgba(10,11,26,0.6); border:1px solid var(--parchment-line); border-radius:5px; padding:4px 10px; cursor:pointer; z-index:5;">📥 Import</button>
+    <input type="file" id="importFileInput" accept=".txt" style="display:none;" onchange="handleImportFile(event)">
     <div class="menu-head">
       <h1>STORY MODE</h1>
       <p>Watch it happen instead of reading it. Pick a chapter.</p>
@@ -2720,6 +2722,117 @@ let currentChapterId=null;
 // epic, driving theme since it's the biggest/hardest chapter; everything
 // else defaults to the underwater theme.
 const CHAPTER_THEMES={ dwelling:'epic', homeowners:'home', auto:'auto', general:'general' };
+
+/* ============================================================
+   IMPORT — reads a Study Grove "review notes" .txt export and
+   builds a fresh custom chapter of auto-narrated scenes from
+   whatever's currently flagged as a trouble spot. Re-importing
+   fully replaces the chapter rather than appending to it.
+   ============================================================ */
+const IMPORT_KEY='storyModeImportedNotes_v1';
+const IMPORT_MOODS=['mood-bureau','mood-industrial','mood-medical','mood-stormred','mood-warmnight','mood-warning'];
+function iconForImportedCategory(cat){
+  const c=cat.toLowerCase();
+  if(c.includes('dwelling')||c.includes('dp-')||c.includes('dp ')) return '🏚️';
+  if(c.includes('homeowner')||c.includes('ho-')||c.includes('ho ')) return '🏠';
+  if(c.includes('auto')||c.includes('pap')||c.includes('vehicle')) return '🚗';
+  if(c.includes('workers')||c.includes('comp')) return '🩹';
+  if(c.includes('bop')||c.includes('business')||c.includes('commercial')) return '🏢';
+  if(c.includes('license')||c.includes('producer')||c.includes('regulat')) return '📋';
+  if(c.includes('bond')) return '📜';
+  if(c.includes('crime')) return '🔐';
+  if(c.includes('marine')) return '⚓';
+  if(c.includes('boat')) return '🚤';
+  return '📖';
+}
+function parseReviewNotes(text){
+  const blocks=text.split(/\n\s*\n/).map(b=>b.trim()).filter(Boolean);
+  const entries=[];
+  blocks.forEach(block=>{
+    const lines=block.split('\n');
+    const headMatch=lines[0] && lines[0].match(/^\d+\.\s*\[(.+?)\]\s*—\s*missed\s*(\d+)×/);
+    if(!headMatch) return;
+    const cat=headMatch[1], missCount=parseInt(headMatch[2],10)||0;
+    let q='', correct='', why='';
+    lines.slice(1).forEach(line=>{
+      if(line.startsWith('Q: ')) q=line.slice(3).trim();
+      else if(line.startsWith('Correct answer: ')) correct=line.slice(16).trim();
+      else if(line.startsWith('Why: ')) why=line.slice(5).trim();
+    });
+    if(q && correct && why) entries.push({cat,missCount,q,correct,why});
+  });
+  return entries;
+}
+function generateImportedStories(entries){
+  return entries.map((e,i)=>{
+    const id='imp_'+i;
+    const icon=iconForImportedCategory(e.cat);
+    const mood=IMPORT_MOODS[i%IMPORT_MOODS.length];
+    return {
+      id, icon, mood,
+      title:e.cat.toUpperCase(),
+      hook:e.q.length>70 ? e.q.slice(0,68)+'…' : e.q,
+      tag:'Imported · missed '+e.missCount+'×',
+      endRule:e.why,
+      beats:[
+        { speaker:'NARRATOR', text:e.q, enter(S){
+            S.mood(mood); S.icon('main',icon,{label:e.cat});
+        }},
+        { speaker:'NARRATOR', text:"The answer: "+e.correct, enter(S){
+            S.icon('secondary','✅',{label:e.correct, anim:'glowgold'});
+            S.stamp('secondary','check','CORRECT ANSWER');
+            S.flash(e.correct.toUpperCase(),'var(--safe)');
+        }},
+        { speaker:'NARRATOR', text:e.why, enter(S){} },
+      ]
+    };
+  });
+}
+function refreshImportedChapter(entries, importedAt){
+  // wipe any previously imported stories, then add the fresh batch
+  for(let i=STORIES.length-1;i>=0;i--){ if(STORIES[i].id.startsWith('imp_')) STORIES.splice(i,1); }
+  const newStories=generateImportedStories(entries);
+  STORIES.push(...newStories);
+
+  const existingIdx=CHAPTERS.findIndex(c=>c.id==='imported');
+  if(existingIdx!==-1) CHAPTERS.splice(existingIdx,1);
+  if(entries.length){
+    CHAPTERS.unshift({
+      id:'imported', num:'★', icon:'📥',
+      title:'My Trouble Spots',
+      blurb:'Imported from Study Grove on '+importedAt+' — '+entries.length+' scene'+(entries.length===1?'':'s')+'. Re-import anytime to refresh this chapter with your current misses.',
+      storyIds:newStories.map(s=>s.id),
+    });
+  }
+}
+function handleImportFile(event){
+  const file=event.target.files && event.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const entries=parseReviewNotes(e.target.result);
+    if(!entries.length){
+      alert('Couldn\'t find any trouble spots in that file — make sure it\'s the "study-grove-review-notes.txt" download from Study Grove\'s trouble panel.');
+      return;
+    }
+    const importedAt=new Date().toLocaleDateString();
+    try{ localStorage.setItem(IMPORT_KEY, JSON.stringify({entries, importedAt})); }catch(err){}
+    refreshImportedChapter(entries, importedAt);
+    renderChapters();
+    sfxChapterOpen();
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+function loadImportedChapterFromStorage(){
+  try{
+    const raw=localStorage.getItem(IMPORT_KEY);
+    if(!raw) return;
+    const d=JSON.parse(raw);
+    if(d && d.entries && d.entries.length) refreshImportedChapter(d.entries, d.importedAt);
+  }catch(e){}
+}
+loadImportedChapterFromStorage();
 
 /* ============================================================
    ENGINE
