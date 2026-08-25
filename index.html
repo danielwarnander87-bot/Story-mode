@@ -15,12 +15,77 @@
     --parchment:#f4ecd8; --parchment-line:#c9b481;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;background:var(--night-deep);overflow:hidden;height:100%;}
+  html,body{margin:0;padding:0;background:#030105;overflow:hidden;height:100%;}
   body{font-family:'Nunito',sans-serif; color:var(--parchment); display:flex; align-items:center; justify-content:center; min-height:100vh; min-height:100dvh;}
+
+  /* ---------- arcade backdrop — moving bars behind the cabinet, a black-light
+     play-zone glow instead of flat black ---------- */
+  .arcade-bg{position:fixed; inset:0; z-index:0; overflow:hidden; background:#030105;}
+  .arcade-bars{position:absolute; inset:-15%;
+    background:repeating-linear-gradient(68deg,
+      #030105 0px, #030105 44px,
+      #1e0f4a 44px, #1e0f4a 76px,
+      #030105 76px, #030105 118px,
+      #0b3a66 118px, #0b3a66 150px,
+      #030105 150px, #030105 192px,
+      #0d4a34 192px, #0d4a34 224px,
+      #030105 224px, #030105 266px,
+      #2a1560 266px, #2a1560 296px
+    );
+    background-size:340% 340%;
+    animation:arcadeBarsDrift 34s linear infinite;
+    opacity:0.9;}
+  @keyframes arcadeBarsDrift{
+    0%{background-position:0% 0%;}
+    100%{background-position:100% 100%;}
+  }
+  .arcade-glow{position:absolute; border-radius:50%; filter:blur(80px); opacity:0.55; mix-blend-mode:screen; pointer-events:none;}
+  .arcade-glow-1{width:52vw; height:52vw; top:-16%; left:-12%;
+    background:radial-gradient(circle,#6a3fe0,transparent 70%); animation:arcadeGlow1 32s ease-in-out infinite;}
+  .arcade-glow-2{width:46vw; height:46vw; bottom:-16%; right:-10%;
+    background:radial-gradient(circle,#2a8fe0,transparent 70%); animation:arcadeGlow2 38s ease-in-out infinite;}
+  .arcade-glow-3{width:42vw; height:42vw; top:38%; left:62%;
+    background:radial-gradient(circle,#2ae08f,transparent 70%); animation:arcadeGlow3 27s ease-in-out infinite;}
+  .arcade-glow-4{width:38vw; height:38vw; top:5%; left:45%;
+    background:radial-gradient(circle,#8a3fe0,transparent 70%); animation:arcadeGlow4 41s ease-in-out infinite;}
+  @keyframes arcadeGlow1{0%,100%{transform:translate(0,0);}50%{transform:translate(16vw,11vh);}}
+  @keyframes arcadeGlow2{0%,100%{transform:translate(0,0);}50%{transform:translate(-13vw,-15vh);}}
+  @keyframes arcadeGlow3{0%,100%{transform:translate(0,0);}50%{transform:translate(-11vw,13vh);}}
+  @keyframes arcadeGlow4{0%,100%{transform:translate(0,0);}50%{transform:translate(9vw,-10vh);}}
+
+  /* ---------- TV cabinet — a wood-panel frame around the whole thing ---------- */
+  .tv-frame{position:relative; width:100%; max-width:832px; padding:22px;
+    border-radius:16px;
+    background:
+      repeating-linear-gradient(97deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1.5px, transparent 1.5px, transparent 7px),
+      repeating-linear-gradient(93deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 11px),
+      radial-gradient(ellipse 140px 60px at 15% 20%, rgba(0,0,0,0.12), transparent 70%),
+      radial-gradient(ellipse 110px 50px at 82% 75%, rgba(0,0,0,0.1), transparent 70%),
+      linear-gradient(160deg, #9a6a3e 0%, #7a5028 38%, #8a5c32 62%, #5c3a1e 100%);
+    box-shadow:
+      inset 0 2px 4px rgba(255,220,180,0.2),
+      inset 0 -4px 6px rgba(0,0,0,0.4),
+      inset 3px 0 4px rgba(255,220,180,0.1),
+      inset -3px 0 6px rgba(0,0,0,0.3),
+      0 16px 44px rgba(0,0,0,0.6);}
+  .tv-screw{position:absolute; width:11px; height:11px; border-radius:50%; z-index:2;
+    background:radial-gradient(circle at 35% 30%, #e8dab8, #a08858 55%, #4a3d28 100%);
+    box-shadow:0 1px 2px rgba(0,0,0,0.55);}
+  .tv-screw::after{content:''; position:absolute; top:50%; left:14%; right:14%; height:1.5px;
+    background:rgba(50,38,20,0.75); transform:translateY(-50%) rotate(25deg);}
+  .tv-screw.tl{top:11px; left:11px;} .tv-screw.tr{top:11px; right:11px;}
+  .tv-screw.bl{bottom:11px; left:11px;} .tv-screw.br{bottom:11px; right:11px;}
+
+  .screen-glare{position:absolute; inset:0; z-index:60; pointer-events:none; border-radius:6px; overflow:hidden;}
+  .screen-glare::before{content:''; position:absolute; inset:0;
+    background:linear-gradient(115deg, transparent 32%, rgba(255,255,255,0.045) 45%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.045) 55%, transparent 68%);}
+  .screen-glare::after{content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse 60% 40% at 22% 12%, rgba(255,255,255,0.06), transparent 70%);}
+
   .screen{position:relative; width:100%; max-width:780px; aspect-ratio:16/10; min-height:420px; overflow:hidden; border-radius:6px;
     box-shadow:0 0 0 3px var(--night-deep), 0 0 0 6px #4a4670, 0 20px 60px rgba(0,0,0,0.6);
     background:var(--night-deep); transform:translateZ(0);}
-  @media (max-height:560px){ .screen{max-height:94vh; max-height:94dvh; width:auto;} }
+  @media (max-height:560px){ .screen{max-height:94vh; max-height:94dvh; width:auto;} .tv-frame{padding:14px; max-width:none; width:auto;} }
 
   /* ============ MENU ============ */
   .menu{position:absolute; inset:0; overflow-y:auto; padding:22px 18px 26px;}
@@ -196,13 +261,54 @@
   /* ============ STAGE (shared engine) ============ */
   .stage{position:absolute; inset:0; display:none;}
   .stage.active{display:block;}
-  .stage-bg{position:absolute; inset:0; transition:background 1.4s ease;}
+  .stage-bg{position:absolute; inset:0; overflow:hidden; transition:background 1.4s ease;}
   .stage-bg.mood-warmnight{background:linear-gradient(180deg,#1a1830 0%, #2e2a4a 45%, #26301f 100%);}
   .stage-bg.mood-stormred{background:linear-gradient(180deg,#1a1020 0%, #2e1424 45%, #150c14 100%);}
   .stage-bg.mood-industrial{background:linear-gradient(180deg,#1c1d24 0%, #34363f 45%, #202226 100%);}
   .stage-bg.mood-medical{background:linear-gradient(180deg,#0e1f2e 0%, #17384a 45%, #0c1a22 100%);}
   .stage-bg.mood-warning{background:linear-gradient(180deg,#241a0c 0%, #3d2c10 45%, #1c1608 100%);}
   .stage-bg.mood-bureau{background:linear-gradient(180deg,#10131f 0%, #1c2338 45%, #0d0f18 100%);}
+
+  /* ---------- organic drifting color — the stage is alive, not static ---------- */
+  .stage-blob{position:absolute; border-radius:50%; filter:blur(52px); opacity:0.6; mix-blend-mode:screen;
+    transition:background 1.4s ease; pointer-events:none;}
+  .stage-blob-1{width:62%; height:62%; top:-14%; left:-12%; animation:blobDrift1 24s ease-in-out infinite;}
+  .stage-blob-2{width:52%; height:52%; bottom:-16%; right:-10%; animation:blobDrift2 31s ease-in-out infinite;}
+  .stage-blob-3{width:46%; height:46%; top:32%; left:38%; animation:blobDrift3 27s ease-in-out infinite;}
+  @keyframes blobDrift1{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(9%,11%) scale(1.18);}}
+  @keyframes blobDrift2{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-11%,-9%) scale(0.88);}}
+  @keyframes blobDrift3{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-7%,9%) scale(1.14);}}
+
+  .mood-warmnight .stage-blob-1{background:radial-gradient(circle,#7a68b4,transparent 70%);}
+  .mood-warmnight .stage-blob-2{background:radial-gradient(circle,#3f7a50,transparent 70%);}
+  .mood-warmnight .stage-blob-3{background:radial-gradient(circle,#5a4a94,transparent 70%);}
+
+  .mood-stormred .stage-blob-1{background:radial-gradient(circle,#a83258,transparent 70%);}
+  .mood-stormred .stage-blob-2{background:radial-gradient(circle,#6e1a34,transparent 70%);}
+  .mood-stormred .stage-blob-3{background:radial-gradient(circle,#c94a6e,transparent 70%);}
+
+  .mood-industrial .stage-blob-1{background:radial-gradient(circle,#5a6070,transparent 70%);}
+  .mood-industrial .stage-blob-2{background:radial-gradient(circle,#3a4552,transparent 70%);}
+  .mood-industrial .stage-blob-3{background:radial-gradient(circle,#6e7688,transparent 70%);}
+
+  .mood-medical .stage-blob-1{background:radial-gradient(circle,#2e88a4,transparent 70%);}
+  .mood-medical .stage-blob-2{background:radial-gradient(circle,#1a5468,transparent 70%);}
+  .mood-medical .stage-blob-3{background:radial-gradient(circle,#48b0c8,transparent 70%);}
+
+  .mood-warning .stage-blob-1{background:radial-gradient(circle,#d68a34,transparent 70%);}
+  .mood-warning .stage-blob-2{background:radial-gradient(circle,#8a5418,transparent 70%);}
+  .mood-warning .stage-blob-3{background:radial-gradient(circle,#f0b158,transparent 70%);}
+
+  .mood-bureau .stage-blob-1{background:radial-gradient(circle,#4a5488,transparent 70%);}
+  .mood-bureau .stage-blob-2{background:radial-gradient(circle,#2a3258,transparent 70%);}
+  .mood-bureau .stage-blob-3{background:radial-gradient(circle,#6a74ac,transparent 70%);}
+
+  /* pulses in sync with each scheduled ambient bar — the background
+     literally breathes with whatever theme is playing */
+  .stage-pulse-overlay{position:absolute; inset:0; opacity:0; pointer-events:none; mix-blend-mode:screen;
+    background:radial-gradient(circle at 50% 40%, rgba(255,255,255,0.16), transparent 65%);}
+  .stage-pulse-overlay.pulse{animation:bgBeatPulse 0.7s ease-out;}
+  @keyframes bgBeatPulse{0%{opacity:0;}22%{opacity:1;}100%{opacity:0;}}
 
   .particles{position:absolute; inset:0; pointer-events:none; z-index:1; opacity:0.5;}
   .particles span{position:absolute; width:3px; height:3px; border-radius:50%; background:var(--gold); opacity:0;
@@ -215,10 +321,10 @@
   #iconMain{top:16%; left:28%;}
   #iconSecondary{top:16%; left:64%;}
   .icon-emoji{font-size:56px; display:block; filter:drop-shadow(0 6px 8px rgba(0,0,0,0.4)); transition:transform 0.35s ease, filter 0.35s ease;}
-  .icon-slot.punch .icon-emoji{animation:punch 0.5s ease;}
-  @keyframes punch{0%{transform:scale(1);}30%{transform:scale(1.25) rotate(-4deg);}60%{transform:scale(0.92) rotate(3deg);}100%{transform:scale(1);}}
-  .icon-slot.shatter .icon-emoji{animation:shatter 0.6s ease forwards;}
-  @keyframes shatter{0%{transform:scale(1);filter:drop-shadow(0 6px 8px rgba(0,0,0,0.4));}40%{transform:scale(1.3);filter:drop-shadow(0 0 14px rgba(214,69,63,0.9));}100%{transform:scale(0.85);filter:drop-shadow(0 0 10px rgba(214,69,63,0.6)) grayscale(0.4);}}
+  .icon-slot.punch .icon-emoji{animation:punch 0.55s ease;}
+  @keyframes punch{0%{transform:scale(1);}30%{transform:scale(1.4) rotate(-7deg);}60%{transform:scale(0.85) rotate(5deg);}100%{transform:scale(1);}}
+  .icon-slot.shatter .icon-emoji{animation:shatter 0.65s ease forwards;}
+  @keyframes shatter{0%{transform:scale(1);filter:drop-shadow(0 6px 8px rgba(0,0,0,0.4));}40%{transform:scale(1.45);filter:drop-shadow(0 0 22px rgba(214,69,63,1));}100%{transform:scale(0.85);filter:drop-shadow(0 0 10px rgba(214,69,63,0.6)) grayscale(0.4);}}
   .icon-slot.glowgreen .icon-emoji{filter:drop-shadow(0 0 16px rgba(95,174,111,0.9));}
   .icon-slot.glowgold .icon-emoji{filter:drop-shadow(0 0 16px rgba(232,185,74,0.9));}
   .icon-slot.spin .icon-emoji{animation:spinSlow 2.4s linear infinite;}
@@ -229,11 +335,21 @@
   .stamp{position:absolute; top:4%; z-index:8; font-family:'Press Start 2P',monospace; font-size:15px;
     padding:6px 12px; border-radius:6px; opacity:0; transform:scale(2.2) rotate(-14deg); pointer-events:none;
     transition:opacity 0.15s ease;}
-  .stamp.show{opacity:1; animation:stampSlam 0.35s cubic-bezier(.2,1.6,.4,1) forwards;}
-  @keyframes stampSlam{0%{transform:scale(2.4) rotate(-14deg);opacity:0;}55%{transform:scale(0.88) rotate(-14deg);opacity:1;}100%{transform:scale(1) rotate(-14deg);opacity:1;}}
+  .stamp.show{opacity:1; animation:stampSlam 0.4s cubic-bezier(.2,1.9,.4,1) forwards;}
+  @keyframes stampSlam{0%{transform:scale(3.2) rotate(-20deg);opacity:0;}50%{transform:scale(0.8) rotate(-20deg);opacity:1;}75%{transform:scale(1.12) rotate(-20deg);}100%{transform:scale(1) rotate(-14deg);opacity:1;}}
   .stamp.x{color:var(--danger); border:3px solid var(--danger); background:rgba(10,11,26,0.85);}
   .stamp.check{color:var(--safe); border:3px solid var(--safe); background:rgba(10,11,26,0.85);}
   #stampMain{left:16%;} #stampSecondary{left:56%;}
+
+  /* ---------- Impact flash — a full-screen pulse synced exactly to the
+     audio hit, the single biggest thing for pulling the eye to a reveal ---------- */
+  .impact-flash{position:fixed; inset:0; z-index:15; pointer-events:none; opacity:0;}
+  .impact-flash.good{background:radial-gradient(circle,rgba(170,255,195,0.6),rgba(95,174,111,0.28) 42%,transparent 72%);
+    mix-blend-mode:screen; animation:impactFlashGood 0.55s ease-out forwards;}
+  .impact-flash.bad{background:radial-gradient(circle,rgba(255,70,50,0.6),rgba(150,20,15,0.32) 42%,transparent 72%);
+    animation:impactFlashBad 0.6s ease-out forwards;}
+  @keyframes impactFlashGood{0%{opacity:0;}14%{opacity:1;}100%{opacity:0;}}
+  @keyframes impactFlashBad{0%{opacity:0;}10%{opacity:0.95;}28%{opacity:0.1;}42%{opacity:0.55;}100%{opacity:0;}}
 
   .meters{position:absolute; top:6%; left:5%; z-index:6; width:44%; opacity:0; transition:opacity 0.7s ease;}
   .meters.show{opacity:1;}
@@ -272,8 +388,8 @@
   .flash-txt.fly{animation:flyUp 1.7s ease-out forwards;}
   @keyframes flyUp{0%{opacity:0; transform:translateX(-50%) translateY(0) scale(0.7);}15%{opacity:1; transform:translateX(-50%) translateY(-6px) scale(1.15);}80%{opacity:1;}100%{opacity:0; transform:translateX(-50%) translateY(-64px) scale(1);}}
 
-  body.shake .screen-shake-target{animation:shakeIt 0.5s ease;}
-  @keyframes shakeIt{0%,100%{transform:translate(0,0);}20%{transform:translate(-4px,2px);}40%{transform:translate(4px,-2px);}60%{transform:translate(-3px,1px);}80%{transform:translate(3px,-1px);}}
+  body.shake .screen-shake-target{animation:shakeIt 0.6s ease;}
+  @keyframes shakeIt{0%,100%{transform:translate(0,0);}15%{transform:translate(-8px,4px) rotate(-0.6deg);}30%{transform:translate(7px,-5px) rotate(0.6deg);}45%{transform:translate(-6px,3px);}60%{transform:translate(6px,-3px);}75%{transform:translate(-4px,2px);}90%{transform:translate(3px,-1px);}}
 
   .dialogue{position:absolute; left:4%; right:4%; bottom:4%; z-index:20;
     background:var(--night-deep); border:3px solid var(--gold); border-radius:8px;
@@ -316,6 +432,19 @@
 </head>
 <body>
 
+<div class="arcade-bg">
+  <div class="arcade-bars"></div>
+  <div class="arcade-glow arcade-glow-1"></div>
+  <div class="arcade-glow arcade-glow-2"></div>
+  <div class="arcade-glow arcade-glow-3"></div>
+  <div class="arcade-glow arcade-glow-4"></div>
+</div>
+
+<div class="tv-frame">
+  <div class="tv-screw tl"></div>
+  <div class="tv-screw tr"></div>
+  <div class="tv-screw bl"></div>
+  <div class="tv-screw br"></div>
 <div class="screen">
   <div class="crt-vignette"></div>
   <div class="crt-overlay"></div>
@@ -384,8 +513,14 @@
 
   <!-- ============ STAGE ============ -->
   <div class="stage" id="stageScreen">
+    <div class="impact-flash" id="impactFlash"></div>
     <div class="screen-shake-target" style="position:absolute;inset:0;">
-      <div class="stage-bg" id="stageBg"></div>
+      <div class="stage-bg" id="stageBg">
+        <div class="stage-blob stage-blob-1"></div>
+        <div class="stage-blob stage-blob-2"></div>
+        <div class="stage-blob stage-blob-3"></div>
+        <div class="stage-pulse-overlay" id="stagePulseOverlay"></div>
+      </div>
       <div class="particles" id="particles"></div>
 
       <div class="icon-slot" id="iconMain">
@@ -452,6 +587,8 @@
     </div>
   </div>
 
+  <div class="screen-glare"></div>
+</div>
 </div>
 
 <script>
@@ -2930,11 +3067,125 @@ window.addEventListener('orientationchange', sizeGameScreen);
 sizeGameScreen();
 setTimeout(sizeGameScreen, 200); // catches late font/layout shifts
 
+// ---- arcade room tone — muffled crowd chatter and distant machine
+// blips, a constant quiet layer under everything else, matching the
+// arcade backdrop. Always running alongside whatever else is playing. ----
+let __arcadeNoiseBuffer=null, __arcadeMurmurNodes=null, __arcadeEventTimeoutId=null, __arcadeActive=false;
+function __ensureArcadeNoiseBuffer(ctx){
+  if(__arcadeNoiseBuffer) return __arcadeNoiseBuffer;
+  const len=ctx.sampleRate*4;
+  __arcadeNoiseBuffer=ctx.createBuffer(1,len,ctx.sampleRate);
+  const data=__arcadeNoiseBuffer.getChannelData(0);
+  for(let i=0;i<len;i++) data[i]=Math.random()*2-1;
+  return __arcadeNoiseBuffer;
+}
+function startArcadeMurmur(){
+  const ctx=ensureAudioCtx();
+  if(!ctx || __arcadeMurmurNodes) return;
+  try{
+    const buf=__ensureArcadeNoiseBuffer(ctx);
+    const src=ctx.createBufferSource();
+    src.buffer=buf; src.loop=true;
+    const filter=ctx.createBiquadFilter();
+    filter.type='lowpass'; filter.frequency.value=650; // hard high-cut — a muffled, through-the-wall murmur
+    const gain=ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.02, ctx.currentTime+3);
+    const swellLfo=ctx.createOscillator();
+    swellLfo.type='sine'; swellLfo.frequency.value=0.09;
+    const swellGain=ctx.createGain(); swellGain.gain.value=0.008;
+    swellLfo.connect(swellGain); swellGain.connect(gain.gain);
+    const filterLfo=ctx.createOscillator();
+    filterLfo.type='sine'; filterLfo.frequency.value=0.23;
+    const filterLfoGain=ctx.createGain(); filterLfoGain.gain.value=90;
+    filterLfo.connect(filterLfoGain); filterLfoGain.connect(filter.frequency);
+    src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    src.start(); swellLfo.start(); filterLfo.start();
+    __arcadeMurmurNodes={src,filter,gain,swellLfo,filterLfo};
+  }catch(e){}
+}
+function stopArcadeMurmur(){
+  if(!__arcadeMurmurNodes) return;
+  try{
+    const ctx=ensureAudioCtx();
+    const now=ctx.currentTime;
+    __arcadeMurmurNodes.gain.gain.cancelScheduledValues(now);
+    __arcadeMurmurNodes.gain.gain.setValueAtTime(__arcadeMurmurNodes.gain.gain.value, now);
+    __arcadeMurmurNodes.gain.gain.linearRampToValueAtTime(0.0001, now+0.8);
+    const nodes=__arcadeMurmurNodes;
+    setTimeout(()=>{ try{ nodes.src.stop(); nodes.swellLfo.stop(); nodes.filterLfo.stop(); }catch(e){} },900);
+  }catch(e){}
+  __arcadeMurmurNodes=null;
+}
+function playArcadeBlip(){
+  if(sfxMuted) return;
+  const ctx=ensureAudioCtx();
+  if(!ctx) return;
+  try{
+    const osc=ctx.createOscillator();
+    const filter=ctx.createBiquadFilter();
+    const gain=ctx.createGain();
+    osc.type=Math.random()<0.5?'square':'triangle';
+    const baseFreq=300+Math.random()*500;
+    osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
+    if(Math.random()<0.4) osc.frequency.linearRampToValueAtTime(baseFreq*(1.4+Math.random()*0.6), ctx.currentTime+0.12);
+    filter.type='lowpass'; filter.frequency.value=900; // distant, through-the-room
+    const dur=0.08+Math.random()*0.1;
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.02+Math.random()*0.015, ctx.currentTime+0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+dur);
+    osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime+dur+0.02);
+  }catch(e){}
+}
+function playArcadeChatterBurst(){
+  if(sfxMuted) return;
+  const ctx=ensureAudioCtx();
+  if(!ctx) return;
+  const count=3+Math.floor(Math.random()*4);
+  let t=0;
+  for(let i=0;i<count;i++){
+    try{
+      const osc=ctx.createOscillator();
+      const filter=ctx.createBiquadFilter();
+      const gain=ctx.createGain();
+      osc.type='triangle';
+      osc.frequency.value=140+Math.random()*160;
+      filter.type='lowpass'; filter.frequency.value=500; // muffled voices, not words
+      const t0=ctx.currentTime+t;
+      const dur=0.05+Math.random()*0.04;
+      gain.gain.setValueAtTime(0.0001,t0);
+      gain.gain.linearRampToValueAtTime(0.012+Math.random()*0.008,t0+0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+      osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+      osc.start(t0); osc.stop(t0+dur+0.02);
+    }catch(e){}
+    t+=0.06+Math.random()*0.1;
+  }
+}
+function scheduleArcadeEvents(){
+  if(!__arcadeActive || sfxMuted) return;
+  if(Math.random()<0.55) playArcadeChatterBurst(); else playArcadeBlip();
+  const gap=2.5+Math.random()*5;
+  __arcadeEventTimeoutId=setTimeout(scheduleArcadeEvents, gap*1000);
+}
+function startArcadeRoomTone(){
+  if(__arcadeActive || sfxMuted) return;
+  __arcadeActive=true;
+  startArcadeMurmur();
+  __arcadeEventTimeoutId=setTimeout(scheduleArcadeEvents, 1500);
+}
+function stopArcadeRoomTone(){
+  __arcadeActive=false;
+  if(__arcadeEventTimeoutId){ clearTimeout(__arcadeEventTimeoutId); __arcadeEventTimeoutId=null; }
+  stopArcadeMurmur();
+}
+
 // ---- start the ambient pad on the first tap/click anywhere, since browsers
 // block audio until a real user gesture happens ----
 document.addEventListener('click', function firstTouch(){
   ensureAudioCtx();
-  if(!sfxMuted) startAmbient();
+  if(!sfxMuted){ startAmbient(); startArcadeRoomTone(); }
   document.removeEventListener('click', firstTouch);
 }, {once:true});
 
@@ -2978,7 +3229,7 @@ function toggleMute(){
   sfxMuted=!sfxMuted;
   try{ localStorage.setItem('storyModeMuted_v1', sfxMuted?'1':'0'); }catch(e){}
   updateMuteButtons();
-  if(!sfxMuted){ ensureAudioCtx(); startAmbient(); } else { stopAmbient(); }
+  if(!sfxMuted){ ensureAudioCtx(); startAmbient(); startArcadeRoomTone(); } else { stopAmbient(); stopArcadeRoomTone(); }
 }
 updateMuteButtons();
 
@@ -3053,6 +3304,18 @@ const GENERAL_BASS_B=[
 
 let ambientActive=false, ambientTimeoutId=null, ambientBarToggle=0, ambientMode='overworld';
 
+// ---- ducking — dramatic beats (a reveal, a warning) pull the background
+// music down for a breath so the sting underneath actually lands, instead
+// of getting buried in a static wall of sound ----
+let __duckUntil=0, __duckAmount=1;
+function duckAmbient(ms, amount){
+  __duckUntil=performance.now()+ms;
+  __duckAmount=amount;
+}
+function currentDuckFactor(){
+  return performance.now() < __duckUntil ? __duckAmount : 1;
+}
+
 // ---- persistent echo/delay send, built once and reused for every ambient note ----
 let ambientDelay=null, ambientFeedback=null, ambientWet=null, ambientFXReady=false;
 function ensureAmbientFX(){
@@ -3083,8 +3346,9 @@ function playAmbientTone(freq, startOffset, duration, type, gainVal, vibrato){
     osc.type=type||'triangle';
     osc.frequency.value=freq;
     const t0=ctx.currentTime+Math.max(0,startOffset);
+    const effectiveGain=(gainVal||0.04)*currentDuckFactor();
     gain.gain.setValueAtTime(0.0001,t0);
-    gain.gain.linearRampToValueAtTime(gainVal||0.04, t0+0.02);
+    gain.gain.linearRampToValueAtTime(effectiveGain, t0+0.02);
     gain.gain.exponentialRampToValueAtTime(0.0001, t0+duration);
     osc.connect(gain);
     gain.connect(ctx.destination);            // dry
@@ -3222,8 +3486,59 @@ function playTireScreech(){
   playSweep(0, [{t:0,freq:900},{t:0.5,freq:400}], 0.5, 0.018, 'sawtooth');
 }
 const AUTO_SOUNDS=[playCarHorn, playEngineRev, playBlinkerClick, playTireScreech];
+
+// ---- Story-playback tracks — 5 distinct catchy loops that rotate every
+// time a story is opened, independent of the chapter's own theme, so
+// tapping into a story doesn't always land on the same music twice ----
+const STORY_TRACKS=[
+  { id:'storyBouncy', step:0.105, leadType:'square', bassType:'triangle', leadGain:0.045, bassGain:0.038, leadDur:0.19, bassDur:0.27,
+    leadA:[{step:0,freq:523.25},{step:3,freq:659.25},{step:4,freq:783.99},{step:7,freq:659.25},{step:8,freq:523.25},{step:11,freq:392.00},{step:12,freq:440.00},{step:14,freq:523.25}],
+    bassA:[{step:0,freq:130.81},{step:4,freq:130.81},{step:8,freq:174.61},{step:12,freq:196.00}],
+    leadB:[{step:0,freq:659.25},{step:3,freq:783.99},{step:4,freq:880.00},{step:7,freq:783.99},{step:8,freq:659.25},{step:11,freq:523.25},{step:12,freq:587.33},{step:14,freq:659.25}],
+    bassB:[{step:0,freq:196.00},{step:4,freq:220.00},{step:8,freq:174.61},{step:12,freq:130.81}] },
+  { id:'storySwagger', step:0.13, leadType:'triangle', bassType:'triangle', leadGain:0.042, bassGain:0.036, leadDur:0.22, bassDur:0.3,
+    leadA:[{step:0,freq:440.00},{step:3,freq:523.25},{step:5,freq:466.16},{step:8,freq:392.00},{step:11,freq:440.00},{step:13,freq:349.23}],
+    bassA:[{step:0,freq:110.00},{step:2,freq:110.00},{step:6,freq:146.83},{step:8,freq:110.00},{step:10,freq:130.81},{step:14,freq:110.00}],
+    leadB:[{step:0,freq:523.25},{step:3,freq:587.33},{step:5,freq:523.25},{step:8,freq:440.00},{step:11,freq:493.88},{step:13,freq:392.00}],
+    bassB:[{step:0,freq:146.83},{step:2,freq:146.83},{step:6,freq:174.61},{step:8,freq:146.83},{step:10,freq:130.81},{step:14,freq:146.83}] },
+  { id:'storySparkle', step:0.09, leadType:'triangle', bassType:'sine', leadGain:0.04, bassGain:0.03, leadDur:0.13, bassDur:0.5,
+    leadA:[{step:0,freq:1046.5},{step:1,freq:1318.51},{step:2,freq:1568.0},{step:3,freq:1318.51},{step:4,freq:1046.5},{step:6,freq:1174.66},{step:8,freq:1396.91},{step:10,freq:1174.66},{step:12,freq:1046.5},{step:14,freq:1318.51}],
+    bassA:[{step:0,freq:261.63},{step:8,freq:349.23}],
+    leadB:[{step:0,freq:1174.66},{step:1,freq:1396.91},{step:2,freq:1760.0},{step:3,freq:1396.91},{step:4,freq:1174.66},{step:6,freq:1318.51},{step:8,freq:1568.0},{step:10,freq:1318.51},{step:12,freq:1174.66},{step:14,freq:1396.91}],
+    bassB:[{step:0,freq:293.66},{step:8,freq:392.0}] },
+  { id:'storyMarching', step:0.1, leadType:'square', bassType:'triangle', leadGain:0.046, bassGain:0.04, leadDur:0.17, bassDur:0.22,
+    leadA:[{step:0,freq:392.0},{step:2,freq:392.0},{step:4,freq:523.25},{step:6,freq:523.25},{step:8,freq:587.33},{step:10,freq:523.25},{step:12,freq:466.16},{step:14,freq:392.0}],
+    bassA:[0,2,4,6,8,10,12,14].map((s,i)=>({step:s, freq:i%2===0?98.0:146.83})),
+    leadB:[{step:0,freq:440.0},{step:2,freq:440.0},{step:4,freq:587.33},{step:6,freq:587.33},{step:8,freq:659.25},{step:10,freq:587.33},{step:12,freq:523.25},{step:14,freq:440.0}],
+    bassB:[0,2,4,6,8,10,12,14].map((s,i)=>({step:s, freq:i%2===0?110.0:164.81})) },
+  { id:'storyLofi', step:0.15, leadType:'triangle', bassType:'sine', leadGain:0.038, bassGain:0.034, leadDur:0.32, bassDur:0.55,
+    leadA:[{step:0,freq:440.0},{step:4,freq:523.25},{step:7,freq:587.33},{step:10,freq:523.25},{step:13,freq:440.0}],
+    bassA:[{step:0,freq:110.0},{step:6,freq:138.59},{step:10,freq:164.81}],
+    leadB:[{step:0,freq:493.88},{step:4,freq:587.33},{step:7,freq:659.25},{step:10,freq:587.33},{step:13,freq:493.88}],
+    bassB:[{step:0,freq:123.47},{step:6,freq:146.83},{step:10,freq:174.61}] },
+];
+function playStoryTrackBar(track, leadPattern, bassPattern){
+  leadPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*track.step, track.leadDur, track.leadType, track.leadGain); });
+  bassPattern.forEach(n=>{ playAmbientTone(n.freq, n.step*track.step, track.bassDur, track.bassType, track.bassGain); });
+}
+let currentStoryTrackId=null;
+function pickStoryTrack(){
+  let choices=STORY_TRACKS.filter(t=>t.id!==currentStoryTrackId);
+  if(!choices.length) choices=STORY_TRACKS;
+  const picked=choices[Math.floor(Math.random()*choices.length)];
+  currentStoryTrackId=picked.id;
+  return picked.id;
+}
+function pulseStageBg(){
+  const stageScreen=document.getElementById('stageScreen');
+  if(!stageScreen || !stageScreen.classList.contains('active')) return;
+  const overlay=document.getElementById('stagePulseOverlay');
+  if(!overlay) return;
+  overlay.classList.remove('pulse'); void overlay.offsetWidth; overlay.classList.add('pulse');
+}
 function scheduleAmbient(){
   if(!ambientActive || sfxMuted) return;
+  pulseStageBg();
   let barDuration;
   if(ambientMode==='home'){
     const fn=HOME_SOUNDS[Math.floor(Math.random()*HOME_SOUNDS.length)];
@@ -3244,6 +3559,11 @@ function scheduleAmbient(){
   } else if(ambientMode==='epic'){
     barDuration=16*EPIC_STEP;
     if(ambientBarToggle===0){ playEpicBar(EPIC_LEAD_A, EPIC_BASS_A); } else { playEpicBar(EPIC_LEAD_B, EPIC_BASS_B); }
+    ambientBarToggle = ambientBarToggle===0 ? 1 : 0;
+  } else if(ambientMode && ambientMode.indexOf('story')===0 && STORY_TRACKS.find(t=>t.id===ambientMode)){
+    const track=STORY_TRACKS.find(t=>t.id===ambientMode);
+    barDuration=16*track.step;
+    if(ambientBarToggle===0){ playStoryTrackBar(track, track.leadA, track.bassA); } else { playStoryTrackBar(track, track.leadB, track.bassB); }
     ambientBarToggle = ambientBarToggle===0 ? 1 : 0;
   } else {
     barDuration=16*SIXTEENTH;
@@ -3284,15 +3604,64 @@ function sfxWizardVoice(){
   const mult=WIZARD_VOICE_STEPS[__wizardVoiceStep%WIZARD_VOICE_STEPS.length];
   __wizardVoiceStep++;
   const type=Math.random()<0.65?'triangle':'sine';
-  playTone(base*mult, 0, 0.1+Math.random()*0.05, type, 0.04);
+  playTone(base*mult, 0, 0.13+Math.random()*0.06, type, 0.11);
+  playTone(base*mult*2, 0.01, 0.09, 'sine', 0.035); // octave-up shimmer for presence/cut-through
+}
+function triggerImpactFlash(kind){
+  const el=document.getElementById('impactFlash');
+  if(!el) return;
+  el.className='impact-flash'; void el.offsetWidth; el.classList.add(kind);
 }
 function sfxBannerGood(){ playTone(523.25,0,0.08,'triangle',0.09); playTone(659.25,0.07,0.08,'triangle',0.09); playTone(783.99,0.14,0.16,'triangle',0.1); }
-function sfxBannerBad(){ playTone(220,0,0.09,'sawtooth',0.08); playTone(164.81,0.08,0.16,'sawtooth',0.07); }
-function sfxStampCheck(){ playTone(880,0,0.05,'square',0.08); playTone(1174.66,0.04,0.1,'square',0.08); }
-function sfxStampX(){ playTone(180,0,0.05,'sawtooth',0.08); playTone(120,0.04,0.12,'sawtooth',0.07); }
+function sfxBannerBad(){
+  duckAmbient(3800, 0.03);
+  setTimeout(()=>{
+    triggerImpactFlash('bad');
+    playTone(130.81,0,0.34,'sawtooth',0.09);
+    playTone(110,0.16,0.55,'sawtooth',0.08);
+    playTone(87.31,0.3,0.4,'sawtooth',0.06);
+  },340);
+}
+function sfxStampCheck(){
+  // the eureka moment — a real held breath, then a triumphant run upward
+  duckAmbient(3400, 0.03);
+  setTimeout(()=>{
+    triggerImpactFlash('good');
+    playTone(659.25,0,0.1,'triangle',0.09);
+    playTone(783.99,0.08,0.1,'triangle',0.09);
+    playTone(1046.5,0.16,0.1,'triangle',0.1);
+    playTone(1318.51,0.26,0.28,'triangle',0.12);
+    playTone(659.25,0.26,0.28,'sine',0.05); // low octave doubling for extra weight
+  },340);
+}
+function sfxStampX(){
+  // the doom moment — a longer breath, then a low, unresolved settle
+  duckAmbient(3400, 0.035);
+  setTimeout(()=>{
+    triggerImpactFlash('bad');
+    shakeScreen();
+    playTone(196,0,0.16,'sawtooth',0.09);
+    playTone(174.61,0.1,0.18,'sawtooth',0.08);
+    playTone(146.83,0.2,0.36,'sawtooth',0.09);
+    playTone(98,0.2,0.4,'sine',0.05); // sub-bass thump for weight
+  },340);
+}
 function sfxFlashGood(){ playTone(1046.5,0,0.06,'triangle',0.08); playTone(1568,0.05,0.14,'triangle',0.08); }
 function sfxFlashBad(){ playTone(200,0,0.05,'sawtooth',0.07); playTone(140,0.04,0.14,'sawtooth',0.07); }
 function sfxShake(){ playTone(70,0,0.28,'sawtooth',0.06); playTone(48,0.03,0.32,'triangle',0.05); }
+// ---- curious — a soft questioning interval before a beat's text starts,
+// a little breath of "here's something worth noticing" ----
+function sfxCurious(){
+  playTone(440,0,0.08,'sine',0.028);
+  playTone(587.33,0.09,0.12,'sine',0.024);
+}
+// ---- comical — a bouncy little "boing," reserved for the punch anim's
+// classic wait-that's-not-right gesture ----
+function sfxComical(){
+  playTone(392,0,0.05,'square',0.06);
+  playTone(523.25,0.05,0.05,'square',0.065);
+  playTone(293.66,0.11,0.1,'square',0.055);
+}
 function sfxComplete(){
   playTone(523.25,0,0.1,'triangle',0.09); playTone(659.25,0.1,0.1,'triangle',0.09);
   playTone(783.99,0.2,0.1,'triangle',0.09); playTone(1046.5,0.3,0.3,'triangle',0.11);
@@ -3312,6 +3681,7 @@ function loadStory(id){
   beatIdx=0;
   playBeat(0);
   updatePrevNextButtons();
+  switchAmbientMode(pickStoryTrack());
 }
 function updatePrevNextButtons(){
   const prevBtn=document.getElementById('prevStoryBtn');
@@ -3359,7 +3729,7 @@ function typeText(el, text, cb){
   typeTimer=setInterval(()=>{
     el.textContent+=text[i];
     if(text[i] && text[i].trim() && i%2===0) sfxTypeBlip();
-    if(text[i] && text[i].trim() && i%3===0) sfxWizardVoice();
+    if(text[i] && text[i].trim() && i%2===1) sfxWizardVoice();
     i++;
     if(i>=text.length){
       clearInterval(typeTimer); typing=false; if(portrait) portrait.classList.remove('talking');
@@ -3385,11 +3755,13 @@ const S={
     em.textContent=emoji;
     wrap.className='icon-slot show'+(opts.anim?' '+opts.anim:'');
     if(opts.label){ lab.textContent=opts.label; lab.style.display='inline-block'; } else { lab.style.display='none'; }
-    if(opts.anim==='punch' || opts.anim==='shatter'){ playTone(300,0,0.06,'square',0.05); }
+    if(opts.anim==='punch'){ sfxComical(); }
+    else if(opts.anim==='shatter'){ playNoiseHit(0,0.14,0.09,'bandpass',2200,700,4); playTone(220,0,0.06,'square',0.04); }
   },
   stamp(slot,type,text){
     const el=document.getElementById(slot==='main'?'stampMain':'stampSecondary');
-    el.textContent=text; el.className='stamp '+type; void el.offsetWidth; el.classList.add('show');
+    el.textContent=text; el.className='stamp '+type;
+    setTimeout(()=>{ void el.offsetWidth; el.classList.add('show'); },320);
     if(type==='check') sfxStampCheck(); else sfxStampX();
   },
   meter(cfg){
@@ -3415,9 +3787,9 @@ const S={
     document.getElementById('bannerMain').textContent=main;
     document.getElementById('bannerMain').style.color='var(--danger)';
     document.getElementById('bannerSub').textContent=sub||'';
-    b.classList.add('show');
+    setTimeout(()=>{ b.classList.add('show'); },320);
     sfxBannerBad();
-    setTimeout(()=>b.classList.remove('show'),1500);
+    setTimeout(()=>b.classList.remove('show'),320+1500);
   },
   formula(title,lines){
     const card=document.getElementById('formulaCard');
@@ -3475,6 +3847,7 @@ function playBeat(i){
   if(!currentStory) return;
   if(i<0 || i>=currentStory.beats.length){ showEnd(); return; }
   const b=currentStory.beats[i];
+  sfxCurious();
   document.getElementById('dialogue').classList.add('show');
   document.getElementById('speaker').textContent=b.speaker;
   if(b.enter) b.enter(S);
